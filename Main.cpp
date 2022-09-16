@@ -1,132 +1,14 @@
 #include <chrono>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
-#include <SDL2/SDL_ttf.h>
 #include <string>
 #include "Constants.h"
 
 #include "Vec2.h"
 #include "Paddle.h"
 #include "Ball.h"
-
-class PlayerScore {
-public:
-	PlayerScore(Vec2 position, SDL_Renderer* renderer, TTF_Font* font): renderer(renderer), font(font) {
-		surface = TTF_RenderText_Solid(font, "0", {0xFF, 0xFF, 0xFF, 0xFF});
-		texture = SDL_CreateTextureFromSurface(renderer, surface);
-
-		int width, height;
-		SDL_QueryTexture(texture, nullptr, nullptr, &width, &height);
-
-		rect.x = static_cast<int>(position.x);
-		rect.y = static_cast<int>(position.y);
-		rect.w = width;
-		rect.h = height;
-	}
-
-	~PlayerScore() {
-		SDL_FreeSurface(surface);
-		SDL_DestroyTexture(texture);
-	}
-
-	void SetScore(int score) {
-		SDL_FreeSurface(surface);
-		SDL_DestroyTexture(texture);
-
-		surface = TTF_RenderText_Solid(font, std::to_string(score).c_str(), {0xFF, 0xFF, 0xFF, 0xFF});
-		texture = SDL_CreateTextureFromSurface(renderer, surface);
-
-		int width, height;
-		SDL_QueryTexture(texture, nullptr, nullptr, &width, &height);
-		rect.w = width;
-		rect.h = height;
-	}
-
-	void Draw() {
-		SDL_RenderCopy(renderer, texture, nullptr, &rect);
-	}
-
-	SDL_Renderer* renderer;
-	TTF_Font* font;
-	SDL_Surface* surface{};
-	SDL_Texture* texture{};
-	SDL_Rect rect{};
-};
-
-Contact CheckPaddleCollision(Ball const& ball, Paddle const& paddle) {
-	float ballLeft = ball.position.x;
-	float ballRight = ball.position.x + BALL_WIDTH;
-	float ballTop = ball.position.y;
-	float ballBottom = ball.position.y + BALL_HEIGHT;
-
-	float paddleLeft = paddle.position.x;
-	float paddleRight = paddle.position.x + PADDLE_WIDTH;
-	float paddleTop = paddle.position.y;
-	float paddleBottom = paddle.position.y + PADDLE_HEIGHT;
-
-	Contact contact{};
-
-	if (ballLeft >= paddleRight) {
-		return contact;
-	}
-
-	if (ballRight <= paddleLeft) {
-		return contact;
-	}
-
-	if (ballTop >= paddleBottom) {
-		return contact;
-	}
-
-	if (ballBottom <= paddleTop) {
-		return contact;
-	}
-
-	float paddleRangeUpper = paddleBottom - (2.0f * PADDLE_HEIGHT / 3.0f);
-	float paddleRangeMiddle = paddleBottom - (PADDLE_HEIGHT / 3.0f);
-
-	if (ball.velocity.x < 0) {
-		// Left paddle
-		contact.penetration = paddleRight - ballLeft;
-	} else if (ball.velocity.x > 0)	{
-		// Right paddle
-		contact.penetration = paddleLeft - ballRight;
-	}
-
-	if ((ballBottom > paddleTop) && (ballBottom < paddleRangeUpper)) {
-		contact.type = CollisionType::Top;
-	} else if ((ballBottom > paddleRangeUpper) && (ballBottom < paddleRangeMiddle)) {
-		contact.type = CollisionType::Middle;
-	}	else {
-		contact.type = CollisionType::Bottom;
-	}
-
-	return contact;
-}
-
-
-Contact CheckWallCollision(Ball const& ball) {
-	float ballLeft = ball.position.x;
-	float ballRight = ball.position.x + BALL_WIDTH;
-	float ballTop = ball.position.y;
-	float ballBottom = ball.position.y + BALL_HEIGHT;
-
-	Contact contact{};
-
-	if (ballLeft < 0.0f) {
-		contact.type = CollisionType::Left;
-	}	else if (ballRight > WINDOW_WIDTH) {
-		contact.type = CollisionType::Right;
-	}	else if (ballTop < 0.0f) {
-		contact.type = CollisionType::Top;
-		contact.penetration = -ballTop;
-	}	else if (ballBottom > WINDOW_HEIGHT) {
-		contact.type = CollisionType::Bottom;
-		contact.penetration = WINDOW_HEIGHT - ballBottom;
-	}
-
-	return contact;
-}
+#include "Contact.h"
+#include "PlayerScore.h"
 
 int main(int argc, char *argv[]) {
 	// Initialize SDL components
