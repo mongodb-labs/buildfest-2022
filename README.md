@@ -6,3 +6,4 @@ A simple C++ clone of Pong.
 
 ![Demo](https://austinmorlan.com/posts/pong_clone/media/demo.gif)
 
+brew install sdl2_ttf sdl2_mixer
