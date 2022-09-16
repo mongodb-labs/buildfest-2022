@@ -30,7 +30,6 @@ int main(int argc, char *argv[]) {
 	{
 		// Create the player score text fields
 		PlayerScore playerOneScoreText(Vec2(WINDOW_WIDTH / 4, 20), renderer, scoreFont);
-
 		PlayerScore playerTwoScoreText(Vec2(3 * WINDOW_WIDTH / 4, 20), renderer, scoreFont);
 
 		// Create the ball
