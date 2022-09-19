@@ -8,8 +8,8 @@ class Students {
         \SchoolApp\View\Students::index($students);
     }
     static function create(Student $student) {
-        \SchoolApp\Repository\Students::insertOne(student);
-        index();
+        \SchoolApp\Repository\Students::insertOne($student);
+        return 200;
     }
 }
 

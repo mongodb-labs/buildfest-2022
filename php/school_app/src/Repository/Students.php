@@ -8,7 +8,7 @@ class Students {
     }
 
     static function insertOne(Student $student) {
-        return \SchoolApp\Repository\Database::getInstance()->students->insertOne(student.getStudent());
+        return \SchoolApp\Repository\Database::getInstance()->students->insertOne($student->getStudent());
     }
 
 }
