@@ -38,9 +38,12 @@ extension Request {
       let encoder = ExtendedJSONEncoder()
       for try await event in try await feedMessageCollection.watch() {
         if let data = try? encoder.encode(event.fullDocument) {
-          // Do we send the JSON here to the web socket?
+          try await ws.send(String(decoding: data, as: UTF8.self))
         }
       }
+    }
+    ws.onClose.whenComplete { result in
+      changeStreamTask.cancel();
     }
   }
 }
