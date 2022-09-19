@@ -1,4 +1,6 @@
 import Vapor
+import MongoSwift
+import NIO
 
 struct NealController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
@@ -14,8 +16,23 @@ struct NealController: RouteCollection {
     }
 
     func index(req: Request) async throws -> String {
-        // ...
-        return "got neal"
+        let elg = MultiThreadedEventLoopGroup(numberOfThreads: 4)
+        // replace the following string with your connection uri
+        let uri = "mongodb://localhost:27017"
+        let client = try MongoClient(
+            uri,
+            using: elg
+        )
+        defer {
+            // clean up driver resources
+            try? client.syncClose()
+            cleanupMongoSwift()
+            // shut down EventLoopGroup
+            try? elg.syncShutdownGracefully()
+        }
+        print (try client.listDatabaseNames().wait())
+
+        return "ok"
     }
 
     func create(req: Request) async throws -> String {

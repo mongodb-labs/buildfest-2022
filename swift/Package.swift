@@ -2,7 +2,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "buildfest2022",
+    name: "swift",
     platforms: [
        .macOS(.v12)
     ],
