@@ -4,7 +4,7 @@ COPY --from=composer/composer /usr/bin/composer /usr/bin/composer
 
 RUN apt-get update \
     && apt-get upgrade -y \
-    && apt-get install -y git libzip-dev zip && docker-php-ext-install zip
+    && apt-get install -y git libzip-dev zip libssl-dev pkg-config && docker-php-ext-install zip
 
 RUN pecl install mongodb
 
