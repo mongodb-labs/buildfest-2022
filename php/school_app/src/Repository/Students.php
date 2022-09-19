@@ -1,6 +1,8 @@
 <?php namespace SchoolApp\Repository;
 
-use \SchoolApp\Model\Student as Student;
+use \SchoolApp\Model\Person as Student;
+use \MongoDB\BSON\ObjectId as ObjectId;
+
 
 class Students {
     static function getAll() {
@@ -8,7 +10,11 @@ class Students {
     }
 
     static function insertOne(Student $student) {
-        return \SchoolApp\Repository\Database::getInstance()->students->insertOne($student->getStudent());
+        return \SchoolApp\Repository\Database::getInstance()->students->insertOne($student->get());
+    }
+
+    static function findOne(ObjectId $id) {
+        return \SchoolApp\Repository\Database::getInstance()->students->findOne(['_id' => $id]);
     }
 
 }

@@ -2,7 +2,7 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use \SchoolApp\Model\Student as Student;
+use \SchoolApp\Model\Person as Person;
 
 $router = new \Bramus\Router\Router();
 
@@ -19,12 +19,11 @@ $router->get('/students', function() {
 });
 
 $router->get('/students/{studentId}', function($studentId) {
-    // NOT IMPLEMENTED YET
-    // \SchoolApp\Controller\Students::show($studentId);
+    \SchoolApp\Controller\Students::show($studentId);
 });
 
 $router->post('/students', function() {
-    \SchoolApp\Controller\Students::create(Student::makeWithPost(DecodeJSONPOST()));
+    \SchoolApp\Controller\Students::create(Person::makeStudentWithPost(DecodeJSONPOST()));
 });
 
 $router->set404(function() {
