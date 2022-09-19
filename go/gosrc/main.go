@@ -22,7 +22,7 @@ var client *mongo.Client
 var collection *mongo.Collection
 
 type TensorflowClassifyResult struct {
-	Filename string                  `json:"filename" bson:"filenamme"`
+	Filename string                  `json:"filename" bson:"filename"`
 	Labels   []TensorflowLabelResult `json:"labels" bson:"labels"`
 }
 
@@ -43,7 +43,7 @@ func UploadImageEndpoint(response http.ResponseWriter, request *http.Request) {
 		return
 	}
 	defer file.Close()
-	data, err := uploadFile("http://localhost:8080/recognize", header.Filename, file)
+	data, err := uploadFile("http://"+os.Getenv("TENSORFLOW_HOST")+":8080/recognize", header.Filename, file)
 	if err != nil {
 		response.WriteHeader(http.StatusInternalServerError)
 		response.Write([]byte(`{ "message": "` + err.Error() + `" }`))
@@ -101,6 +101,9 @@ func main() {
 	}
 	if os.Getenv("MONGODB_COLLECTION") == "" {
 		log.Fatal("Missing the `MONGODB_COLLECTION` environment variable!")
+	}
+	if os.Getenv("TENSORFLOW_HOST") == "" {
+		os.Setenv("TENSORFLOW_HOST", "localhost")
 	}
 	fmt.Println("Connecting to the database...")
 	client, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
