@@ -8,7 +8,7 @@ class Student {
     }
 
     public static function makeWithPost(array $post) {
-        return new self("test name", [1,2,3]);
+        return new self($post['name'], $post['courses']);
     }
 
     function getStudent(): array {
