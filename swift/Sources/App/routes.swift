@@ -4,9 +4,11 @@ import MongoDBVapor
 let nealController = NealController()
 
 func routes(_ app: Application) throws {
+
   app.get { req async in
     "It works!"
   }
+
 
   app.get("feed-messages") { req async throws -> [FeedMessage] in
     try await req.findFeedMessages()
