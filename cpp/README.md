@@ -9,7 +9,7 @@ This project is part of MongoDB's BuildFest2022, and is based on the [tutorial b
 Currently only OSX build instructions are provided (poorly), but the code "should" be portable to Linux and Windows without much (if any) modification.
 
 ```bash
-brew install gcc sdl2_ttf sdl2_mixer sdl2 mongo-c-driver
+brew install sdl2_ttf sdl2_mixer sdl2 boost mongo-c-driver
 ./build.sh
 ```
 
