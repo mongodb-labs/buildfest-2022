@@ -9,8 +9,13 @@ This project is part of MongoDB's BuildFest2022, and is based on the [tutorial b
 Currently only OSX build instructions are provided (poorly), but the code "should" be portable to Linux and Windows without much (if any) modification.
 
 ```bash
-brew install sdl2_ttf sdl2_mixer sdl2 mongo-c-driver
+brew install gcc sdl2_ttf sdl2_mixer sdl2 mongo-c-driver
+./build.sh
 ```
+
+## Usage
+
+Playing the game locally involves using the `up` and `down` arrow keys to control the player on the left and the `w` and `s` keys to control the player on the right.
 
 ## MIT License
 

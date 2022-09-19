@@ -159,6 +159,8 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
+
+	// Cleanup
 	Mix_FreeChunk(wallHitSound);
 	Mix_FreeChunk(paddleHitSound);
 	SDL_DestroyRenderer(renderer);
