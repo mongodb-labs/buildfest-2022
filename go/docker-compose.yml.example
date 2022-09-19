@@ -6,3 +6,5 @@ services:
            - "12345:12345"
        environment:
            MONGODB_URI: MONGODB_URI_HERE
+           MONGODB_DATABASE: buildfest
+           MONGODB_COLLECTION: tensorflow
