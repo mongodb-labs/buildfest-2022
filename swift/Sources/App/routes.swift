@@ -12,8 +12,8 @@ func routes(_ app: Application) throws {
     try await req.findFeedMessages()
   }
 
-  app.webSocket("feed") { req, ws in
-    print(ws)
+  app.webSocket("feed") { req, ws async in
+    await req.feed(ws: ws)
   }
 
   try? nealController.boot(routes: app.routes)
@@ -30,6 +30,17 @@ extension Request {
       return try await self.feedMessageCollection.find().toArray()
     } catch {
       throw Abort(.internalServerError, reason: "Failed to load feed messages: \(error)")
+    }
+  }
+  
+  func feed(ws: WebSocket) async {
+    let changeStreamTask = Task {
+      let encoder = ExtendedJSONEncoder()
+      for try await event in try await feedMessageCollection.watch() {
+        if let data = try? encoder.encode(event.fullDocument) {
+          // Do we send the JSON here to the web socket?
+        }
+      }
     }
   }
 }
