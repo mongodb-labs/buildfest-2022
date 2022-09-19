@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
 	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
 
 	// Initialize the font
-	TTF_Font* scoreFont = TTF_OpenFont("DejaVuSansMono.ttf", 40);
+	TTF_Font* scoreFont = TTF_OpenFont("emulogic.ttf", 40);
 
 	// Initialize sound effects
 	Mix_Chunk* wallHitSound = Mix_LoadWAV("WallHit.wav");
