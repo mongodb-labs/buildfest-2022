@@ -19,7 +19,7 @@ Playing the game locally involves using the `up` and `down` arrow keys to contro
 
 ## MIT License
 
-Copyright (c) 2022 Alex Bevilacqua
+Copyright (c) 2022 Alex Bevilacqua, Steve Silvester
 Copyright (c) 2020 Austin Morlan
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
