@@ -25,6 +25,9 @@ let package = Package(
                 .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release))
             ]
         ),
+        .executableTarget(name: "MTA", dependencies: [
+            .product(name: "MongoDBVapor", package: "mongodb-vapor"),
+        ]),
         .executableTarget(name: "Run", dependencies: [
             .target(name: "App"),
             .product(name: "MongoDBVapor", package: "mongodb-vapor")
