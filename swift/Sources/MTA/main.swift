@@ -25,48 +25,72 @@ defer {
     try? elg.syncShutdownGracefully()
 }
 
-
-signal(SIGINT, SIG_IGN) // // Make sure the signal does not terminate the application.
-
-let sigintSrc = DispatchSource.makeSignalSource(signal: SIGINT, queue: .main)
-sigintSrc.setEventHandler {
-    print("Stopping MTA sink! Thank you for riding with us... Mind the Gap")
-    exit(0)
-}
-
-
-let db = client.db("mta")
-let subways = db.collection("subways")
+let dateFormatter : DateFormatter = DateFormatter()
+dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
 
 let mtaBDFMLineURL = "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-bdfm"
 
-func myRequest(){
+guard let MTA_API_KEY = ProcessInfo.processInfo.environment["MTA_API_KEY"] else {
+    print("Must provide MTA_API_KEY env variable to continue!")
+    exit(1)
+}
+
+func requestMTA() -> Data? {
     var request = URLRequest(url: URL(string: mtaBDFMLineURL)!);
     request.httpMethod = "GET"
-    request.setValue(API_KEY, forHTTPHeaderField: <#T##String#>)
+    request.setValue(MTA_API_KEY, forHTTPHeaderField: "x-api-key")
     let semaphore: DispatchSemaphore = DispatchSemaphore(value: 0)
-    let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
+    var responseData: Data? = nil
+    let task = URLSession.shared.dataTask(with: request) { (data: Data?, response, error) in
         // get responce here
         // Use response
-        print("2")
+        responseData = data
         semaphore.signal()
     }
     task.resume()
-    print("1")
     semaphore.wait()
-    print("3")
-    return 
+    // Safe to use responseData
+    return responseData
 }
 
-while (true) {
-    
-    sleep(1000)
+let db = client.db("mta")
+let subways = db.collection("feedMessages")
+
+let sleepSeconds = Int32(CommandLine.arguments[1]) ?? 10
+
+var occurrences = 0
+while (occurrences < 1000) {
+    // Hard cap at 1000 runs just cus we probably won't demo that long
+
+    let dateString = dateFormatter.string(from: Date())
+    print("[\(dateString)] trying to request MTA")
     // http request
-    // deocde the protobuf
-    // BSONDocument -> insert to mongodb
-    // ??? Timeseries - improvement
-    
-    let decodedInfo = try TransitRealtime_FeedMessage(serializedData: binaryData)
-    // insert
+    if let response = requestMTA() {
+        print("[\(dateString)] success! MTA responded")
+        // deocde the protobuf
+        let decodedInfo = try TransitRealtime_FeedMessage(serializedData: response)
+        print("[\(dateString)] decoded the protobuf")
+        
+        let protobufJSON = try String(decoding: decodedInfo.jsonUTF8Data(), as: UTF8.self)
+        print("[\(dateString)] stringified the proto to JSON")
+        
+        let mongodbDoc = try BSONDocument(fromJSON:protobufJSON)
+        print("[\(dateString)] BSON decoding fromJSON")
+        
+        // BSONDocument -> insert to mongodb
+        print("[\(dateString)] trying insertOne to \(subways.namespace)")
+        let insertRes = try subways.insertOne(mongodbDoc).wait()
+        print("[\(dateString)] completed insertOne to \(subways.namespace): \(String(describing: insertRes))")
+    } else {
+        print("[\(dateString)] failure! MTA did not respond")
+    }
 
+    print("[\(dateString)] sleeping")
+    sleep(sleepSeconds)
+    print("[\(dateString)] waking up!")
+    occurrences += 1
+    print("[\(dateString)] occurrences = \(occurrences)")
 }
+
+print("Stopping MTA sink! Thank you for riding with us... Mind the Gap")
+exit(0)
