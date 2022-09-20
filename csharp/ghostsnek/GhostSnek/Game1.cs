@@ -79,7 +79,7 @@ public class GhostSnek : Game
     }
 }
 
-enum Direction {
+public enum Direction {
     Up,
     Down,
     Left,
@@ -105,19 +105,20 @@ class Ticker {
 }
 
 class Scene {
-    public List<Point> Snek { get; private set; }
     public Point? Food { get; private set; }
+    public IEnumerable<Point> Snek {
+        get {
+            return _snek.Body;
+        }
+    }
 
+    private Snek _snek = new Snek();
     private Direction _dir = Direction.Right;
     private Direction? _nextDir;
     private Ticker _moveTick = new Ticker(new TimeSpan(0, 0, 0, 0, 250));
     private Random _rand = new Random();
 
     public Scene() {
-        Snek = new List<Point>();
-        for (int i = 4; i >= 0; i--) {
-            Snek.Add(new Point(i, 0));
-        }
         Food = NewFood();
     }
 
@@ -143,25 +144,54 @@ class Scene {
         }
 
         if (_moveTick.Update(gameTime.ElapsedGameTime)) {
-            if (!MoveSnek()) {
+            if (_nextDir != null) {
+                _dir = _nextDir.Value;
+                _nextDir = null;
+            }
+            if (!_snek.Move(_dir)) {
                 return GameState.Lost;
             }
-            if (Snek[0] == Food) {
+            if (_snek.Head == Food) {
                 Food = NewFood();
-                Snek.Add(Snek[Snek.Count-1]);
+                _snek.Grow();
             }
         }
         return GameState.Playing;
     }
+}
 
-    private bool MoveSnek() {
-        // Calculate next head pos
-        if (_nextDir != null) {
-            _dir = _nextDir.Value;
-            _nextDir = null;
+enum GameState {
+    Playing,
+    Lost,
+    Quit,
+}
+
+public class Snek {
+    private List<Point> _body;
+
+    public IEnumerable<Point> Body {
+        get {
+            return _body;
         }
+    }
+
+    public Point Head {
+        get {
+            return _body[0];
+        }
+    }
+
+    public Snek() {
+        _body = new List<Point>();
+        for (int i = 4; i >= 0; i--) {
+            _body.Add(new Point(i, 0));
+        }
+    }
+
+    public bool Move(Direction dir) {
+        // Calculate next head pos
         int dx = 0, dy = 0;
-        switch (_dir) {
+        switch (dir) {
             case Direction.Up:
                 dy = -1;
                 break;
@@ -175,27 +205,25 @@ class Scene {
                 dx = 1;
                 break;
         }
-        var nextHead = new Point(Snek[0].X + dx, Snek[0].Y + dy);
+        var nextHead = new Point(_body[0].X + dx, _body[0].Y + dy);
         if (nextHead.X < 0 || nextHead.X > GhostSnek.MAX_X || nextHead.Y < 0 || nextHead.Y > GhostSnek.MAX_Y) {
             return false;
         }
 
         // Update body positions and check for collision
-        for (int ix = Snek.Count-1; ix > 0; ix--) {
-            Snek[ix] = Snek[ix-1];
-            if (Snek[ix] == nextHead) {
+        for (int ix = _body.Count-1; ix > 0; ix--) {
+            _body[ix] = _body[ix-1];
+            if (_body[ix] == nextHead) {
                 return false;
             }
         }
         
         // Update head
-        Snek[0] = nextHead;
+        _body[0] = nextHead;
         return true;
     }
-}
 
-enum GameState {
-    Playing,
-    Lost,
-    Quit,
+    public void Grow() {
+        _body.Add(_body[_body.Count-1]);
+    }
 }
