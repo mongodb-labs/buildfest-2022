@@ -1,0 +1,18 @@
+html {
+    font-family: Helvetica, sans-serif;
+    margin: 10%;
+    margin-top: 5%;
+}
+
+pre {
+    margin: 0px;
+    font-family: 'Source Code Pro', monospace;
+}
+
+ul {
+    margin: 0px;
+}
+
+li {
+    margin: 0px;
+}

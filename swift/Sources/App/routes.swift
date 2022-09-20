@@ -5,6 +5,9 @@ let nealController = NealController()
 
 func routes(_ app: Application) throws {
 
+  let file = FileMiddleware(publicDirectory: app.directory.publicDirectory)
+  app.middleware.use(file)
+
   app.get { req async in
     "It works!"
   }
@@ -34,7 +37,7 @@ extension Request {
       throw Abort(.internalServerError, reason: "Failed to load feed messages: \(error)")
     }
   }
-  
+
   func feed(ws: WebSocket) async {
     let changeStreamTask = Task {
       let encoder = ExtendedJSONEncoder()
