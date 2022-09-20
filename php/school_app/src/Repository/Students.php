@@ -1,6 +1,6 @@
 <?php namespace SchoolApp\Repository;
 
-use \SchoolApp\Model\Person as Student;
+use \SchoolApp\Model\Student as Student;
 use \MongoDB\BSON\ObjectId as ObjectId;
 
 
