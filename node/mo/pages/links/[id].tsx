@@ -6,6 +6,7 @@ import { MOLINKS_CONFIG } from "../../utils/config"
 
 // Define Prop Interface
 interface Props {
+  alias: string
   link: MoLink
   url: string
 }
@@ -60,7 +61,7 @@ function EditForm(props: Props) {
           <div className="field">
             <label className="label">Alias</label>
             <div className="control">
-              <input className="input is-info" type="text" name="alias" value={values?.alias} onChange={handleChange} />
+              <input className="input is-info" type="text" name="alias" value={values?.alias || props.alias} onChange={handleChange} />
               <label className="help is-danger">
                 {errors.alias && touched.alias && errors.alias}
               </label>
@@ -90,7 +91,7 @@ export async function getServerSideProps(context: any) {
   const MoLink = await res.json()
 
   //return the serverSideProps the MoLink and the url from out env variables for frontend api calls
-  return { props: { link: MoLink, url: MOLINKS_CONFIG.API_URL } }
+  return { props: { link: MoLink, alias: context.query.id, url: MOLINKS_CONFIG.API_URL } }
 }
 
 

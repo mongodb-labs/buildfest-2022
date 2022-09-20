@@ -1,5 +1,5 @@
 // IMPORT MONGOOSE
-import mongoose, { Model } from "mongoose"
+import mongoose, { Model, Number } from "mongoose"
 import { MOLINKS_CONFIG } from "./config"
 
 // CONNECTING TO MONGOOSE (Get Database Url from .env.local)
@@ -15,6 +15,7 @@ export const connect = async () => {
     const MoLinkSchema = new mongoose.Schema({
         alias: String,
         link: String,
+        n: Number,
     })
 
     // OUR MoLink MODEL

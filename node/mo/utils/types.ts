@@ -11,4 +11,5 @@ export interface MoLink {
     _id?: number
     alias: string
     link: string
+    n: number
 }

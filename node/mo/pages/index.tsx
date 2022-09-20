@@ -22,6 +22,7 @@ function Index(props: IndexProps) {
           <thead>
             <tr>
               <th>Alias</th>
+              <th>Count</th>
               <th>Link</th>
               <th></th>
             </tr>
@@ -30,6 +31,7 @@ function Index(props: IndexProps) {
             {links.map(link => (
               <tr key={link._id}>
                 <td>{link.alias}</td>
+                <td>{link.n}</td>
                 <td>{link.link}</td>
                 <td><Link href={`./links/${link._id}`}><button className="button is-link is-primary">Edit</button></Link></td>
               </tr>
