@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -7,15 +8,17 @@ namespace GhostSnek;
 
 public class Game1 : Game
 {
-    const int WIDTH = 800;
-    const int HEIGHT = 800;
-    const int GRID_SIZE = 20;
+    private const int WIDTH = 800;
+    private const int HEIGHT = 800;
+    private const int GRID_SIZE = 20;
 
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
     private Texture2D _pixel;
 
-    private List<Point> _snek;
+    private List<Point> _snek = new List<Point>();
+    private Direction _dir = Direction.Right;
+    private Ticker _moveTick = new Ticker(new TimeSpan(0, 0, 1));
 
     public Game1()
     {
@@ -25,8 +28,7 @@ public class Game1 : Game
         _graphics.PreferredBackBufferWidth = WIDTH;
         _graphics.PreferredBackBufferHeight = HEIGHT;
 
-        _snek = new List<Point>();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 4; i >= 0; i--) {
             _snek.Add(new Point(i, 0));
         }
     }
@@ -51,7 +53,27 @@ public class Game1 : Game
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
 
-        // TODO: Add your update logic here
+        if (_moveTick.Update(gameTime.ElapsedGameTime)) {
+            for (int ix = _snek.Count-1; ix > 0; ix--) {
+                _snek[ix] = _snek[ix-1];
+            }
+            int dx = 0, dy = 0;
+            switch (_dir) {
+                case Direction.Up:
+                    dy = -1;
+                    break;
+                case Direction.Down:
+                    dy = 1;
+                    break;
+                case Direction.Left:
+                    dx = -1;
+                    break;
+                case Direction.Right:
+                    dx = 1;
+                    break;
+            }
+            _snek[0] = new Point(_snek[0].X + dx, _snek[0].Y + dy);
+        }
 
         base.Update(gameTime);
     }
@@ -71,5 +93,30 @@ public class Game1 : Game
         _spriteBatch.End();
 
         base.Draw(gameTime);
+    }
+}
+
+enum Direction {
+    Up,
+    Down,
+    Left,
+    Right,
+}
+
+class Ticker {
+    private TimeSpan _interval;
+    private TimeSpan _elapsed = new TimeSpan();
+
+    public Ticker(TimeSpan interval) {
+        _interval = interval;
+    }
+
+    public bool Update(TimeSpan elapsed) {
+        _elapsed += elapsed;
+        if (_elapsed > _interval) {
+            _elapsed -= _interval;
+            return true;
+        }
+        return false;
     }
 }
