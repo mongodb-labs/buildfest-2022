@@ -11,15 +11,14 @@ public class Game1 : Game
     private const int WIDTH = 800;
     private const int HEIGHT = 800;
     private const int GRID_SIZE = 20;
+    public const int MAX_X = (WIDTH / GRID_SIZE) - 1;
+    public const int MAX_Y = (HEIGHT / GRID_SIZE) - 1;
 
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
     private Texture2D _pixel;
 
-    private List<Point> _snek = new List<Point>();
-    private Direction _dir = Direction.Right;
-    private Direction? _nextDir;
-    private Ticker _moveTick = new Ticker(new TimeSpan(0, 0, 0, 0, 500));
+    private Scene _scene = new Scene();
 
     public Game1()
     {
@@ -28,10 +27,6 @@ public class Game1 : Game
         IsMouseVisible = true;
         _graphics.PreferredBackBufferWidth = WIDTH;
         _graphics.PreferredBackBufferHeight = HEIGHT;
-
-        for (int i = 4; i >= 0; i--) {
-            _snek.Add(new Point(i, 0));
-        }
     }
 
     protected override void Initialize()
@@ -49,46 +44,14 @@ public class Game1 : Game
 
     protected override void Update(GameTime gameTime)
     {
-        var kbState = Keyboard.GetState();
-        if (kbState.IsKeyDown(Keys.Escape))
-            Exit();
-        if (kbState.IsKeyDown(Keys.Left) && _dir != Direction.Right) {
-            _nextDir = Direction.Left;
-        }
-        if (kbState.IsKeyDown(Keys.Right) && _dir != Direction.Left) {
-            _nextDir = Direction.Right;
-        }
-        if (kbState.IsKeyDown(Keys.Up) && _dir != Direction.Down) {
-            _nextDir = Direction.Up;
-        }
-        if (kbState.IsKeyDown(Keys.Down) && _dir != Direction.Up) {
-            _nextDir = Direction.Down;
-        }
-
-        if (_moveTick.Update(gameTime.ElapsedGameTime)) {
-            for (int ix = _snek.Count-1; ix > 0; ix--) {
-                _snek[ix] = _snek[ix-1];
-            }
-            if (_nextDir != null) {
-                _dir = _nextDir.Value;
-                _nextDir = null;
-            }
-            int dx = 0, dy = 0;
-            switch (_dir) {
-                case Direction.Up:
-                    dy = -1;
-                    break;
-                case Direction.Down:
-                    dy = 1;
-                    break;
-                case Direction.Left:
-                    dx = -1;
-                    break;
-                case Direction.Right:
-                    dx = 1;
-                    break;
-            }
-            _snek[0] = new Point(_snek[0].X + dx, _snek[0].Y + dy);
+        switch (_scene.Update(gameTime)) {
+            case GameState.Playing: break;
+            case GameState.Lost:
+                _scene = new Scene();
+                break;
+            case GameState.Quit:
+                Exit();
+                break;
         }
 
         base.Update(gameTime);
@@ -103,7 +66,7 @@ public class Game1 : Game
         GraphicsDevice.Clear(Color.Black);
 
         _spriteBatch.Begin();
-        foreach (Point p in _snek) {
+        foreach (Point p in _scene.Snek) {
             DrawRect(p.X * GRID_SIZE, p.Y * GRID_SIZE, GRID_SIZE-1, GRID_SIZE-1, Color.White);
         }
         _spriteBatch.End();
@@ -135,4 +98,89 @@ class Ticker {
         }
         return false;
     }
+}
+
+class Scene {
+    public List<Point> Snek { get; private set; }
+
+    private Direction _dir = Direction.Right;
+    private Direction? _nextDir;
+    private Ticker _moveTick = new Ticker(new TimeSpan(0, 0, 0, 0, 250));
+
+    public Scene() {
+        Snek = new List<Point>();
+        for (int i = 4; i >= 0; i--) {
+            Snek.Add(new Point(i, 0));
+        }
+    }
+
+    public GameState Update(GameTime gameTime) {
+        var kbState = Keyboard.GetState();
+        if (kbState.IsKeyDown(Keys.Escape))
+            return GameState.Quit;
+        if (kbState.IsKeyDown(Keys.Left) && _dir != Direction.Right) {
+            _nextDir = Direction.Left;
+        }
+        if (kbState.IsKeyDown(Keys.Right) && _dir != Direction.Left) {
+            _nextDir = Direction.Right;
+        }
+        if (kbState.IsKeyDown(Keys.Up) && _dir != Direction.Down) {
+            _nextDir = Direction.Up;
+        }
+        if (kbState.IsKeyDown(Keys.Down) && _dir != Direction.Up) {
+            _nextDir = Direction.Down;
+        }
+
+        if (_moveTick.Update(gameTime.ElapsedGameTime)) {
+            if (!MoveSnek()) {
+                return GameState.Lost;
+            }
+        }
+        return GameState.Playing;
+    }
+
+    private bool MoveSnek() {
+        // Calculate next head pos
+        if (_nextDir != null) {
+            _dir = _nextDir.Value;
+            _nextDir = null;
+        }
+        int dx = 0, dy = 0;
+        switch (_dir) {
+            case Direction.Up:
+                dy = -1;
+                break;
+            case Direction.Down:
+                dy = 1;
+                break;
+            case Direction.Left:
+                dx = -1;
+                break;
+            case Direction.Right:
+                dx = 1;
+                break;
+        }
+        var nextHead = new Point(Snek[0].X + dx, Snek[0].Y + dy);
+        if (nextHead.X < 0 || nextHead.X > Game1.MAX_X || nextHead.Y < 0 || nextHead.Y > Game1.MAX_Y) {
+            return false;
+        }
+
+        // Update body positions and check for collision
+        for (int ix = Snek.Count-1; ix > 0; ix--) {
+            Snek[ix] = Snek[ix-1];
+            if (Snek[ix] == nextHead) {
+                return false;
+            }
+        }
+        
+        // Update head
+        Snek[0] = nextHead;
+        return true;
+    }
+}
+
+enum GameState {
+    Playing,
+    Lost,
+    Quit,
 }
