@@ -5,6 +5,7 @@ require __DIR__ . '/../vendor/autoload.php';
 use \SchoolApp\Model\Student as Student;
 use \SchoolApp\Model\Teacher as Teacher;
 use \SchoolApp\Model\Course as Course;
+use \SchoolApp\Model\Grade as Grade;
 
 $router = new \Bramus\Router\Router();
 
@@ -50,6 +51,18 @@ $router->get('/courses/{courseId}', function($courseId) {
 
 $router->post('/courses', function() {
     \SchoolApp\Controller\Courses::create(Course::makeWithPost(DecodeJSONPOST()));
+});
+
+$router->get('/grades', function() {
+    \SchoolApp\Controller\Grades::index();
+});
+
+$router->get('/grades/{gradeId}', function($gradeId) {
+    \SchoolApp\Controller\Grades::show($gradeId);
+});
+
+$router->post('/grades', function() {
+    \SchoolApp\Controller\Grades::create(Grade::makeWithPost(DecodeJSONPOST()));
 });
 
 $router->set404(function() {
