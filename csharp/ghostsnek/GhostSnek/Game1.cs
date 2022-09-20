@@ -18,7 +18,8 @@ public class Game1 : Game
 
     private List<Point> _snek = new List<Point>();
     private Direction _dir = Direction.Right;
-    private Ticker _moveTick = new Ticker(new TimeSpan(0, 0, 1));
+    private Direction? _nextDir;
+    private Ticker _moveTick = new Ticker(new TimeSpan(0, 0, 0, 0, 500));
 
     public Game1()
     {
@@ -44,18 +45,33 @@ public class Game1 : Game
     protected override void LoadContent()
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
-
-        // TODO: use this.Content to load your game content here
     }
 
     protected override void Update(GameTime gameTime)
     {
-        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+        var kbState = Keyboard.GetState();
+        if (kbState.IsKeyDown(Keys.Escape))
             Exit();
+        if (kbState.IsKeyDown(Keys.Left) && _dir != Direction.Right) {
+            _nextDir = Direction.Left;
+        }
+        if (kbState.IsKeyDown(Keys.Right) && _dir != Direction.Left) {
+            _nextDir = Direction.Right;
+        }
+        if (kbState.IsKeyDown(Keys.Up) && _dir != Direction.Down) {
+            _nextDir = Direction.Up;
+        }
+        if (kbState.IsKeyDown(Keys.Down) && _dir != Direction.Up) {
+            _nextDir = Direction.Down;
+        }
 
         if (_moveTick.Update(gameTime.ElapsedGameTime)) {
             for (int ix = _snek.Count-1; ix > 0; ix--) {
                 _snek[ix] = _snek[ix-1];
+            }
+            if (_nextDir != null) {
+                _dir = _nextDir.Value;
+                _nextDir = null;
             }
             int dx = 0, dy = 0;
             switch (_dir) {
