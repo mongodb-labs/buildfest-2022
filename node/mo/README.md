@@ -16,7 +16,7 @@ Add a local environment settings file: `.env.local`
 
 ```
 DATABASE_URL=mongodb://localhost:27017/mo_links
-API_URL=http://localhost:3000/api/links
+API_URL=http://localhost:80/api/links
 ```
 
 You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
