@@ -43,13 +43,19 @@ func UploadImageEndpoint(response http.ResponseWriter, request *http.Request) {
 		return
 	}
 	defer file.Close()
+	// STRETCH GOAL: TENSORFLOW COMPLETE, UPLOAD IMAGE TO S3
+	_, err = saveFile(header.Filename, file)
+	if err != nil {
+		response.WriteHeader(http.StatusInternalServerError)
+		response.Write([]byte(`{ "message": "` + err.Error() + `" }`))
+		return
+	}
 	data, err := uploadFile("http://"+os.Getenv("TENSORFLOW_HOST")+":8080/recognize", header.Filename, file)
 	if err != nil {
 		response.WriteHeader(http.StatusInternalServerError)
 		response.Write([]byte(`{ "message": "` + err.Error() + `" }`))
 		return
 	}
-	// STRETCH GOAL: TENSORFLOW COMPLETE, UPLOAD IMAGE TO S3
 	var tensorflowResult TensorflowClassifyResult
 	_ = json.NewDecoder(bytes.NewReader(data)).Decode(&tensorflowResult)
 	_, err = collection.InsertOne(context.Background(), tensorflowResult)
@@ -60,6 +66,20 @@ func UploadImageEndpoint(response http.ResponseWriter, request *http.Request) {
 	}
 	response.Write(data)
 	return
+}
+
+func saveFile(filename string, file multipart.File) (bool, error) {
+	diskFile, err := os.OpenFile("./images/"+filename, os.O_WRONLY|os.O_CREATE, os.ModePerm)
+	if err != nil {
+		return false, err
+	}
+	defer diskFile.Close()
+	_, err = io.Copy(diskFile, file)
+	if err != nil {
+		return false, err
+	}
+	file.Seek(0, io.SeekStart)
+	return true, nil
 }
 
 func uploadFile(url string, filename string, file multipart.File) ([]byte, error) {
@@ -85,6 +105,7 @@ func uploadFile(url string, filename string, file multipart.File) ([]byte, error
 		return nil, err
 	}
 	data, _ := ioutil.ReadAll(httpResponse.Body)
+	file.Seek(0, io.SeekStart)
 	return data, nil
 }
 
@@ -125,6 +146,7 @@ func main() {
 	fmt.Println("Linking the routers...")
 	router := mux.NewRouter()
 	router.HandleFunc("/upload", UploadImageEndpoint).Methods("POST")
+	router.PathPrefix("/images/").Handler(http.StripPrefix("/images/", http.FileServer(http.Dir("./images/"))))
 	fmt.Println("Serving at http://localhost:12345")
 	http.ListenAndServe(":12345", router)
 }
