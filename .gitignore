@@ -1,3 +1,4 @@
 .vscode
 cpp/lib/
 cpp/leafie_pong
+cpp/compile_commands.json

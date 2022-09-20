@@ -8,9 +8,12 @@ then
   rm mongo-cxx-driver-r$MONGODB_CXX_VERSION.tar.gz
   pushd lib/mongo-cxx-driver-r$MONGODB_CXX_VERSION/build
   cmake .. -DBSONCXX_POLY_USE_BOOST=1 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$HOME/.local
-  cmake --build . --target EP_mnmlstc_core
+  cmake --build . --target EP_mnmlstc_core -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
   make install
   popd
+  # Generate a Compilation Database for IDEs.
+  python -m pip install compdb
+  compdb -p lib/mongo-cxx-driver-r${MONGODB_CXX_VERSION}/build/ list > compile_commands.json
 fi
 
 export PKG_CONFIG_PATH="$HOME/.local/lib/pkgconfig"
