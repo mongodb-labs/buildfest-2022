@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace GhostSnek;
 
-public class Game1 : Game
+public class GhostSnek : Game
 {
     private const int WIDTH = 800;
     private const int HEIGHT = 800;
@@ -20,7 +20,7 @@ public class Game1 : Game
 
     private Scene _scene = new Scene();
 
-    public Game1()
+    public GhostSnek()
     {
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
@@ -122,7 +122,7 @@ class Scene {
     }
 
     private Point NewFood() {
-        return new Point(_rand.Next(0, Game1.MAX_X), _rand.Next(0, Game1.MAX_Y));
+        return new Point(_rand.Next(0, GhostSnek.MAX_X), _rand.Next(0, GhostSnek.MAX_Y));
     }
 
     public GameState Update(GameTime gameTime) {
@@ -176,7 +176,7 @@ class Scene {
                 break;
         }
         var nextHead = new Point(Snek[0].X + dx, Snek[0].Y + dy);
-        if (nextHead.X < 0 || nextHead.X > Game1.MAX_X || nextHead.Y < 0 || nextHead.Y > Game1.MAX_Y) {
+        if (nextHead.X < 0 || nextHead.X > GhostSnek.MAX_X || nextHead.Y < 0 || nextHead.Y > GhostSnek.MAX_Y) {
             return false;
         }
 

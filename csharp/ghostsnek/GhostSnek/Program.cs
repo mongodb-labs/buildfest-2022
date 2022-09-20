@@ -1,3 +1,3 @@
 ﻿
-using var game = new GhostSnek.Game1();
+using var game = new GhostSnek.GhostSnek();
 game.Run();
