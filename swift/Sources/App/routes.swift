@@ -27,7 +27,6 @@ func routes(_ app: Application) throws {
 }
 
 extension Request {
-
   var feedMessageCollection: MongoCollection<BSONDocument> {
     self.application.mongoDB.client.db("mta").collection("feedMessages")
   }
@@ -41,22 +40,19 @@ extension Request {
   }
 
   func feed(ws: WebSocket) async throws {
-      
     try await ws.send("{\"hello\": 1}")
     print("ws connected")
 
     let encoder: ExtendedJSONEncoder = ExtendedJSONEncoder()
-    
-      let changeStreamTask = Task {
-          for try await event in try await feedMessageCollection.watch() {
-              let jsonString: String = String(decoding: try encoder.encode(event), as: UTF8.self)
-              try await ws.send(jsonString)
-          }
+    let changeStreamTask = Task {
+      for try await event in try await feedMessageCollection.watch() {
+        let jsonString: String = String(decoding: try encoder.encode(event), as: UTF8.self)
+        try await ws.send(jsonString)
       }
-
+    }
 
     ws.onClose.whenComplete { result in
-        changeStreamTask.cancel();
+      changeStreamTask.cancel()
     }
   }
 }

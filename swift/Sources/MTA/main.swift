@@ -7,7 +7,7 @@ import NIO
 let elg = MultiThreadedEventLoopGroup(numberOfThreads: 4)
 
 // // replace the following string with your connection uri
-let uri = "mongodb://localhost:27017/test"
+let uri = ProcessInfo.processInfo.environment["MONGODB_URI"] ?? "mongodb://localhost:27017,localhost:27018,localhost:27019/mta?replicaSet=rep10"
 
 // replace the following string with your connection uri
 
@@ -56,9 +56,9 @@ func requestMTA() -> Data? {
 let db = client.db("mta")
 let subways = db.collection("feedMessages")
 
-var sleepSeconds: UInt32 = 10
+var sleepSeconds: UInt32 = 120
 if CommandLine.arguments.count > 1 {
-    sleepSeconds = UInt32(CommandLine.arguments[1]) ?? 10
+    sleepSeconds = UInt32(CommandLine.arguments[1]) ?? 120
 }
 
 var occurrences = 0
