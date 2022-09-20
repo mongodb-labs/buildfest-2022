@@ -33,8 +33,6 @@ websocket.addEventListener('message', message => {
     })
 })
 
-websocket.send({pipeline,})
-
 websocket.addEventListener('error', error => {
     stream.setState({
         items: [...stream.state.items, { created: dateFmt.format(new Date()), error }]

@@ -14,12 +14,12 @@ func routes(_ app: Application) throws {
   }
 
 
-  app.get("feed-messages") { req async throws -> [FeedMessage] in
+  app.get("feed-messages") { req async throws -> [BSONDocument] in
     try await req.findFeedMessages()
   }
 
   app.webSocket("feed") { req, ws async in
-    await req.feed(ws: ws)
+    try? await req.feed(ws: ws)
   }
 
   try? nealController.boot(routes: app.routes)
@@ -28,11 +28,11 @@ func routes(_ app: Application) throws {
 
 extension Request {
 
-  var feedMessageCollection: MongoCollection<FeedMessage> {
-    self.application.mongoDB.client.db("mta").collection("feedMessages", withType: FeedMessage.self)
+  var feedMessageCollection: MongoCollection<BSONDocument> {
+    self.application.mongoDB.client.db("mta").collection("feedMessages")
   }
 
-  func findFeedMessages() async throws -> [FeedMessage] {
+  func findFeedMessages() async throws -> [BSONDocument] {
     do {
       return try await self.feedMessageCollection.find().toArray()
     } catch {
@@ -40,17 +40,23 @@ extension Request {
     }
   }
 
-  func feed(ws: WebSocket) async {
-    let changeStreamTask = Task {
-      let encoder = ExtendedJSONEncoder()
-      for try await event in try await feedMessageCollection.watch() {
-        if let data = try? encoder.encode(event.fullDocument) {
-          try await ws.send(String(decoding: data, as: UTF8.self))
-        }
+  func feed(ws: WebSocket) async throws {
+      
+    try await ws.send("{\"hello\": 1}")
+    print("ws connected")
+
+    let encoder: ExtendedJSONEncoder = ExtendedJSONEncoder()
+    
+      let changeStreamTask = Task {
+          for try await event in try await feedMessageCollection.watch() {
+              let jsonString: String = String(decoding: try encoder.encode(event), as: UTF8.self)
+              try await ws.send(jsonString)
+          }
       }
-    }
+
+
     ws.onClose.whenComplete { result in
-      changeStreamTask.cancel();
+        changeStreamTask.cancel();
     }
   }
 }
