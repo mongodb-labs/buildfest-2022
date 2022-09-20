@@ -59,7 +59,7 @@ function EditForm(props: Props) {
           <div className="field">
             <label className="label">Alias</label>
             <div className="control">
-              <input className="input is-info" type="text" name="alias" value={values.alias} onChange={handleChange} />
+              <input className="input is-info" type="text" name="alias" value={values?.alias} onChange={handleChange} />
               <label className="help is-danger">
                 {errors.alias && touched.alias && errors.alias}
               </label>
@@ -68,7 +68,7 @@ function EditForm(props: Props) {
           <div className="field">
             <label className="label">Link</label>
             <div className="control">
-              <input className="input is-link" type="text" name="link" value={values.link} onChange={handleChange} />
+              <input className="input is-link" type="text" name="link" value={values?.link} onChange={handleChange} />
               <label className="help is-danger">
                 {errors.link && touched.link && errors.link}
               </label>

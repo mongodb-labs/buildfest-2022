@@ -17,19 +17,19 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         // RESPONSE FOR GET REQUESTS
         GET: async (req: NextApiRequest, res: NextApiResponse) => {
             const { MoLink } = await connect() // connect to database
-            res.json(await MoLink.findById(id).catch(catcher))
+            res.json(await MoLink.findOne({alias: id}).catch(catcher))
         },
         // RESPONSE PUT REQUESTS
         PUT: async (req: NextApiRequest, res: NextApiResponse) => {
             const { MoLink } = await connect() // connect to database
             res.json(
-                await MoLink.findByIdAndUpdate(id, req.body, { new: true }).catch(catcher)
+                await MoLink.findOneAndUpdate({alias: id}, req.body, { new: true }).catch(catcher)
             )
         },
         // RESPONSE FOR DELETE REQUESTS
         DELETE: async (req: NextApiRequest, res: NextApiResponse) => {
             const { MoLink } = await connect() // connect to database
-            res.json(await MoLink.findByIdAndRemove(id).catch(catcher))
+            res.json(await MoLink.deleteOne({alias: id}).catch(catcher))
         },
     }
 
