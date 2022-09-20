@@ -8,17 +8,23 @@ public class Game1 : Game
 {
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
+    private Texture2D _box;
+    private int _x;
+    private int _y;
 
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
+        _x = 0;
+        _y = 0;
     }
 
     protected override void Initialize()
     {
-        // TODO: Add your initialization logic here
+        _box = new Texture2D(GraphicsDevice, 1, 1, false, SurfaceFormat.Color);
+        _box.SetData(new[] { Color.White });
 
         base.Initialize();
     }
@@ -35,16 +41,36 @@ public class Game1 : Game
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
 
+        var kbState = Keyboard.GetState();
+        if (kbState.IsKeyDown(Keys.Left)) {
+            _x = _x - 1;
+        }
+        if (kbState.IsKeyDown(Keys.Right)) {
+            _x = _x + 1;
+        }
+        if (kbState.IsKeyDown(Keys.Up)) {
+            _y = _y - 1;
+        }
+        if (kbState.IsKeyDown(Keys.Down)) {
+            _y = _y + 1;
+        }
+
         // TODO: Add your update logic here
 
         base.Update(gameTime);
+    }
+
+    private void DrawRect(Rectangle rect, Color color) {
+        _spriteBatch.Draw(_box, rect, color);
     }
 
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
-        // TODO: Add your drawing code here
+        _spriteBatch.Begin();
+        DrawRect(new Rectangle { X = _x, Y = _y, Width = 20, Height = 20 }, Color.White);
+        _spriteBatch.End();
 
         base.Draw(gameTime);
     }
