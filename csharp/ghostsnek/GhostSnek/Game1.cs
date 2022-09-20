@@ -19,6 +19,7 @@ public class GhostSnek : Game
     private Texture2D _pixel;
 
     private Scene _scene = new Scene();
+    private Replay _replay = null;
 
     public GhostSnek()
     {
@@ -45,8 +46,14 @@ public class GhostSnek : Game
     protected override void Update(GameTime gameTime)
     {
         switch (_scene.Update(gameTime)) {
-            case GameState.Playing: break;
+            case GameState.Waiting: break;
+            case GameState.Update:
+                if (_replay != null) {
+                    _replay.Update();
+                }
+                break;
             case GameState.Lost:
+                _replay = _scene.GetReplay();
                 _scene = new Scene();
                 break;
             case GameState.Quit:
@@ -72,6 +79,11 @@ public class GhostSnek : Game
         if (_scene.Food != null) {
             var f = _scene.Food.Value;
             DrawRect(f.X * GRID_SIZE + 5, f.Y * GRID_SIZE + 5, GRID_SIZE-10, GRID_SIZE-10, Color.Green);
+        }
+        if (_replay != null) {
+            foreach (Point p in _replay.Snek) {
+                DrawRect(p.X * GRID_SIZE, p.Y * GRID_SIZE, GRID_SIZE-1, GRID_SIZE-1, Color.Gray);
+            }
         }
         _spriteBatch.End();
 
@@ -117,6 +129,7 @@ class Scene {
     private Direction? _nextDir;
     private Ticker _moveTick = new Ticker(new TimeSpan(0, 0, 0, 0, 250));
     private Random _rand = new Random();
+    private List<Event> _rec = new List<Event>();
 
     public Scene() {
         Food = NewFood();
@@ -151,17 +164,29 @@ class Scene {
             if (!_snek.Move(_dir)) {
                 return GameState.Lost;
             }
+            var ev = new Event(_dir);
             if (_snek.Head == Food) {
+                ev.Grew = true;
                 Food = NewFood();
                 _snek.Grow();
             }
+            Console.WriteLine("\t\trecording {0}", ev.Dir);
+            _rec.Add(ev);
+            return GameState.Update;
+        } else {
+            return GameState.Waiting;
         }
-        return GameState.Playing;
+    }
+
+    public Replay GetReplay() {
+        Console.WriteLine("\t\t==========");
+        return new Replay(new List<Event>(_rec));
     }
 }
 
 enum GameState {
-    Playing,
+    Waiting,
+    Update,
     Lost,
     Quit,
 }
@@ -225,5 +250,45 @@ public class Snek {
 
     public void Grow() {
         _body.Add(_body[_body.Count-1]);
+    }
+}
+
+struct Event {
+    public Direction Dir;
+    public bool Grew = false;
+
+    public Event(Direction dir) {
+        Dir = dir;
+    }
+}
+
+class Replay {
+    private List<Event> _events;
+    private Snek _snek = new Snek();
+    private int _ix = 0;
+
+    public IEnumerable<Point> Snek {
+        get {
+            return _snek.Body;
+        }
+    }
+
+    public Replay(List<Event> events) {
+        _events = events;
+    }
+
+    public void Update() {
+        if (_ix >= _events.Count) {
+            Console.WriteLine("done");
+            return;
+        }
+        var ev = _events[_ix];
+        _ix += 1;
+
+        Console.WriteLine("running {0}", ev.Dir);
+        _snek.Move(ev.Dir);
+        if (ev.Grew) {
+            _snek.Grow();
+        }
     }
 }
