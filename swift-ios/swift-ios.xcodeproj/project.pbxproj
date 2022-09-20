@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C400FD4B28DA38F1005DC109 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = C400FD4A28DA38F1005DC109 /* Message.swift */; };
+		C400FD4D28DA392C005DC109 /* Entity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C400FD4C28DA392C005DC109 /* Entity.swift */; };
+		C400FD4F28DA395B005DC109 /* VehiclePosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = C400FD4E28DA395B005DC109 /* VehiclePosition.swift */; };
+		C400FD5128DA3978005DC109 /* Position.swift in Sources */ = {isa = PBXBuildFile; fileRef = C400FD5028DA3978005DC109 /* Position.swift */; };
+		C400FD5328DA3A7E005DC109 /* VehicleDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C400FD5228DA3A7E005DC109 /* VehicleDescriptor.swift */; };
 		C49F5B8728DA0DAC005EAE2A /* swift_iosApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49F5B8628DA0DAC005EAE2A /* swift_iosApp.swift */; };
 		C49F5B8928DA0DAC005EAE2A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49F5B8828DA0DAC005EAE2A /* ContentView.swift */; };
 		C49F5B8B28DA0DAD005EAE2A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C49F5B8A28DA0DAD005EAE2A /* Assets.xcassets */; };
@@ -35,6 +40,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		C400FD4A28DA38F1005DC109 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
+		C400FD4C28DA392C005DC109 /* Entity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Entity.swift; sourceTree = "<group>"; };
+		C400FD4E28DA395B005DC109 /* VehiclePosition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VehiclePosition.swift; sourceTree = "<group>"; };
+		C400FD5028DA3978005DC109 /* Position.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Position.swift; sourceTree = "<group>"; };
+		C400FD5228DA3A7E005DC109 /* VehicleDescriptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VehicleDescriptor.swift; sourceTree = "<group>"; };
 		C49F5B8328DA0DAC005EAE2A /* swift-ios.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "swift-ios.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C49F5B8628DA0DAC005EAE2A /* swift_iosApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = swift_iosApp.swift; sourceTree = "<group>"; };
 		C49F5B8828DA0DAC005EAE2A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -103,6 +113,11 @@
 				C49F5B8A28DA0DAD005EAE2A /* Assets.xcassets */,
 				C49F5B8C28DA0DAD005EAE2A /* Preview Content */,
 				C49F5BB428DA149D005EAE2A /* MapView.swift */,
+				C400FD4A28DA38F1005DC109 /* Message.swift */,
+				C400FD4C28DA392C005DC109 /* Entity.swift */,
+				C400FD4E28DA395B005DC109 /* VehiclePosition.swift */,
+				C400FD5028DA3978005DC109 /* Position.swift */,
+				C400FD5228DA3A7E005DC109 /* VehicleDescriptor.swift */,
 			);
 			path = "swift-ios";
 			sourceTree = "<group>";
@@ -264,8 +279,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C400FD5328DA3A7E005DC109 /* VehicleDescriptor.swift in Sources */,
 				C49F5B8928DA0DAC005EAE2A /* ContentView.swift in Sources */,
+				C400FD4D28DA392C005DC109 /* Entity.swift in Sources */,
+				C400FD4F28DA395B005DC109 /* VehiclePosition.swift in Sources */,
+				C400FD4B28DA38F1005DC109 /* Message.swift in Sources */,
 				C49F5BB528DA149D005EAE2A /* MapView.swift in Sources */,
+				C400FD5128DA3978005DC109 /* Position.swift in Sources */,
 				C49F5B8728DA0DAC005EAE2A /* swift_iosApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
