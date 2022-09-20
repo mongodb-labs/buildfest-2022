@@ -12,9 +12,9 @@ function Index(props: IndexProps) {
   const { links } = props
 
   return (
-    <div className="containter">
+    <div className="container">
       <div className="control">
-        <Link href="./links/create/"><button className="button is-primary">Create new</button></Link>
+        <Link href="./links/create"><button className="button is-primary">Create new</button></Link>
       </div>
       <div className="container">
         <table className="table">

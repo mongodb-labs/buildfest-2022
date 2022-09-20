@@ -89,7 +89,7 @@ function CreateForm(props: Props) {
 }
 
 
-// export getStaticProps to provie API_URL to component
+// export getStaticProps to provide API_URL to component
 export async function getStaticProps(context: any) {
     return {
         props: {
