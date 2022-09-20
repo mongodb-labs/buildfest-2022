@@ -32,7 +32,7 @@ function EditForm(props: Props) {
         return errors;
       }}
       onSubmit={async (values, { setSubmitting }) => {
-        await fetch(props.url + "/" + props.link._id, {
+        await fetch(props.url + "/" + props.link.alias, {
           method: "put",
           headers: {
             "Content-Type": "application/json",

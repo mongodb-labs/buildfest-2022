@@ -33,7 +33,7 @@ function Index(props: IndexProps) {
                 <td>{link.alias}</td>
                 <td>{link.n}</td>
                 <td>{link.link}</td>
-                <td><Link href={`./links/${link._id}`}><button className="button is-link is-primary">Edit</button></Link></td>
+                <td><Link href={`./links/${link.alias}`}><button className="button is-link is-primary">Edit</button></Link></td>
               </tr>
             ))}
           </tbody>

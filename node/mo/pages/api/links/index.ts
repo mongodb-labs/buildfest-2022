@@ -14,7 +14,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         // RESPONSE FOR GET REQUESTS
         GET: async (req: NextApiRequest, res: NextApiResponse) => {
             const { MoLink } = await connect() // connect to database
-            res.json(await MoLink.find({}).catch(catcher))
+            res.json(await MoLink.find({}).sort({n: -1}).limit(100).catch(catcher))
         },
         // RESPONSE POST REQUESTS
         POST: async (req: NextApiRequest, res: NextApiResponse) => {
