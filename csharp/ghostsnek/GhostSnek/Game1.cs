@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -8,10 +9,13 @@ public class Game1 : Game
 {
     const int WIDTH = 800;
     const int HEIGHT = 800;
+    const int GRID_SIZE = 20;
 
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
     private Texture2D _pixel;
+
+    private List<Point> _snek;
 
     public Game1()
     {
@@ -20,6 +24,11 @@ public class Game1 : Game
         IsMouseVisible = true;
         _graphics.PreferredBackBufferWidth = WIDTH;
         _graphics.PreferredBackBufferHeight = HEIGHT;
+
+        _snek = new List<Point>();
+        for (int i = 0; i < 5; i++) {
+            _snek.Add(new Point(i, 0));
+        }
     }
 
     protected override void Initialize()
@@ -47,8 +56,8 @@ public class Game1 : Game
         base.Update(gameTime);
     }
 
-    private void DrawRect(Rectangle rect, Color color) {
-        _spriteBatch.Draw(_pixel, rect, color);
+    private void DrawRect(int x, int y, int w, int h, Color color) {
+        _spriteBatch.Draw(_pixel, new Rectangle(x, y, w, h), color);
     }
 
     protected override void Draw(GameTime gameTime)
@@ -56,7 +65,9 @@ public class Game1 : Game
         GraphicsDevice.Clear(Color.Black);
 
         _spriteBatch.Begin();
-        DrawRect(new Rectangle(100, 100, 20, 20), Color.Green);
+        foreach (Point p in _snek) {
+            DrawRect(p.X * GRID_SIZE, p.Y * GRID_SIZE, GRID_SIZE-1, GRID_SIZE-1, Color.White);
+        }
         _spriteBatch.End();
 
         base.Draw(gameTime);
