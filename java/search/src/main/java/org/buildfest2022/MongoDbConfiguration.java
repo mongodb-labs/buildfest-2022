@@ -9,4 +9,7 @@ public interface MongoDbConfiguration extends Named {
 
   @NonNull
   String getCollection();
+
+  @NonNull
+  String getSecretCollection();
 }

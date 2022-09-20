@@ -8,3 +8,4 @@ netty:
 db:
   name: 'search'
   collection: 'documents'
+  secretCollection: 'secrets'
