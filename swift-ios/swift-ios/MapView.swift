@@ -14,7 +14,7 @@ struct MapView: View {
     )
   )
   
-  private let entities = [
+  @State private var entities = [
     Entity(
       id: "1",
       vehicle: VehiclePosition(
@@ -48,6 +48,8 @@ struct MapView: View {
           .background(entity.color)
           .clipShape(Circle())
       }
+    }.task {
+
     }.edgesIgnoringSafeArea(.all)
   }
 }
