@@ -2,6 +2,7 @@ import Vapor
 import MongoDBVapor
 
 let nealController = NealController()
+let trainsController = TrainsController()
 
 func routes(_ app: Application) throws {
 
@@ -22,6 +23,7 @@ func routes(_ app: Application) throws {
   }
 
   try? nealController.boot(routes: app.routes)
+  try? trainsController.boot(routes: app.routes)
 }
 
 extension Request {

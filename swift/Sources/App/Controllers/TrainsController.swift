@@ -1,10 +1,3 @@
-//
-//  TrainController.swift
-//  
-//
-//  Created by Christopher Cho on 9/19/22.
-//
-
 import Vapor
 import MongoSwift
 import NIO
@@ -14,22 +7,25 @@ import NIO
 struct TrainsController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
         let trains = routes.grouped("trains")
-        
-        //trains.get(use: index)
-        //trains.group(":id") { train in
-        //    trains.get(use: show)
-        //}
-
+        trains.group(":id") { train in
+            train.get(use: show)
+        }
     }
-    /*
-    func index(req: Request) async throws -> String {
-        // TODO:
-    }
-
+    
     func show(req: Request) async throws -> String {
-        // TODO:
+        do {
+            guard let trainId = req.parameters.get("id") else { return "Endpoint requires a train id" }
+            let train = try await req.findTrain(trainId: trainId)
+            // TODO: handle Train Optional nil value
+                
+            let encoder = ExtendedJSONEncoder()
+            encoder.format = .canonical
+            let trainAsJson = try encoder.encode(train)
+            return String(decoding: trainAsJson, as: UTF8.self)
+        } catch {
+            return "Unable to process request :\(error)"
+        }
     }
-    */
 }
 
 extension Request {
@@ -37,13 +33,12 @@ extension Request {
     var trainsCollection: MongoCollection<Train> {
         self.application.mongoDB.client.db("mta").collection("trains", withType: Train.self)
     }
-    func findTrain(trainId: String) async throws -> [Train] {
+    func findTrain(trainId: String) async throws -> Train? {
         do {
-            //TODO: how do I make a query? Currently erroring becaues it expects BSON, not a String
-            //let query: BSONDocument = ["train_id": trainId]
-            return try await self.trainsCollection.find().toArray()
+            let query: BSONDocument = ["train_id": BSON.string(trainId)]
+            return try await self.trainsCollection.findOne(query)
         } catch {
-            throw Abort(.internalServerError, reason: "Failed to find train (id \(trainId)): \(error)")
+            throw Abort(.internalServerError, reason: "Query failed: \(error)")
         }
     }
 }
