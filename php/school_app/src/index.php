@@ -4,6 +4,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use \SchoolApp\Model\Student as Student;
 use \SchoolApp\Model\Teacher as Teacher;
+use \SchoolApp\Model\Course as Course;
 
 $router = new \Bramus\Router\Router();
 
@@ -37,6 +38,18 @@ $router->get('/teachers/{teacherId}', function($teacherId) {
 
 $router->post('/teachers', function() {
     \SchoolApp\Controller\Teachers::create(Teacher::makeWithPost(DecodeJSONPOST()));
+});
+
+$router->get('/courses', function() {
+    \SchoolApp\Controller\Courses::index();
+});
+
+$router->get('/courses/{courseId}', function($courseId) {
+    \SchoolApp\Controller\Courses::show($courseId);
+});
+
+$router->post('/courses', function() {
+    \SchoolApp\Controller\Courses::create(Course::makeWithPost(DecodeJSONPOST()));
 });
 
 $router->set404(function() {

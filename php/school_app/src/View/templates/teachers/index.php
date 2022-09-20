@@ -1,5 +1,6 @@
 <?php require __DIR__ . "/../header.php" ?>
 
+<p>Teacher List:</p>
 <ul>
     <?php foreach ($teachers as $teacher) : ?>
         <li><?= $teacher["name"]  ?></li>

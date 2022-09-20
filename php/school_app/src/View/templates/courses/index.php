@@ -1,9 +1,9 @@
 <?php require __DIR__ . "/../header.php" ?>
 
-<p>Student List:</p>
+<p>Course List:</p>
 <ul>
-    <?php foreach ($students as $student) : ?>
-        <li><?= $student["name"]  ?></li>
+    <?php foreach ($courses as $course) : ?>
+        <li><?= $course["name"]  ?></li>
     <?php endforeach ?>
 </ul>
 
