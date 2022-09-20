@@ -25,31 +25,48 @@ defer {
     try? elg.syncShutdownGracefully()
 }
 
-// print a list of database names
-print(try client.listDatabaseNames().wait())
+
+signal(SIGINT, SIG_IGN) // // Make sure the signal does not terminate the application.
+
+let sigintSrc = DispatchSource.makeSignalSource(signal: SIGINT, queue: .main)
+sigintSrc.setEventHandler {
+    print("Stopping MTA sink! Thank you for riding with us... Mind the Gap")
+    exit(0)
+}
+
 
 let db = client.db("mta")
 let subways = db.collection("subways")
 
-try subways.drop().wait()
+let mtaBDFMLineURL = "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-bdfm"
 
-var feedWithIds: [BSONDocument] = Array()
-// iterate from i = 1 to 1 = 3
-for _ in 0...10 {
-    feedWithIds.append([
-        "feedHeader": [:],
-        "feedEntity": [
-            "vehiclePosition": [
-                "position": [
-                    "latitude":  BSON.double(Double.random(in: 0.0 ..< 100.0)),
-                    "longitude": BSON.double(Double.random(in: 0.0 ..< 100.0)),
-                    "bearing":   BSON.double(Double.random(in: 0.0 ..< 100.0)),
-                    "odometer":  BSON.double(Double.random(in: 0.0 ..< 100.0)),
-                    "speed":     BSON.double(Double.random(in: 0.0 ..< 100.0))
-                ]
-            ]
-        ]
-    ] as BSONDocument)
+func myRequest(){
+    var request = URLRequest(url: URL(string: mtaBDFMLineURL)!);
+    request.httpMethod = "GET"
+    request.setValue(API_KEY, forHTTPHeaderField: <#T##String#>)
+    let semaphore: DispatchSemaphore = DispatchSemaphore(value: 0)
+    let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
+        // get responce here
+        // Use response
+        print("2")
+        semaphore.signal()
+    }
+    task.resume()
+    print("1")
+    semaphore.wait()
+    print("3")
+    return 
 }
 
-print(try subways.insertMany(feedWithIds).wait())
+while (true) {
+    
+    sleep(1000)
+    // http request
+    // deocde the protobuf
+    // BSONDocument -> insert to mongodb
+    // ??? Timeseries - improvement
+    
+    let decodedInfo = try TransitRealtime_FeedMessage(serializedData: binaryData)
+    // insert
+
+}

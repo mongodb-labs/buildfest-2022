@@ -10,6 +10,7 @@ let package = Package(
         // 💧 A server-side Swift web framework.
         .package(url: "https://github.com/mongodb/mongodb-vapor", from: "1.1.0"),
         .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0"),
+        .package(url: "https://github.com/apple/swift-protobuf.git", from: "1.6.0"),
     ],
     targets: [
         .target(
@@ -27,6 +28,7 @@ let package = Package(
         ),
         .executableTarget(name: "MTA", dependencies: [
             .product(name: "MongoDBVapor", package: "mongodb-vapor"),
+            .product(name: "SwiftProtobuf", package: "swift-protobuf")
         ]),
         .executableTarget(name: "Run", dependencies: [
             .target(name: "App"),
