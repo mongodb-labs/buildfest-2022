@@ -6,19 +6,26 @@ namespace GhostSnek;
 
 public class Game1 : Game
 {
+    const int WIDTH = 800;
+    const int HEIGHT = 800;
+
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
+    private Texture2D _pixel;
 
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
+        _graphics.PreferredBackBufferWidth = WIDTH;
+        _graphics.PreferredBackBufferHeight = HEIGHT;
     }
 
     protected override void Initialize()
     {
-        // TODO: Add your initialization logic here
+        _pixel = new Texture2D(GraphicsDevice, 1, 1, false, SurfaceFormat.Color);
+        _pixel.SetData(new[] { Color.White });
 
         base.Initialize();
     }
@@ -40,11 +47,17 @@ public class Game1 : Game
         base.Update(gameTime);
     }
 
+    private void DrawRect(Rectangle rect, Color color) {
+        _spriteBatch.Draw(_pixel, rect, color);
+    }
+
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.CornflowerBlue);
+        GraphicsDevice.Clear(Color.Black);
 
-        // TODO: Add your drawing code here
+        _spriteBatch.Begin();
+        DrawRect(new Rectangle(100, 100, 20, 20), Color.Green);
+        _spriteBatch.End();
 
         base.Draw(gameTime);
     }
