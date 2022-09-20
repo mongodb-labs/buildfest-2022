@@ -69,6 +69,10 @@ public class Game1 : Game
         foreach (Point p in _scene.Snek) {
             DrawRect(p.X * GRID_SIZE, p.Y * GRID_SIZE, GRID_SIZE-1, GRID_SIZE-1, Color.White);
         }
+        if (_scene.Food != null) {
+            var f = _scene.Food.Value;
+            DrawRect(f.X * GRID_SIZE + 5, f.Y * GRID_SIZE + 5, GRID_SIZE-10, GRID_SIZE-10, Color.Green);
+        }
         _spriteBatch.End();
 
         base.Draw(gameTime);
@@ -102,16 +106,23 @@ class Ticker {
 
 class Scene {
     public List<Point> Snek { get; private set; }
+    public Point? Food { get; private set; }
 
     private Direction _dir = Direction.Right;
     private Direction? _nextDir;
     private Ticker _moveTick = new Ticker(new TimeSpan(0, 0, 0, 0, 250));
+    private Random _rand = new Random();
 
     public Scene() {
         Snek = new List<Point>();
         for (int i = 4; i >= 0; i--) {
             Snek.Add(new Point(i, 0));
         }
+        Food = NewFood();
+    }
+
+    private Point NewFood() {
+        return new Point(_rand.Next(0, Game1.MAX_X), _rand.Next(0, Game1.MAX_Y));
     }
 
     public GameState Update(GameTime gameTime) {
@@ -134,6 +145,10 @@ class Scene {
         if (_moveTick.Update(gameTime.ElapsedGameTime)) {
             if (!MoveSnek()) {
                 return GameState.Lost;
+            }
+            if (Snek[0] == Food) {
+                Food = NewFood();
+                Snek.Add(Snek[Snek.Count-1]);
             }
         }
         return GameState.Playing;
