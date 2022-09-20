@@ -1,0 +1,7 @@
+Flask
+pymongo[srv]
+Flask-PyMongo
+Flask-Cors
+jira
+requests_oauthlib
+python-dotenv
