@@ -23,6 +23,7 @@ dependencies {
     compileOnly("org.graalvm.nativeimage:svm")
 
     implementation("io.micronaut:micronaut-validation")
+    testImplementation("io.micronaut.mongodb:micronaut-mongo-sync:4.4.0")
 
 }
 
