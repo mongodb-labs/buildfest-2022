@@ -56,7 +56,10 @@ func requestMTA() -> Data? {
 let db = client.db("mta")
 let subways = db.collection("feedMessages")
 
-let sleepSeconds = Int32(CommandLine.arguments[1]) ?? 10
+var sleepSeconds: UInt32 = 10
+if CommandLine.arguments.count > 1 {
+    sleepSeconds = UInt32(CommandLine.arguments[1]) ?? 10
+}
 
 var occurrences = 0
 while (occurrences < 1000) {
@@ -70,13 +73,13 @@ while (occurrences < 1000) {
         // deocde the protobuf
         let decodedInfo = try TransitRealtime_FeedMessage(serializedData: response)
         print("[\(dateString)] decoded the protobuf")
-        
+
         let protobufJSON = try String(decoding: decodedInfo.jsonUTF8Data(), as: UTF8.self)
         print("[\(dateString)] stringified the proto to JSON")
-        
+
         let mongodbDoc = try BSONDocument(fromJSON:protobufJSON)
         print("[\(dateString)] BSON decoding fromJSON")
-        
+
         // BSONDocument -> insert to mongodb
         print("[\(dateString)] trying insertOne to \(subways.namespace)")
         let insertRes = try subways.insertOne(mongodbDoc).wait()
@@ -85,7 +88,7 @@ while (occurrences < 1000) {
         print("[\(dateString)] failure! MTA did not respond")
     }
 
-    print("[\(dateString)] sleeping")
+    print("[\(dateString)] sleeping for \(sleepSeconds) seconds")
     sleep(sleepSeconds)
     print("[\(dateString)] waking up!")
     occurrences += 1
