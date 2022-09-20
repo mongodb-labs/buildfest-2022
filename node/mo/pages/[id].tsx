@@ -14,13 +14,19 @@ function RedirectPage(props: Props) {
 }
 
 export async function getServerSideProps(context: any) {
-  // fetch the MoLink, the param was received via context.query.id
-  const { MoLink } = await connect() // connfindOneAndUpdateect to database
-  const molink = await MoLink.findOneAndUpdate({alias: context.query.id}, {$inc: {n: 1}}).exec()
-  let url = '/'
-  if (molink) {
-    url = molink.link
+  let url : string = '/'
+  const regex = new RegExp("[A-Za-z]{2,}-\\d+")
+  if (regex.test(context.query.id)) {
+    url = "https://jira.mongodb.org/browse/" + context.query.id
+  } else {
+    // fetch the MoLink, the param was received via context.query.id
+    const { MoLink } = await connect() // connect to database
+    const molink = await MoLink.findOneAndUpdate({alias: context.query.id}, {$inc: {n: 1}}).exec()
+    if (molink) {
+      url = molink.link
+    }
   }
+
   return {
     redirect: {
       permanent: false,
