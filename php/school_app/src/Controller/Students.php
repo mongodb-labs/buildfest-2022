@@ -19,8 +19,8 @@ class Students {
     }
     static function show(string $student) {
         $objectId = new ObjectId($student);
-        $found_student = \SchoolApp\Repository\Students::findOne($objectId);
-        \SchoolApp\View\Students::index([$found_student]);
+        $student = \SchoolApp\Repository\Students::findOne($objectId);
+        \SchoolApp\View\Students::show([$student]);
     }
 }
 
