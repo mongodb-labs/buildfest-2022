@@ -1,6 +1,6 @@
 // @ts-check
-import { EJSON } from 'bson'
-import { List } from 'utils/list.mjs'
+import { EJSON } from 'https://unpkg.com/bson@4.7.0/dist/bson.browser.esm.js'
+import { List } from '/js/utils/list.mjs'
 
 const makeNotifier = () => {
     /** @type {() => void} */

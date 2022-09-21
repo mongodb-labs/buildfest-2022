@@ -1,4 +1,4 @@
-import { AutoConnectWebSocket } from 'utils/socket.mjs';
+import { AutoConnectWebSocket } from '/js/utils/socket.mjs';
 
 const dateFmt = Intl.DateTimeFormat('en-US', { dateStyle: 'full', timeStyle: 'long' });
 

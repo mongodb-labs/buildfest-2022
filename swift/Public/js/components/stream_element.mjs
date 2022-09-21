@@ -1,5 +1,5 @@
 // @ts-check
-import { EJSON } from 'bson'
+import { EJSON } from 'https://unpkg.com/bson@4.7.0/dist/bson.browser.esm.js'
 
 /**
  * @typedef StreamState
@@ -57,14 +57,18 @@ class StreamElement extends HTMLElement {
         }
 
         let listEl = `<ul>`
-        for (const [index, item] of state.items.entries()) {
-            const entries = Object.entries(item)
 
-            listEl += `<li><pre>Item: ${index.toLocaleString('us')}<pre><ul>`
-
-            for (const [key, value] of entries) {
-                listEl += `<li><pre>${key} => ${EJSON.stringify(value)}</pre></li>`
+        const expandObject = (object) => {
+            let str = ''
+            for (const [key, value] of Object.entries(object)) {
+                str += `<li><pre>${key} => ${EJSON.stringify(value)}</pre></li>`
             }
+            return str;
+        }
+
+        for (const [index, item] of state.items.entries()) {
+            listEl += `<li><pre>Item: ${index.toLocaleString('us')}<pre><ul>`
+            listEl += expandObject(item)
             listEl += `</li></ul>`
         }
 
