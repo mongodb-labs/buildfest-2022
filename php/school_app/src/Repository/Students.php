@@ -9,6 +9,10 @@ class Students {
         return \SchoolApp\Repository\Database::getInstance()->students->find();
     }
 
+    static function getByName(string $name) {
+        return \SchoolApp\Repository\Database::getInstance()->students->find(["name" => $name]);
+    }
+
     static function insertOne(Student $student) {
         return \SchoolApp\Repository\Database::getInstance()->students->insertOne($student->get());
     }

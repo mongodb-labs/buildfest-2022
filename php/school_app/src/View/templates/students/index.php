@@ -1,5 +1,16 @@
 <?php require __DIR__ . "/../header.php" ?>
 
+<form class="row text-center" role="form" method="GET" action="/students">
+
+  <div class="col">
+    <input type="text" class="form-control" placeholder="Filter by name" id="name" name="name">
+  </div>
+  <div class="col">
+  <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+  <a class="btn btn-danger btn-sm" href="/students">Clear</a>
+  </div>
+</form>
+<hr>
 <table class="table">
     <thead>
     <tr>
@@ -9,17 +20,15 @@
     </tr>
   </thead>
   <tbody>
-
-  </tbody>
     <?php foreach ($students as $student) : ?>
-        <tr>
-            <td>&nbsp;</td>
-            <td><?= $student["name"] ?></td>
-            <td>
-                <a class="btn btn-primary btn-sm" href="/students/<?= $student["_id"] ?>" role="button">Show</a>
-                <a class="btn btn-danger btn-sm" href="#" role="button">Delete</a>
-            </td>
-    </tr>
+      <tr>
+          <td>&nbsp;</td>
+          <td><?= $student["name"] ?></td>
+          <td>
+              <a class="btn btn-primary btn-sm" href="/students/<?= $student["_id"] ?>" role="button">Show</a>
+              <a class="btn btn-danger btn-sm" href="#" role="button">Delete</a>
+          </td>
+      </tr>
     <?php endforeach ?>
     </tbody>
 </table>

@@ -15,7 +15,7 @@ $router->get('/', function() {
 
 /* Student */
 $router->get('/students', function() {
-    \SchoolApp\Controller\Students::index();
+    \SchoolApp\Controller\Students::index($_GET["name"] ?? null);
 });
 
 $router->get('/students/new', function() {
@@ -51,6 +51,7 @@ $router->get('/courses', function() {
     \SchoolApp\Controller\Courses::index();
 });
 
+/* Courses */
 $router->get('/courses/{courseId}', function($courseId) {
     \SchoolApp\Controller\Courses::show($courseId);
 });
@@ -67,10 +68,12 @@ $router->get('/grades/{gradeId}', function($gradeId) {
     \SchoolApp\Controller\Grades::show($gradeId);
 });
 
+/* Grades */
 $router->post('/grades', function() {
     \SchoolApp\Controller\Grades::create(Grade::makeWithPost($_POST));
 });
 
+/* The rest */
 $router->set404(function() {
     header('HTTP/1.1 404 Not Found');
 });
