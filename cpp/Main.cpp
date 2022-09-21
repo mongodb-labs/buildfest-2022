@@ -16,19 +16,18 @@
 int main(int argc, char *argv[]) {
 	std::thread watchThread([](){
 			mongocxx::collection collection = AtlasManager::Instance()->getCollection("test","moves");
+			mongocxx::options::change_stream options;
+			// options.full_document("updateLookup");
+			// const std::chrono::milliseconds await_time{1000};
+			// options.max_await_time(await_time);
+			mongocxx::change_stream stream = collection.watch(options);
 			while (true) // Loop forever
 			{
 					try
 					{
-							mongocxx::options::change_stream options;
-							// options.full_document("updateLookup");
-							// const std::chrono::milliseconds await_time{1000};
-							// options.max_await_time(await_time);
-							mongocxx::change_stream stream = collection.watch(options);
-
-							 for (const auto& event : stream) {
-									std::cout << bsoncxx::to_json(event) << std::endl;
-							}
+						for (const auto& event : stream) {
+							std::cout << bsoncxx::to_json(event) << std::endl;
+						}
 					}
 					catch (const std::exception& e)
 					{
