@@ -6,4 +6,6 @@
     <?php endforeach ?>
 </ul>
 
+<a href="/students/new">Create Student record</a>
+
 <?php require __DIR__ . "/../footer.php" ?>

@@ -6,10 +6,6 @@ use \SchoolApp\Model\Student as Student;
 
 $router = new \Bramus\Router\Router();
 
-function DecodeJSONPOST(){
-    return json_decode(file_get_contents('php://input'), true);
-}
-
 $router->get('/', function() {
     \SchoolApp\Controller\Home::index();
 });
@@ -18,12 +14,16 @@ $router->get('/students', function() {
     \SchoolApp\Controller\Students::index();
 });
 
+$router->get('/students/new', function() {
+    \SchoolApp\Controller\Students::new();
+});
+
 $router->get('/students/{studentId}', function($studentId) {
     \SchoolApp\Controller\Students::show($studentId);
 });
 
 $router->post('/students', function() {
-    \SchoolApp\Controller\Students::create(Student::makeWithPost(DecodeJSONPOST()));
+    \SchoolApp\Controller\Students::create(Student::makeWithPost($_POST));
 });
 
 $router->set404(function() {
