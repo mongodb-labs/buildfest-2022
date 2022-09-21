@@ -17,4 +17,4 @@ fi
 export PKG_CONFIG_PATH="$HOME/.local/lib/pkgconfig"
 export INCLUDE="/opt/homebrew/include/boost"
 
-clang++ -std=c++17 $(pkg-config --cflags --libs libmongocxx) $(pkg-config --cflags --libs sdl2) -lSDL2_mixer -lSDL2_image -lSDL2_ttf -o leafie_pong engine/AnimatedTexture.cpp engine/AssetManager.cpp engine/AudioManager.cpp engine/GameEntity.cpp engine/GameManager.cpp engine/Graphics.cpp engine/InputManager.cpp engine/Texture.cpp engine/Timer.cpp ScreenManager.cpp main.cpp
+clang++ -std=c++17 $(pkg-config --cflags --libs libmongocxx) $(pkg-config --cflags --libs sdl2) -lSDL2_mixer -lSDL2_image -lSDL2_ttf -o leafie_pong engine/AnimatedTexture.cpp engine/AssetManager.cpp engine/AudioManager.cpp engine/GameEntity.cpp engine/GameManager.cpp engine/Graphics.cpp engine/InputManager.cpp engine/Texture.cpp engine/Timer.cpp ScreenManager.cpp StartScreen.cpp main.cpp

@@ -17,8 +17,7 @@ void ScreenManager::Release() {
 ScreenManager::ScreenManager() {
 	mInput = QuickSDL::InputManager::Instance();
 
-	// mBackgroundStars = BackgroundStars::Instance();
-	// mStartScreen = new StartScreen();
+	mStartScreen = new StartScreen();
 	// mPlayScreen = new PlayScreen();
 
 	mCurrentScreen = start;
@@ -28,11 +27,8 @@ ScreenManager::~ScreenManager() {
 
 	mInput = NULL;
 
-	// BackgroundStars::Release();
-	// mBackgroundStars = NULL;
-
-	// delete mStartScreen;
-	// mStartScreen = NULL;
+	delete mStartScreen;
+	mStartScreen = NULL;
 
 	// delete mPlayScreen;
 	// mPlayScreen = NULL;
@@ -40,48 +36,40 @@ ScreenManager::~ScreenManager() {
 
 
 void ScreenManager::Update() {
+	switch(mCurrentScreen) {
 
-	// mBackgroundStars->Update();
+		case start:
 
-	// switch(mCurrentScreen) {
+			mStartScreen->Update();
+			if(mInput->KeyPressed(SDL_SCANCODE_RETURN)) {
 
-	// 	case start:
+				// mCurrentScreen = play;
+				mStartScreen->ResetAnimation();
+				// mPlayScreen->StartNewGame();
 
-	// 		mStartScreen->Update();
-	// 		if(mInput->KeyPressed(SDL_SCANCODE_RETURN)) {
+			}
+			break;
 
-	// 			mCurrentScreen = play;
-	// 			mStartScreen->ResetAnimation();
-	// 			mPlayScreen->StartNewGame();
+		case play:
+		// 	mPlayScreen->Update();
+		// 	if(mPlayScreen->GameOver()) {
 
-	// 		}
-	// 		break;
-
-	// 	case play:
-	// 		mPlayScreen->Update();
-	// 		if(mPlayScreen->GameOver()) {
-
-	// 			mCurrentScreen = start;
-	// 		}
-	// 		break;
-	// }
-
+		// 		mCurrentScreen = start;
+		// 	}
+			break;
+	}
 }
 
 void ScreenManager::Render() {
+	switch(mCurrentScreen) {
 
-	// mBackgroundStars->Render();
+		case start:
 
-	// switch(mCurrentScreen) {
+			mStartScreen->Render();
+			break;
 
-	// 	case start:
-
-	// 		mStartScreen->Render();
-	// 		break;
-
-	// 	case play:
-	// 		mPlayScreen->Render();
-	// 		break;
-	// }
-
+		case play:
+			// mPlayScreen->Render();
+			break;
+	}
 }

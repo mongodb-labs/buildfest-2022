@@ -2,6 +2,7 @@
 #define ScreenManager_h
 
 #include "engine/InputManager.h"
+#include "StartScreen.h"
 
 class ScreenManager {
 
@@ -13,7 +14,7 @@ private:
 
 	QuickSDL::InputManager* mInput;
 
-	// StartScreen* mStartScreen;
+	StartScreen* mStartScreen;
 	// PlayScreen* mPlayScreen;
 
 	SCREENS mCurrentScreen;
