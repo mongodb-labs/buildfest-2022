@@ -25,6 +25,9 @@ dependencies {
     implementation("io.micronaut:micronaut-validation")
     testImplementation("io.micronaut.mongodb:micronaut-mongo-sync:4.4.0")
 
+    implementation('org.mongodb:mongodb-crypt:1.5.2')
+    implementation('org.mongodb:mongodb-driver-sync:4.7.1')
+
 }
 
 
@@ -44,4 +47,16 @@ micronaut {
         incremental(true)
         annotations("org.buildfest2022.*")
     }
+}
+
+task setupQE(type:JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+
+    main = "org.buildfest2022.qe.MakeDataKeyAndCollection"
+}
+
+task testQE(type:JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+
+    main = "org.buildfest2022.qe.InsertEncryptedDocument"
 }
