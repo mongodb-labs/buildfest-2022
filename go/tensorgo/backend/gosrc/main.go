@@ -79,7 +79,7 @@ func UploadImageEndpoint(response http.ResponseWriter, request *http.Request) {
  */
 func FindImagesEndpoint(response http.ResponseWriter, request *http.Request) {
 	response.Header().Set("content-type", "application/json")
-	var images []ImageInformation
+	var images []ImageInformation = make([]ImageInformation, 0, 0)
 	cursor, err := collection.Find(context.Background(), bson.M{})
 	if err != nil {
 		response.WriteHeader(http.StatusInternalServerError)
