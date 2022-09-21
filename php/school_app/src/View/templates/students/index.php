@@ -1,6 +1,5 @@
 <?php require __DIR__ . "/../header.php" ?>
 
-<p>Student List:</p>
 <table class="table">
     <thead>
     <tr>

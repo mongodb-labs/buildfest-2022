@@ -1,6 +1,7 @@
 <?php namespace SchoolApp\Model;
 
 class Course {
+
     public function __construct(string $name, string $teacher, array $students, string $description, array $assignments ){
         $this->name = $name;
         $this->teacher = $teacher;
