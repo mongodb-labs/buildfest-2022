@@ -14,7 +14,8 @@ then
   popd
 fi
 
-export PKG_CONFIG_PATH="$HOME/.local/lib/pkgconfig"
-export INCLUDE="/opt/homebrew/include/boost"
-
-clang++ -std=c++17 $(pkg-config --cflags --libs libmongocxx) $(pkg-config --cflags --libs sdl2) -lSDL2_mixer -lSDL2_ttf -o leafie_pong Main.cpp
+# export PKG_CONFIG_PATH="$HOME/.local/lib/pkgconfig"
+# export INCLUDE="/opt/homebrew/include/boost"
+# brew install mongo-cxx-driver
+#clang++ -std=c++17 $(pkg-config --cflags --libs libmongocxx) $(pkg-config --cflags --libs sdl2) -lSDL2_mixer -lSDL2_ttf -o leafie_pong AtlasManager.cpp Main.cpp
+g++ -Wno-deprecated -std=c++17 $(pkg-config --cflags --libs libmongocxx) $(pkg-config --cflags --libs sdl2) -lSDL2_mixer -lSDL2_ttf -o leafie_pong AtlasManager.cpp Main.cpp

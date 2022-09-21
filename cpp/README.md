@@ -15,6 +15,8 @@ brew install sdl2_ttf sdl2_mixer sdl2 boost mongo-c-driver
 
 ## Usage
 
+Start the game with an `ATLAS_URI` variable to indicate where the cluster is you'll be connecting to. For example: `ATLAS_URI='mongodb+srv://<user>:<pass>@...mongodb.net/test' ./leafie_pong`.
+
 Playing the game locally involves using the `up` and `down` arrow keys to control the player on the left and the `w` and `s` keys to control the player on the right.
 
 ## MIT License

@@ -10,7 +10,12 @@
 #include "Contact.h"
 #include "PlayerScore.h"
 
+#include "AtlasManager.h"
+
 int main(int argc, char *argv[]) {
+
+	AtlasManager* atlas = AtlasManager::Instance();
+
 	// Initialize SDL components
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
 	TTF_Init();
@@ -169,6 +174,8 @@ int main(int argc, char *argv[]) {
 	Mix_Quit();
 	TTF_Quit();
 	SDL_Quit();
+
+	atlas->TestConnection();
 
 	return 0;
 }
