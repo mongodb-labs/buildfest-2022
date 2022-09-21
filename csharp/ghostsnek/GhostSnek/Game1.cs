@@ -4,6 +4,9 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
+using MongoDB.Driver;
+
+
 namespace GhostSnek;
 
 public class GhostSnek : Game
@@ -20,20 +23,25 @@ public class GhostSnek : Game
 
     private Scene _scene = new Scene();
     private Replay _replay = null;
+    private string _dbConnStr;
+    private MongoClient _dbClient;
 
-    public GhostSnek()
+    public GhostSnek(string[] args)
     {
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
         _graphics.PreferredBackBufferWidth = WIDTH;
         _graphics.PreferredBackBufferHeight = HEIGHT;
+        _dbConnStr = String.Format("mongodb+srv://{0}:{1}@cluster0.gb1qy3e.mongodb.net/?retryWrites=true&w=majority", args[0], args[1]);
     }
 
     protected override void Initialize()
     {
         _pixel = new Texture2D(GraphicsDevice, 1, 1, false, SurfaceFormat.Color);
         _pixel.SetData(new[] { Color.White });
+
+        _dbClient = new MongoClient(_dbConnStr);
 
         base.Initialize();
     }
