@@ -24,22 +24,7 @@ public class Credentials {
         yourCredentials.put("LOCAL_KEY_BASE64", getRequiredEnv("LOCAL_KEY_BASE64"));
 
     }
-    private static void checkPlaceholders() throws Exception {
-        Pattern p = Pattern.compile("<.*>$");
-        ArrayList<String> errorBuffer = new ArrayList<String>();
-        for (Map.Entry<String,String> entry : yourCredentials.entrySet()) {
-            if(p.matcher(String.valueOf(entry.getValue())).matches()){
-                String message = String.format("The value for %s is empty. Please enter something for this value.", entry.getKey());
-                errorBuffer.add(message);
-            }
-        }
-        if (!errorBuffer.isEmpty()){
-            String message = String.join("\n", errorBuffer);
-            throw new Exception(message);
-        }
-    }
     public static Map<String, String> getCredentials() throws Exception {
-        checkPlaceholders();
         return yourCredentials;
     }
 }
