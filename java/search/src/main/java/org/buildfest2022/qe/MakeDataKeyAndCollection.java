@@ -28,9 +28,9 @@ import com.mongodb.client.vault.ClientEncryption;
 import com.mongodb.client.vault.ClientEncryptions;
 
 /*
- * - Reads master key from file "master-key.txt" in root directory of project, or creates one on a KMS
- * - Locates existing local encryption key from encryption.__keyVault collection, or from a KMS
- * - Prints base 64-encoded value of the data encryption key
+ * - Recreates the key vault collection and adds one Data Encryption Key (DEK).
+ * - Recreates the documents and lemmas collections with Queryable Encryption enabled.
+ * - Prints the Encrypted Fields Map.
  */
 public class MakeDataKeyAndCollection {
 
@@ -38,36 +38,32 @@ public class MakeDataKeyAndCollection {
 
         Map<String, String> credentials = Credentials.getCredentials();
 
-        // start-kmsproviders
+        // Create KMS providers.
         Map<String, Map<String, Object>> kmsProviders = new HashMap<String, Map<String, Object>>();
-        String kmsProvider = "local";
-        Map<String, Object> providerDetails = new HashMap<>();
-        providerDetails.put("key", credentials.get("LOCAL_KEY_BASE64"));
-        kmsProviders.put ("local", providerDetails);
-        // end-kmsproviders
+        {
+            String kmsProvider = "local";
+            Map<String, Object> providerDetails = new HashMap<>();
+            providerDetails.put("key", credentials.get("LOCAL_KEY_BASE64"));
+            kmsProviders.put("local", providerDetails);
+        }
 
-
-
-        // start-create-index
         String connectionString = credentials.get("MONGODB_URI");
         String keyVaultDb = "encryption";
         String keyVaultColl = "__keyVault";
-        MongoClient keyVaultClient = MongoClients.create(connectionString);
 
-        String encryptedDbName = "medicalRecords";
-        String encryptedCollName = "patients";
+        System.out.println ("Recreate Key Vault Collection ... begin");
+        {
+            MongoClient keyVaultClient = MongoClients.create(connectionString);
+            keyVaultClient.getDatabase(keyVaultDb).getCollection(keyVaultColl).drop();
 
-        // Drop the Key Vault Collection in case you created this collection
-        // in a previous run of this application.
-        keyVaultClient.getDatabase(keyVaultDb).getCollection(keyVaultColl).drop();
+            MongoCollection keyVaultCollection = keyVaultClient.getDatabase(keyVaultDb).getCollection(keyVaultColl);
+            IndexOptions indexOpts = new IndexOptions().partialFilterExpression(new BsonDocument("keyAltNames", new BsonDocument("$exists", new BsonBoolean(true) ))).unique(true);
+            keyVaultCollection.createIndex(new BsonDocument("keyAltNames", new BsonInt32(1)), indexOpts);
+            keyVaultClient.close();
+        }
+        System.out.println ("Recreate Key Vault Collection ... end");
 
-        MongoCollection keyVaultCollection = keyVaultClient.getDatabase(keyVaultDb).getCollection(keyVaultColl);
-        IndexOptions indexOpts = new IndexOptions().partialFilterExpression(new BsonDocument("keyAltNames", new BsonDocument("$exists", new BsonBoolean(true) ))).unique(true);
-        keyVaultCollection.createIndex(new BsonDocument("keyAltNames", new BsonInt32(1)), indexOpts);
-        keyVaultClient.close();
-        // end-create-index
-
-        // start-create-dek
+        System.out.println ("Create Data Encryption Key ... begin");
         String keyVaultNamespace = keyVaultDb + "." + keyVaultColl;
         ClientEncryptionSettings clientEncryptionSettings = ClientEncryptionSettings.builder()
                 .keyVaultMongoClientSettings(MongoClientSettings.builder()
@@ -77,66 +73,64 @@ public class MakeDataKeyAndCollection {
                 .kmsProviders(kmsProviders)
                 .build();
         ClientEncryption clientEncryption = ClientEncryptions.create(clientEncryptionSettings);
-        List<String> keyAlts1 = new ArrayList<String>();
-        keyAlts1.add("dataKey1");
-        BsonBinary dataKeyId1 = clientEncryption.createDataKey(kmsProvider, new DataKeyOptions()
-                .keyAltNames(keyAlts1));
-        List<String> keyAlts2 = new ArrayList<String>();
-        keyAlts2.add("dataKey2");
-        BsonBinary dataKeyId2 = clientEncryption.createDataKey(kmsProvider, new DataKeyOptions()
-                .keyAltNames(keyAlts2));
-        List<String> keyAlts3 = new ArrayList<String>();
-        keyAlts3.add("dataKey3");
-        BsonBinary dataKeyId3 = clientEncryption.createDataKey(kmsProvider, new DataKeyOptions()
-                .keyAltNames(keyAlts3));
-        List<String> keyAlts4 = new ArrayList<String>();
-        keyAlts4.add("dataKey4");
-        BsonBinary dataKeyId4 = clientEncryption.createDataKey(kmsProvider, new DataKeyOptions()
-                .keyAltNames(keyAlts4));
-        // end-create-dek
-        // start-create-enc-collection
-        String encryptedNameSpace = encryptedDbName + "." + encryptedCollName;
-        BsonDocument encFields = new BsonDocument().append("fields",
-                new BsonArray(Arrays.asList(
-                        new BsonDocument().append("keyId", dataKeyId1)
-                                .append("path", new BsonString("patientId"))
-                                .append("bsonType", new BsonString("int"))
-                                .append("queries", new BsonDocument().append("queryType", new BsonString("equality"))),
-                        new BsonDocument().append("keyId", dataKeyId2)
-                                .append("path", new BsonString("medications"))
-                                .append("bsonType", new BsonString("array")),
-                        new BsonDocument().append("keyId", dataKeyId3)
-                                .append("path", new BsonString("patientRecord.ssn"))
-                                .append("bsonType", new BsonString("string"))
-                                .append("queries", new BsonDocument().append("queryType", new BsonString("equality"))),
-                        new BsonDocument().append("keyId", dataKeyId4)
-                                .append("path", new BsonString("patientRecord.billing"))
-                                .append("bsonType", new BsonString("object"))
-                )));
+        BsonBinary dataKeyId1 = clientEncryption.createDataKey("local", new DataKeyOptions());
+        System.out.println ("Create Data Encryption Key ... end");
+
+        // create the Encrypted Fields Map.
         Map<String, BsonDocument> encryptedFieldsMap = new HashMap<String, BsonDocument>();
-        encryptedFieldsMap.put(encryptedNameSpace, encFields);
+        {
+            encryptedFieldsMap.put("search.documents", new BsonDocument().append("fields",
+                    new BsonArray(Arrays.asList(
+                            new BsonDocument().append("keyId", dataKeyId1)
+                                    .append("path", new BsonString("body"))
+                                    .append("bsonType", new BsonString("string"))
+                    ))));
 
-        Map<String, Object> extraOptions = new HashMap<String, Object>();
-        extraOptions.put("cryptSharedLibPath", credentials.get("SHARED_LIB_PATH"));
+            encryptedFieldsMap.put("search.lemmas", new BsonDocument().append("fields",
+                    new BsonArray(Arrays.asList(
+                            new BsonDocument().append("keyId", dataKeyId1)
+                                    .append("path", new BsonString("lemma"))
+                                    .append("bsonType", new BsonString("string"))
+                                    .append("queries", new BsonDocument().append("queryType", new BsonString("equality")))
+                    ))));
+        }
 
-        MongoClientSettings clientSettings = MongoClientSettings.builder()
-                .applyConnectionString(new ConnectionString(connectionString))
-                .autoEncryptionSettings(AutoEncryptionSettings.builder()
-                        .keyVaultNamespace(keyVaultNamespace)
-                        .kmsProviders(kmsProviders)
-                        .encryptedFieldsMap(encryptedFieldsMap)
-                        .extraOptions(extraOptions)
-                        .build())
-                .build();
-        MongoClient mongoClientSecure = MongoClients.create(clientSettings);
-        MongoDatabase encDb = mongoClientSecure.getDatabase(encryptedDbName);
-        // Drop the encrypted collection in case you created this collection
-        // in a previous run of this application.
-        encDb.getCollection(encryptedCollName).drop();
-        encDb.createCollection(encryptedCollName);
-        // end-create-enc-collection
-        System.out.println("Successfully created encrypted collection!");
-        mongoClientSecure.close();
+        System.out.println ("Drop and create collections in the Encrypted Fields Map ... begin");
+        {
+            Map<String, Object> extraOptions = new HashMap<String, Object>();
+            extraOptions.put("cryptSharedLibPath", credentials.get("SHARED_LIB_PATH"));
+
+            MongoClientSettings clientSettings = MongoClientSettings.builder()
+                    .applyConnectionString(new ConnectionString(connectionString))
+                    .autoEncryptionSettings(AutoEncryptionSettings.builder()
+                            .keyVaultNamespace(keyVaultNamespace)
+                            .kmsProviders(kmsProviders)
+                            .encryptedFieldsMap(encryptedFieldsMap)
+                            .extraOptions(extraOptions)
+                            .build())
+                    .build();
+            MongoClient mongoClientSecure = MongoClients.create(clientSettings);
+
+            for (String name : encryptedFieldsMap.keySet()) {
+                String[] parts = name.split("\\.");
+                String db = parts[0];
+                String coll = parts[1];
+                System.out.println ("  creating collection : " + db + "." + coll);
+                MongoDatabase encDb = mongoClientSecure.getDatabase(db);
+                // Drop the encrypted collection in case you created this collection
+                // in a previous run of this application.
+                encDb.getCollection(coll).drop();
+                encDb.createCollection(coll);
+            }
+
+            mongoClientSecure.close();
+        }
+        System.out.println ("Drop and create collections in the Encrypted Fields Map ... end");
+
+        var b64encoder = Base64.getEncoder();
+        var key1IdString = new String(b64encoder.encode (dataKeyId1.asBinary().getData()));
+        System.out.println ("created key with id: " + key1IdString);
+
         clientEncryption.close();
 
     }

@@ -1,45 +1,40 @@
 package org.buildfest2022.qe;
 
-        import java.util.*;
+import java.util.*;
 
-        import java.util.HashMap;
-        import java.util.Map;
+import java.util.HashMap;
+import java.util.Map;
 
-        import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.eq;
 
-        import com.mongodb.AutoEncryptionSettings;
-        import com.mongodb.client.MongoClient;
-        import com.mongodb.client.MongoClients;
-        import com.mongodb.client.MongoCollection;
+import com.mongodb.AutoEncryptionSettings;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
 
-        import org.bson.BsonArray;
-        import org.bson.BsonBinary;
-        import org.bson.BsonDocument;
-        import org.bson.BsonString;
-        import org.bson.types.Binary;
-        import org.bson.BsonBinarySubType;
+import org.bson.BsonArray;
+import org.bson.BsonBinary;
+import org.bson.BsonDocument;
+import org.bson.BsonString;
+import org.bson.types.Binary;
+import org.bson.BsonBinarySubType;
 
-        import com.mongodb.ConnectionString;
-        import com.mongodb.MongoClientSettings;
-        import org.bson.Document;
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
+import org.bson.Document;
 
 
 
 /*
- * - Reads master key from file "master-key.txt" in root directory of project
- * - Creates a JSON schema for a specified collection to enable automatic encryption
- * - Creates an encrypted client and upserts a single document
- * - Finds the upserted document with the encrypted client using an encrypted field
- * - Attempts to find the upserted document with the normal client using an encrypted field
- * - Finds the upserted document with the normal client using a non-encrypted field
+ * Insert and find a document in search.documents
  */
 public class InsertEncryptedDocument {
 
     public static void main(String[] args) throws Exception {
 
         Map<String, String> credentials = Credentials.getCredentials();
-        String encryptedDbName = "medicalRecords";
-        String encryptedCollName = "patients";
+        String encryptedDbName = "search";
+        String encryptedCollName = "documents";
         String encryptedNameSpace = encryptedDbName + "." + encryptedCollName;
 
         // start-key-vault
@@ -62,29 +57,27 @@ public class InsertEncryptedDocument {
 
         MongoCollection<Document> keyVaultClient = regularClient.getDatabase(keyVaultDb).getCollection(keyVaultColl);
 
-        BsonBinary dataKeyId1 = new BsonBinary(BsonBinarySubType.UUID_STANDARD, keyVaultClient.find(eq("keyAltNames", "dataKey1")).first().get("_id", Binary.class).getData());
-        BsonBinary dataKeyId2 = new BsonBinary(BsonBinarySubType.UUID_STANDARD, keyVaultClient.find(eq("keyAltNames", "dataKey2")).first().get("_id", Binary.class).getData());
-        BsonBinary dataKeyId3 = new BsonBinary(BsonBinarySubType.UUID_STANDARD, keyVaultClient.find(eq("keyAltNames", "dataKey3")).first().get("_id", Binary.class).getData());
-        BsonBinary dataKeyId4 = new BsonBinary(BsonBinarySubType.UUID_STANDARD, keyVaultClient.find(eq("keyAltNames", "dataKey4")).first().get("_id", Binary.class).getData());
+        BsonBinary dataKeyId1 = new BsonBinary(BsonBinarySubType.UUID_STANDARD, keyVaultClient.find().first().get("_id", Binary.class).getData());
 
-        BsonDocument encFields = new BsonDocument().append("fields",
-                new BsonArray(Arrays.asList(
-                        new BsonDocument().append("keyId", dataKeyId1)
-                                .append("path", new BsonString("patientId"))
-                                .append("bsonType", new BsonString("int"))
-                                .append("queries", new BsonDocument().append("queryType", new BsonString("equality"))),
-                        new BsonDocument().append("keyId", dataKeyId2)
-                                .append("path", new BsonString("medications"))
-                                .append("bsonType", new BsonString("array")),
-                        new BsonDocument().append("keyId", dataKeyId3)
-                                .append("path", new BsonString("patientRecord.ssn"))
-                                .append("bsonType", new BsonString("string"))
-                                .append("queries", new BsonDocument().append("queryType", new BsonString("equality"))),
-                        new BsonDocument().append("keyId", dataKeyId4)
-                                .append("path", new BsonString("patientRecord.billing"))
-                                .append("bsonType", new BsonString("object")))));
+
+        // create the Encrypted Fields Map.
         Map<String, BsonDocument> encryptedFieldsMap = new HashMap<String, BsonDocument>();
-        encryptedFieldsMap.put(encryptedNameSpace, encFields);
+        {
+            encryptedFieldsMap.put("search.documents", new BsonDocument().append("fields",
+                    new BsonArray(Arrays.asList(
+                            new BsonDocument().append("keyId", dataKeyId1)
+                                    .append("path", new BsonString("body"))
+                                    .append("bsonType", new BsonString("string"))
+                    ))));
+
+            encryptedFieldsMap.put("search.lemmas", new BsonDocument().append("fields",
+                    new BsonArray(Arrays.asList(
+                            new BsonDocument().append("keyId", dataKeyId1)
+                                    .append("path", new BsonString("lemma"))
+                                    .append("bsonType", new BsonString("string"))
+                                    .append("queries", new BsonDocument().append("queryType", new BsonString("equality")))
+                    ))));
+        }
 
         // end-schema
 
@@ -108,30 +101,16 @@ public class InsertEncryptedDocument {
 
 
         // start-insert
-        ArrayList<String> medications = new ArrayList<>();
-        medications.add("Atorvastatin");
-        medications.add("Levothyroxine");
-
-        Document patientRecord = new Document()
-                .append("ssn", "987-65-4320")
-                .append("billing", new Document().append("type", "Visa").append("number", "4111111111111111"));
-
-        Document patient = new Document()
-                .append("firstName", "Jon")
-                .append("lastName", "Doe")
-                .append("patientId", 12345678)
-                .append("address", "AB+")
-                .append("medications", medications)
-                .append("patientRecord", patientRecord);
-        mongoClientSecure.getDatabase(encryptedDbName).getCollection(encryptedCollName).insertOne(patient);
+        Document doc = new Document("body", "foo");
+        mongoClientSecure.getDatabase(encryptedDbName).getCollection(encryptedCollName).insertOne(doc);
         // end-insert
 
         // start-find
         System.out.println("Finding a document with regular (non-encrypted) client.");
-        Document docRegular = regularClient.getDatabase(encryptedDbName).getCollection(encryptedCollName).find(eq("firstName", "Jon")).first();
+        Document docRegular = regularClient.getDatabase(encryptedDbName).getCollection(encryptedCollName).find().first();
         System.out.println(docRegular.toJson());
         System.out.println("Finding a document with encrypted client, searching on an encrypted field");
-        Document docSecure = mongoClientSecure.getDatabase(encryptedDbName).getCollection(encryptedCollName).find(eq("patientRecord.ssn", "987-65-4320")).first();
+        Document docSecure = mongoClientSecure.getDatabase(encryptedDbName).getCollection(encryptedCollName).find().first();
         System.out.println(docSecure.toJson());
         // end-find
 
