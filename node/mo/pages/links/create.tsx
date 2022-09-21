@@ -98,14 +98,14 @@ function getRandomInt(min: number, max: number) {
 
 // export getStaticProps to provide API_URL to component
 export async function getServerSideProps(context: any) {
-
-    var randWord = ""
-    var resStatus = 200
-    while(resStatus == 200){
-        var randInt = getRandomInt(0, wordsList.length);
-        randWord = wordsList[randInt]
-        var res = await fetch(MOLINKS_CONFIG.API_URL + "/" + randWord)
-        resStatus = res.status
+    // Get a random unused word but limit to 3 attempts to prevent too many queries.
+    let randWord = ""
+    for (let i = 0; i < 3; i++) {
+        randWord = wordsList[getRandomInt(0, wordsList.length)]
+        const res = await fetch(MOLINKS_CONFIG.API_URL + "/" + randWord)
+        if (res.status != 200) {
+            break;
+        }
     }
 
     return {
