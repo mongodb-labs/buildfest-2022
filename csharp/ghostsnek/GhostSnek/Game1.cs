@@ -23,11 +23,11 @@ public class GhostSnek : Game
     private SpriteBatch _spriteBatch;
     private Texture2D _pixel;
 
-    private Scene _scene = new Scene();
+    private Scene _scene;
     private Replay _replay = null;
     private string _dbConnStr;
     private MongoClient _dbClient;
-    private IMongoCollection<Replay> _replayColl;
+    private IMongoCollection<Replay.Data> _replayColl;
 
     public GhostSnek(string[] args)
     {
@@ -45,16 +45,17 @@ public class GhostSnek : Game
         _pixel.SetData(new[] { Color.White });
 
         _dbClient = new MongoClient(_dbConnStr);
-        _replayColl = _dbClient.GetDatabase("ghostsnek").GetCollection<Replay>("replays");
+        _replayColl = _dbClient.GetDatabase("ghostsnek").GetCollection<Replay.Data>("replays");
         _replay = LoadRandomReplay();
+        _scene = new Scene((_replay == null) ? Corner.NW : _replay.Corner.Opposite());
 
         base.Initialize();
     }
 
     private Replay LoadRandomReplay() {
-        return _replayColl.Aggregate()
-            .AppendStage<Replay>(new BsonDocument("$sample", new BsonDocument("size", 1)))
-            .FirstOrDefault();
+        return new Replay(_replayColl.Aggregate()
+            .AppendStage<Replay.Data>(new BsonDocument("$sample", new BsonDocument("size", 1)))
+            .FirstOrDefault());
     }
 
     protected override void LoadContent()
@@ -73,8 +74,8 @@ public class GhostSnek : Game
                 break;
             case GameState.Lost:
                 _replayColl.InsertOne(_scene.GetReplay());
-                _scene = new Scene();
                 _replay = LoadRandomReplay();
+                _scene = new Scene(_replay.Corner.Opposite());
                 break;
             case GameState.Quit:
                 Exit();
@@ -144,15 +145,17 @@ class Scene {
         }
     }
 
-    private Snek _snek = new Snek();
-    private Direction _dir = Direction.Right;
+    private Snek _snek;
+    private Direction _dir;
     private Direction? _nextDir;
     private Ticker _moveTick = new Ticker(new TimeSpan(0, 0, 0, 0, 250));
     private Random _rand = new Random();
     private List<Event> _rec = new List<Event>();
 
-    public Scene() {
+    public Scene(Corner start) {
         Food = NewFood();
+        _snek = new Snek(start);
+        _dir = (start == Corner.NW) ? Direction.Right : Direction.Left;
     }
 
     private Point NewFood() {
@@ -197,8 +200,8 @@ class Scene {
         }
     }
 
-    public Replay GetReplay() {
-        return new Replay(_rec);
+    public Replay.Data GetReplay() {
+        return new Replay.Data { Events = new List<Event>(_rec), Corner = Corner.NW };
     }
 }
 
@@ -224,10 +227,12 @@ public class Snek {
         }
     }
 
-    public Snek() {
+    public Snek(Corner start) {
         _body = new List<Point>();
-        for (int i = 4; i >= 0; i--) {
-            _body.Add(new Point(i, 0));
+        for (int i = 0; i < 5; i++) {
+            var x = (start == Corner.NW) ? 4 - i : (GhostSnek.MAX_X - 5) + i;
+            var y = (start == Corner.NW) ? 0 : GhostSnek.MAX_Y;
+            _body.Add(new Point(x, y));
         }
     }
 
@@ -280,13 +285,32 @@ class Event {
     }
 }
 
-[BsonIgnoreExtraElements]
+public enum Corner {
+    NW,
+    SE,
+}
+
+static class CornerExt {
+    public static Corner Opposite(this Corner corner) {
+        switch (corner) {
+            case Corner.NW: return Corner.SE;
+            case Corner.SE: return Corner.NW;
+        }
+        return Corner.NW;  // TODO: throw an exception or something?
+    }
+}
+
 class Replay {
-    private List<Event> _events;
-    private Snek _snek = new Snek();
+    [BsonIgnoreExtraElements]
+    public class Data {
+        public List<Event> Events;
+        public Corner? Corner;
+    }
+
+    private Data _data;
+    private Snek _snek;
     private int _ix = 0;
 
-    [BsonIgnore]
     public IEnumerable<Point> Snek {
         get {
             return _snek.Body;
@@ -294,20 +318,25 @@ class Replay {
     }
     public IEnumerable<Event> Events {
         get {
-            return _events;
+            return _data.Events;
+        }
+    }
+    public Corner Corner {
+        get {
+            return _data.Corner ?? Corner.NW;
         }
     }
 
-    [BsonConstructor]
-    public Replay(IEnumerable<Event> events) {
-        _events = new List<Event>(events);
+    public Replay(Data data) {
+        _data = data;
+        _snek = new Snek(Corner);
     }
 
     public void Update() {
-        if (_ix >= _events.Count) {
+        if (_ix >= _data.Events.Count) {
             return;
         }
-        var ev = _events[_ix];
+        var ev = _data.Events[_ix];
         _ix += 1;
 
         _snek.Move(ev.Dir);
