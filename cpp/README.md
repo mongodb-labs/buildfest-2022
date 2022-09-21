@@ -2,14 +2,14 @@
 
 A simple C++ [Pong](https://en.wikipedia.org/wiki/Pong) clone built using [SDL](https://www.libsdl.org/), the [MongoDB C++ Driver](https://www.mongodb.com/docs/drivers/cxx/) and [MongoDB Atlas](https://www.mongodb.com/atlas/database).
 
-This project is part of MongoDB's BuildFest2022, and is based on the [tutorial by Austin Morlan](https://austinmorlan.com/posts/pong_clone/). To comply with the original license and to ensure appropriate attribution this project starts with a clone of the original [Git repository](https://code.austinmorlan.com/austin/pong).
+This project is part of MongoDB's BuildFest2022, and is based on the [tutorial by Austin Morlan](https://austinmorlan.com/posts/pong_clone/). To comply with the original license and to ensure appropriate attribution this project starts with a clone of the original [Git repository](https://code.austinmorlan.com/austin/pong). The Pong game was adapted to use Ather Omar's [QuickSDL Framework Tutorial](https://www.youtube.com/watch?v=ATa_joa6Gzg&list=PLhJr2LOK-xwxQlevIZ97ZABLw72Eu9he7) based on the YouTube series.
 
 ## Installation
 
 Currently only OSX build instructions are provided (poorly), but the code "should" be portable to Linux and Windows without much (if any) modification.
 
 ```bash
-brew install sdl2_ttf sdl2_mixer sdl2 boost mongo-c-driver
+brew install sdl2_ttf sdl2_mixer sdl2_image sdl2 boost mongo-c-driver
 ./build.sh
 ```
 
