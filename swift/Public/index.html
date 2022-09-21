@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚇</text></svg>">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -9,6 +10,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/index.css">
     <title>EmTeeAy</title>
+
+    <script type="importmap">
+        {"imports": {
+            "bson": "https://unpkg.com/bson@4.7.0/dist/bson.browser.esm.js",
+            "utils/": "/js/utils/",
+            "components/": "/js/components/"
+        }}
+    </script>
+
     <!-- All our web components should be imported and registered -->
     <script type="module" src="/js/components/index.mjs"></script>
     <!-- Perform business logic in here, hook up to socket and display thing -->
