@@ -10,7 +10,14 @@ class Grades {
     }
     static function create(Grade $grade) {
         \SchoolApp\Repository\Grades::insertOne($grade);
-        return "successful insert!";
+        header("Access-Control-Allow-Origin: *");
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Headers: Content-Type, X-Requested-With');
+        header('Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE, PUT');
+        header('Access-Control-Max-Age: 600');
+        header('Content-Type: application/json; charset=utf-8');
+        $arr = array('success' => true);
+        echo json_encode($arr);
     }
     static function show(string $grade) {
         $objectId = new ObjectId($grade);

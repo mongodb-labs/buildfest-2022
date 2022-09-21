@@ -10,7 +10,8 @@ class Courses {
     }
     static function create(Course $course) {
         \SchoolApp\Repository\Courses::insertOne($course);
-        return "successful insert!";
+        $arr = array('success' => true);
+        echo json_encode($arr);
     }
     static function show(string $course) {
         $objectId = new ObjectId($course);

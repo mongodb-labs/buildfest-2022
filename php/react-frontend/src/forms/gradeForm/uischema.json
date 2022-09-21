@@ -1,0 +1,21 @@
+{
+  "type": "VerticalLayout",
+  "elements": [
+    {
+      "type": "Control",
+      "scope": "#/properties/score"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/recipient"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/course"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/assignment_name"
+    }
+  ]
+}

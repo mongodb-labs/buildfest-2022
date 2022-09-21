@@ -6,7 +6,7 @@ use \MongoDB\BSON\ObjectId as ObjectId;
 
 class Grades {
     static function getAll() {
-        return \SchoolApp\Repository\Database::getInstance()->grades->find();
+        return \SchoolApp\Repository\Database::getInstance()->grades->find()->toArray();
     }
 
     static function insertOne(Grade $grade) {

@@ -10,7 +10,8 @@ class Teachers {
     }
     static function create(Teacher $teacher) {
         \SchoolApp\Repository\Teachers::insertOne($teacher);
-        return "successful insert!";
+        $arr = array('success' => true);
+        echo json_encode($arr);
     }
     static function show(string $teacher) {
         $objectId = new ObjectId($teacher);

@@ -1,0 +1,28 @@
+{
+  "type": "VerticalLayout",
+  "elements": [
+    {
+      "type": "Control",
+      "scope": "#/properties/name"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/teacher"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/students"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/description"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/assignments",
+      "options": {
+        "showSortButtons": true
+      }
+    }
+  ]
+}

@@ -1,6 +1,12 @@
 <?php namespace SchoolApp;
-
 require __DIR__ . '/../vendor/autoload.php';
+
+header("Access-Control-Allow-Origin: *");   
+header("Content-Type: application/json; charset=UTF-8");    
+header("Access-Control-Allow-Methods: POST, DELETE, OPTIONS");    
+header("Access-Control-Max-Age: 3600");    
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+
 
 use \SchoolApp\Model\Student as Student;
 use \SchoolApp\Model\Teacher as Teacher;
@@ -21,7 +27,11 @@ $router->get('/students', function() {
     \SchoolApp\Controller\Students::index();
 });
 
-$router->get('/students/{studentId}', function($studentId) {
+$router->get('/students/form', function() {
+    \SchoolApp\Controller\Students::form();
+});
+
+$router->get('/students/find/{studentId}', function($studentId) {
     \SchoolApp\Controller\Students::show($studentId);
 });
 
@@ -33,7 +43,7 @@ $router->get('/teachers', function() {
     \SchoolApp\Controller\Teachers::index();
 });
 
-$router->get('/teachers/{teacherId}', function($teacherId) {
+$router->get('/teachers/find/{teacherId}', function($teacherId) {
     \SchoolApp\Controller\Teachers::show($teacherId);
 });
 
@@ -45,7 +55,7 @@ $router->get('/courses', function() {
     \SchoolApp\Controller\Courses::index();
 });
 
-$router->get('/courses/{courseId}', function($courseId) {
+$router->get('/courses/find/{courseId}', function($courseId) {
     \SchoolApp\Controller\Courses::show($courseId);
 });
 
@@ -57,7 +67,7 @@ $router->get('/grades', function() {
     \SchoolApp\Controller\Grades::index();
 });
 
-$router->get('/grades/{gradeId}', function($gradeId) {
+$router->get('/grades/find/{gradeId}', function($gradeId) {
     \SchoolApp\Controller\Grades::show($gradeId);
 });
 

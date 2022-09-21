@@ -1,0 +1,18 @@
+{
+  "type": "object",
+  "properties": {
+    "score": {
+      "type": "integer"
+    },
+    "recipient": {
+      "type": "string"
+    },
+    "course": {
+      "type": "string"
+    },
+    "assignment_name": {
+      "type": "string"
+    }
+  },
+  "required": ["score", "recipient", "course", "assignment_name"]
+}

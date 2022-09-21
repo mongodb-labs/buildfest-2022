@@ -8,9 +8,13 @@ class Students {
         $students = \SchoolApp\Repository\Students::getAll();
         \SchoolApp\View\Students::index($students);
     }
+    static function form() {
+        \SchoolApp\View\Students::form();
+    }
     static function create(Student $student) {
         \SchoolApp\Repository\Students::insertOne($student);
-        return "successful insert!";
+        $arr = array('success' => true);
+        echo json_encode($arr);
     }
     static function show(string $student) {
         $objectId = new ObjectId($student);

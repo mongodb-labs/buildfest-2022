@@ -1,0 +1,49 @@
+{
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "teacher": {
+      "type": "string"
+    },
+    "students": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "description": {
+      "type": "string",
+      "title": "describe the course"
+    },
+    "assignments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "oneOf": [
+              {
+                "const": "home-work"
+              },
+              {
+                "const": "test"
+              },
+              {
+                "const": "quiz"
+              }
+            ]
+          },
+          "points": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  },
+  "required": ["name", "teacher", "description", "assignments"]
+}
