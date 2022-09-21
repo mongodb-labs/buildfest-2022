@@ -54,3 +54,9 @@ task setupQE(type:JavaExec) {
 
     main = "org.buildfest2022.qe.MakeDataKeyAndCollection"
 }
+
+task testQE(type:JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+
+    main = "org.buildfest2022.qe.InsertEncryptedDocument"
+}
