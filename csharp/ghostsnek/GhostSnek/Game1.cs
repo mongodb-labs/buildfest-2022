@@ -15,7 +15,7 @@ public class GhostSnek : Game
 {
     private const int WIDTH = 800;
     private const int HEIGHT = 800;
-    private const int GRID_SIZE = 20;
+    private const int GRID_SIZE = 40;
     public const int MAX_X = (WIDTH / GRID_SIZE) - 1;
     public const int MAX_Y = (HEIGHT / GRID_SIZE) - 1;
 
@@ -53,9 +53,10 @@ public class GhostSnek : Game
     }
 
     private Replay LoadRandomReplay() {
-        return new Replay(_replayColl.Aggregate()
+        var data = _replayColl.Aggregate()
             .AppendStage<Replay.Data>(new BsonDocument("$sample", new BsonDocument("size", 1)))
-            .FirstOrDefault());
+            .FirstOrDefault();
+        return (data == null) ? null : new Replay(data);
     }
 
     protected override void LoadContent()
@@ -148,7 +149,7 @@ class Scene {
     private Snek _snek;
     private Direction _dir;
     private Direction? _nextDir;
-    private Ticker _moveTick = new Ticker(new TimeSpan(0, 0, 0, 0, 250));
+    private Ticker _moveTick = new Ticker(new TimeSpan(0, 0, 0, 0, 125));
     private Random _rand = new Random();
     private List<Event> _rec = new List<Event>();
 
