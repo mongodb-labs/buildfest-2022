@@ -41,7 +41,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     // Check if there is a response for the particular method, if so invoke it, if not response with an error
     const response = handleCase[method]
-    if (response) response(req, res)
+    if (response) await response(req, res)
     else res.status(400).json({ error: "No Response for This Request" })
 }
 
