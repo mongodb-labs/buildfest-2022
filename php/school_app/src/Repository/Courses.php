@@ -6,15 +6,15 @@ use \MongoDB\BSON\ObjectId as ObjectId;
 
 class Courses {
     static function getAll() {
-        return \SchoolApp\Repository\Database::getInstance()->courses->find();
+        return \SchoolApp\Repository\Mongo::getDatabase()->courses->find();
     }
 
     static function insertOne(Course $course) {
-        return \SchoolApp\Repository\Database::getInstance()->courses->insertOne($course->get());
+        return \SchoolApp\Repository\Mongo::getDatabase()->courses->insertOne($course->get());
     }
 
     static function findOne(ObjectId $id) {
-        return \SchoolApp\Repository\Database::getInstance()->courses->findOne(['_id' => $id]);
+        return \SchoolApp\Repository\Mongo::getDatabase()->courses->findOne(['_id' => $id]);
     }
 
 }

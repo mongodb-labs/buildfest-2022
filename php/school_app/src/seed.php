@@ -2,7 +2,7 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$db = \SchoolApp\Repository\Database::getInstance();
+$db = \SchoolApp\Repository\Mongo::getInstance();
 $db->students->drop();
 
 $db->students->insertOne(["name" => "Aisha Vaughan" ] );
