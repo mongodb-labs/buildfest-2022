@@ -55,15 +55,21 @@ class Mongo {
         }
     }
 
-    private function getDatabase(): \MongoDB\Database {
-        return $this->client->selectDatabase($this->databaseName);
-    }
-
-    static function getInstance(): \MongoDB\Database {
+    static function getInstance() {
         static $instance;
         if ($instance == null) {
             $instance = new Mongo();
         }
-        return $instance->getDatabase();
+        return $instance;
+    }
+
+
+    static function getClient(): \MongoDB\Client {
+        return self::getInstance()->client;
+    }
+
+
+    static function getDatabase(): \MongoDB\Database {
+        return self::getClient()->selectDatabase(self::getInstance()->databaseName);
     }
 }
