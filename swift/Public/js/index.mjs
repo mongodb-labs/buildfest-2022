@@ -1,40 +1,31 @@
-import { EJSON } from 'https://unpkg.com/bson@4.7.0/dist/bson.browser.esm.js'
+import { AutoConnectWebSocket } from '/js/utils/socket.mjs';
 
 const dateFmt = Intl.DateTimeFormat('en-US', { dateStyle: 'full', timeStyle: 'long' });
+
 const stream = document.getElementById('mta-stream')
+const liveness = document.getElementById('liveness')
 
-let occurrences = 0;
-const interval = setInterval(() => {
-    stream.setState({
-        items: [
-            ...stream.state.items,
-            {
-                 created: dateFmt.format(new Date()),
-                ...Object.fromEntries(Array.from({ length: 4 }, (_, i) => Math.random()).entries())
-            }
-        ]
-    })
+const websocket = new AutoConnectWebSocket()
 
-    if (occurrences === 5) {
-        clearInterval(interval)
+websocket.addEventListener('open', () => liveness.setAttribute('class', 'online'))
+
+// data / error are mutually exclusive
+for await (const { data, error } of websocket) {
+    console.log(`async iterator iterated!`)
+
+    if (error != null) {
+        liveness.setAttribute('class', 'offline')
+        continue
     }
-    occurrences += 1;
-}, 3000)
 
-const websocket = new WebSocket(`ws://${window.location.host}/feed`)
-
-websocket.addEventListener('open', () => console.log('ws => open'))
-websocket.addEventListener('close', () => console.log('ws => close'))
-
-websocket.addEventListener('message', message => {
-    const data = EJSON.parse(message.data, { relaxed: false })
-    stream.setState({
-        items: [...stream.state.items, { created: dateFmt.format(new Date()), ...data }]
-    })
-})
-
-websocket.addEventListener('error', error => {
-    stream.setState({
-        items: [...stream.state.items, { created: dateFmt.format(new Date()), error }]
-    })
-})
+    if (data != null) {
+        liveness.setAttribute('class', 'online')
+        stream.setState({
+            items: [
+                ...stream.state.items,
+                { created: dateFmt.format(new Date()), ...data }
+            ]
+        })
+        continue
+    }
+}

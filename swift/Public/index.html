@@ -9,11 +9,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/index.css">
     <title>EmTeeAy</title>
-    <script type="module" src="/js/components.mjs"></script>
+    <!-- All our web components should be imported and registered -->
+    <script type="module" src="/js/components/index.mjs"></script>
+    <!-- Perform business logic in here, hook up to socket and display thing -->
     <script type="module" src="/js/index.mjs"></script>
 </head>
 <body>
     <h1 class="logo">EmTeeAy</h1>
+    <h4 id="liveness"></h4>
     <hr></hr>
     <app-stream id="mta-stream"></app-stream>
 </body>

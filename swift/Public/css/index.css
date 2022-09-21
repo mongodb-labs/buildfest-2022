@@ -25,3 +25,29 @@ li {
     padding-top: 8px;
     padding-bottom: 8px;
 }
+
+.offline::before {
+    content: "offline 🔌";
+}
+
+.offline {
+    color: white;
+    background-color: slategrey;
+}
+
+.online::before {
+    content: "online ⚡️";
+}
+
+.online {
+    color: white;
+    background-color: forestgreen;
+}
+
+#liveness {
+    margin: 0px;
+    border-radius: 8px;
+    padding-inline-start: 16px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
