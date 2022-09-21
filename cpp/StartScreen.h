@@ -14,15 +14,14 @@ private:
 	Timer* mTimer;
 	InputManager* mInput;
 
-		//Top bar entities
+	//Top bar entities
 	GameEntity* mTopBar;
-	Texture* mGameTitle;
+	Texture* mTitle;
 
-		// Logo entities
+	// Logo entities
 	Texture* mLogo;
 
-
-		//Play mode entities
+	// Play mode entities
 	GameEntity* mPlayModes;
 	Texture* mOnePlayerMode;
 	Texture* mTwoPlayerMode;
@@ -33,8 +32,7 @@ private:
 
 		//Bottom Bar entities
 	GameEntity* mBotBar;
-	Texture* mDates;
-	Texture* mRights;
+	Texture* mBotBanner2;
 
 		//Screen animation variables
 

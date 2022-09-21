@@ -7,22 +7,20 @@ StartScreen::StartScreen() {
 	mInput = InputManager::Instance();
 
 	//Top bar entities
-	mTopBar = new GameEntity(Vector2(Graphics::Instance()->SCREEN_WIDTH*0.5f, 80.0f));
-	mGameTitle = new Texture("1UP", "emulogic.ttf", 32, {200, 0, 0 });
-	mGameTitle->Parent(mTopBar);
-	mGameTitle->Pos(Vector2(-Graphics::Instance()->SCREEN_WIDTH * 0.35f, 0.0f));
+
+	mTopBar = new GameEntity(Vector2(Graphics::Instance()->SCREEN_WIDTH*0.5f, 20.0f));
+	mTitle = new Texture("LEAFIE PONG", "emulogic.ttf", 32, {0, 104, 74 });
+	mTitle->Parent(mTopBar);
+	mTitle->Pos(Vector2(0.0f, 20.0f));
 	mTopBar->Parent(this);
 
-
-
-		// logo entities
-	mLogo = new Texture("galagalogo.png", 0, 0, 360, 180);
-	mLogo->Pos(Vector2(Graphics::Instance()->SCREEN_WIDTH * 0.5f, Graphics::Instance()->SCREEN_HEIGHT * 0.32f));
+	// logo entities
+	mLogo = new Texture("dbx-cxx.png", 0, 0, 342, 342);
+	mLogo->Pos(Vector2(Graphics::Instance()->SCREEN_WIDTH * 0.5f, Graphics::Instance()->SCREEN_HEIGHT * 0.34f));
 	mLogo->Parent(this);
 
-
-		//Play mode entities
-	mPlayModes = new GameEntity(Vector2(Graphics::Instance()->SCREEN_WIDTH*0.5f, Graphics::Instance()->SCREEN_HEIGHT*0.55f));
+	// Play mode entities
+	mPlayModes = new GameEntity(Vector2(Graphics::Instance()->SCREEN_WIDTH*0.5f, Graphics::Instance()->SCREEN_HEIGHT*0.68f));
 	mOnePlayerMode = new Texture("1 Player", "emulogic.ttf", 32, { 230, 230, 230 });
 	mTwoPlayerMode = new Texture("2 Players", "emulogic.ttf", 32, { 230, 230, 230 });
 	mCursor = new Texture("Cursor.png");
@@ -37,40 +35,27 @@ StartScreen::StartScreen() {
 
 	mPlayModes->Parent(this);
 
-
 	mCursorStartPos = Vector2(mCursor->Pos(local));
 	mCursorOffset = Vector2(0.0f, 70.0f);
 	mSelectedMode = 0;
 
-
-		//Bottom bar entities
-
-
+	//Bottom bar entities
 	mBotBar = new GameEntity(Vector2(Graphics::Instance()->SCREEN_WIDTH*0.5f, Graphics::Instance()->SCREEN_HEIGHT*0.7f));
-	mDates = new Texture("1981 1985 NAMCO LTD.", "emulogic.ttf", 32, {230, 230, 230 });
-	mRights = new Texture("ALL RIGHTS RESERVED", "emulogic.ttf", 32, { 230, 230, 230 });
-
-	mDates->Parent(mBotBar);
-	mRights->Parent(mBotBar);
-
-	mDates->Pos(Vector2(0.0f, 90.0f));
-	mRights->Pos(Vector2(0.0f, 170.0f));
-
-
+	mBotBanner2 = new Texture("#BUILDFEST2022-CXX FTW Y'ALL", "emulogic.ttf", 32, { 230, 230, 230 });
+	mBotBanner2->Parent(mBotBar);
+	mBotBanner2->Pos(Vector2(0.0f, 170.0f));
 	mBotBar->Parent(this);
 
-		//Screen animation variables
-
+	//Screen animation variables
 	ResetAnimation();
 }
 
 StartScreen::~StartScreen() {
-
-		//Freeing top bar entities
+	//Freeing top bar entities
 	delete mTopBar;
 	mTopBar = NULL;
-	delete mGameTitle;
-	mGameTitle = NULL;
+	delete mTitle;
+	mTitle = NULL;
 
 	//freeing logo entities
 
@@ -92,20 +77,17 @@ StartScreen::~StartScreen() {
 
 	delete mBotBar;
 	mBotBar = NULL;
-	delete mDates;
-	mDates = NULL;
-	delete mRights;
-	mRights = NULL;
+	delete mBotBanner2;
+	mBotBanner2 = NULL;
 }
 
 void StartScreen::ResetAnimation() {
 
 	mAnimationStartPos = Vector2( 0.0f, Graphics::Instance()->SCREEN_HEIGHT);
 	mAnimationEndPos = VEC2_ZERO;
-	mAnimationTotalTime = 5.0f;
+	mAnimationTotalTime = 2.5f;
 	mAnimationTimer = 0.0f;
 	mAnimationDone = false;
-
 
 	Pos(mAnimationStartPos);
 }
@@ -137,17 +119,11 @@ void StartScreen::Update() {
 
 		if(mAnimationTimer >= mAnimationTotalTime) {
 			mAnimationDone = true;
-
 		}
 
 		if(mInput->KeyPressed(SDL_SCANCODE_DOWN) || mInput->KeyPressed(SDL_SCANCODE_UP))
 			mAnimationTimer = mAnimationTotalTime;
-
-
 	} else {
-
-
-
 		if(mInput->KeyPressed(SDL_SCANCODE_DOWN))
 			ChangeSelectedMode(1);
 		else if(mInput->KeyPressed(SDL_SCANCODE_UP))
@@ -157,18 +133,7 @@ void StartScreen::Update() {
 }
 
 void StartScreen::Render() {
-
-	mGameTitle->Render();
-
-
-
-
-
-
-	if(!mAnimationDone)
-		mLogo->Render();
-	else
-
+	mTitle->Render();
 
 	mLogo->Render();
 
@@ -176,9 +141,5 @@ void StartScreen::Render() {
 	mTwoPlayerMode->Render();
 	mCursor->Render();
 
-	mDates->Render();
-	mRights->Render();
-
-
-
+	mBotBanner2->Render();
 }
