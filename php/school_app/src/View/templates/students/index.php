@@ -1,20 +1,25 @@
 <?php require __DIR__ . "/../header.php" ?>
 
-<form class="row text-center" role="form" method="GET" action="/students">
-
+<div class="row">
+  <div class="col col-5">
+    <a class="btn btn-primary btn-sm" href="/students/new" role="button">Create Student record</a>
+  </div>
   <div class="col">
+    <form class="row text-center" role="form" method="GET" action="/students">
+    <div class="col">
     <input type="text" class="form-control" placeholder="Filter by name" id="name" name="name">
+    </div>
+    <div class="col">
+    <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+    <a class="btn btn-danger btn-sm" href="/students">Clear filter</a>
+    </div>
+    </form>
   </div>
-  <div class="col">
-  <button type="submit" class="btn btn-primary btn-sm">Filter</button>
-  <a class="btn btn-danger btn-sm" href="/students">Clear</a>
-  </div>
-</form>
+</div>
 <hr>
 <table class="table">
     <thead>
     <tr>
-      <th scope="col">&nbsp;</th>
       <th scope="col">Name</th>
       <th scope="col">&nbsp;</th>
     </tr>
@@ -22,7 +27,6 @@
   <tbody>
     <?php foreach ($students as $student) : ?>
       <tr>
-          <td>&nbsp;</td>
           <td><?= $student["name"] ?></td>
           <td>
               <a class="btn btn-primary btn-sm" href="/students/<?= $student["_id"] ?>" role="button">Show</a>
@@ -33,6 +37,6 @@
     </tbody>
 </table>
 
-<a class="btn btn-primary" href="/students/new" role="button">Create Student record</a>
+
 
 <?php require __DIR__ . "/../footer.php" ?>
