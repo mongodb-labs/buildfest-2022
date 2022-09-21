@@ -22,8 +22,8 @@ function Index(props: IndexProps) {
           <thead>
             <tr>
               <th>Alias</th>
-              <th>Count</th>
               <th>Link</th>
+              <th>Count</th>
               <th></th>
             </tr>
           </thead>
@@ -31,9 +31,9 @@ function Index(props: IndexProps) {
             {links.map(link => (
               <tr key={link._id}>
                 <td>{link.alias}</td>
-                <td>{link.n}</td>
                 <td>{link.link}</td>
-                <td><Link href={`./links/${link.alias}`}><button className="button is-link is-primary">Edit</button></Link></td>
+                <td>{link.n || 0}</td>
+                <td><Link href={`./links/${encodeURIComponent(link.alias)}`}><button className="button is-link is-primary">Edit</button></Link></td>
               </tr>
             ))}
           </tbody>

@@ -10,7 +10,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const catcher = (error: Error) => res.status(400).json({ error })
 
     // GRAB ID FROM req.query (where next stores params)
-    const id: string = req.query.id as string
+    const id: string = decodeURIComponent(req.query.id as string)
+
 
     // Potential Responses for /links/:id
     const handleCase: ResponseFuncs = {

@@ -32,7 +32,7 @@ function EditForm(props: Props) {
         return errors;
       }}
       onSubmit={async (values, { setSubmitting }) => {
-        await fetch(props.url + "/" + props.link.alias, {
+        await fetch(props.url + "/" + encodeURIComponent(props.link.alias), {
           method: "put",
           headers: {
             "Content-Type": "application/json",
@@ -87,7 +87,7 @@ function EditForm(props: Props) {
 
 export async function getServerSideProps(context: any) {
   // fetch the MoLink, the param was received via context.query.id
-  const res = await fetch(MOLINKS_CONFIG.API_URL + "/" + context.query.id)
+  const res = await fetch(MOLINKS_CONFIG.API_URL + "/" + encodeURIComponent(context.query.id))
   const MoLink = await res.json()
 
   //return the serverSideProps the MoLink and the url from out env variables for frontend api calls
