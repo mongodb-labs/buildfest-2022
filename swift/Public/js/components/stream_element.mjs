@@ -13,7 +13,7 @@ class StreamElement extends HTMLElement {
         this.inheritStyles();
 
         /** @type {StreamState} */
-        this.state = { items: [{ hello: 1 }, { bye: 2 }] }
+        this.state = { items: [] }
     }
 
     /**
@@ -30,6 +30,7 @@ class StreamElement extends HTMLElement {
         for (const rule of indexCss.cssRules) {
             sheet.insertRule(rule.cssText)
         }
+        sheet.insertRule(`* { font-family: 'Source Code Pro', monospace; }`)
         this.shadowRoot.adoptedStyleSheets.push(sheet)
     }
 
@@ -38,7 +39,8 @@ class StreamElement extends HTMLElement {
         if (this.shadowRoot == null) {
             return;
         }
-        this.shadowRoot.innerHTML = StreamElement.render(this.state);
+        this.shadowRoot.innerHTML = ''
+        this.shadowRoot.appendChild(StreamElement.render(this.state));
     }
 
     /**
@@ -46,34 +48,49 @@ class StreamElement extends HTMLElement {
      * is not bound to anything but the passed in state
      * @param {StreamState} state
      *
-     * @return {string}
+     * @return {Element}
      */
     static render(state) {
         if (state == null) {
-            return `<pre>no state, this is an error</pre>`
+            const p = document.createElement('p')
+            p.innerText = `no state, this is an error`
+            return p
         }
         if (state.items.length === 0) {
-            return `<pre>no message</pre>`
+            const p = document.createElement('p')
+            p.innerText = `no message`
+            return p
         }
 
-        let listEl = `<ul>`
-
-        const expandObject = (object) => {
-            let str = ''
-            for (const [key, value] of Object.entries(object)) {
-                str += `<li><pre>${key} => ${EJSON.stringify(value)}</pre></li>`
+        function createTree(container, data) {
+            const ul = container.appendChild(document.createElement('ul'));
+            if (data != null && typeof data === 'object') {
+                for (const [key, val] of Object.entries(data)) {
+                    const li = ul.appendChild(document.createElement('li'));
+                    if (data != null && typeof data === 'object') {
+                        li.textContent = `${key}`;
+                        createTree(li, val);
+                    }
+                }
+            } else {
+                const li = ul.appendChild(document.createElement('li'));
+                li.textContent += `↪ ${data}`
             }
-            return str;
         }
 
-        for (const [index, item] of state.items.entries()) {
-            listEl += `<li><pre>Item: ${index.toLocaleString('us')}<pre><ul>`
-            listEl += expandObject(item)
-            listEl += `</li></ul>`
+        const root = document.createElement('ul')
+        // Object.fromEntries(Array.from(state.items.entries()).map(([index, val]) => [`Change ${index}`, val])))
+
+        for (const [index, value] of state.items.entries()) {
+            const li = root.appendChild(document.createElement('li'))
+            li.textContent = `Change ${index}`
+            const summary = li.appendChild(document.createElement('summary'))
+            const details = summary.appendChild(document.createElement('details'))
+            createTree(details, value)
         }
 
-        listEl += `</ul>`
-        return listEl;
+
+        return root
     }
 
     /**
@@ -85,7 +102,8 @@ class StreamElement extends HTMLElement {
             return;
         }
         this.state = state;
-        this.shadowRoot.innerHTML = StreamElement.render(this.state);
+        this.shadowRoot.innerHTML = ''
+        this.shadowRoot.appendChild(StreamElement.render(this.state));
     }
 }
 
