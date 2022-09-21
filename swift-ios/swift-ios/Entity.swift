@@ -8,4 +8,9 @@ struct Entity: Decodable, Identifiable {
   var name: String {
     vehicle.vehicle.label
   }
+  
+  enum CodingKeys: String, CodingKey {
+    case id
+    case vehicle
+  }
 }

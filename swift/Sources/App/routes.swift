@@ -40,7 +40,6 @@ extension Request {
   }
 
   func feed(ws: WebSocket) async throws {
-    try await ws.send("{\"hello\": 1}")
     print("ws connected")
 
     let encoder: ExtendedJSONEncoder = ExtendedJSONEncoder()

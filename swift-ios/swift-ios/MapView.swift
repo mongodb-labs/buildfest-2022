@@ -14,29 +14,7 @@ struct MapView: View {
     )
   )
   
-  @State private var entities = [
-    Entity(
-      id: "1",
-      vehicle: VehiclePosition(
-        position: Position(latitude: 40.758896, longitude: -73.975130, bearing: 0.0, speed: 0.0),
-        vehicle: VehicleDescriptor(id: "F", label: "F")
-      )
-    ),
-    Entity(
-      id: "2",
-      vehicle: VehiclePosition(
-        position: Position(latitude: 40.758896, longitude: -73.985130, bearing: 0.0, speed: 0.0),
-        vehicle: VehicleDescriptor(id: "1", label: "1")
-      )
-    ),
-    Entity(
-      id: "3",
-      vehicle: VehiclePosition(
-        position: Position(latitude: 40.758896, longitude: -73.977130, bearing: 0.0, speed: 0.0),
-        vehicle: VehicleDescriptor(id: "Q", label: "Q")
-      )
-    ),
-  ]
+  @State private var entities: [Entity] = []
   
   var body: some View {
     Map(coordinateRegion: $region, annotationItems: entities) { entity in
@@ -48,8 +26,41 @@ struct MapView: View {
           .opacity(100)
       }
     }.task {
-
+      connectWebSocket()
     }.edgesIgnoringSafeArea(.all)
+  }
+  
+  let task = URLSession.shared.webSocketTask(with: URL(string: "ws://localhost:8080/feed")!)
+  
+  private func connectWebSocket() {
+    task.resume()
+    listenOnWebSocket()
+  }
+  
+  private func listenOnWebSocket() {
+    task.receive { result in
+      switch result {
+      case .failure(let error):
+        print(error)
+      case .success(let message):
+        switch message {
+        case .string(let text):
+          let decoder = JSONDecoder()
+          do {
+            print("JSON received")
+            let decoded = try decoder.decode(Message.self, from: Data(text.utf8))
+            entities = decoded.entities
+            listenOnWebSocket()
+          } catch {
+            print("Unexpected error: \(error).")
+          }
+        case .data(let data):
+          print(data)
+        @unknown default:
+          print("Received unknown")
+        }
+      }
+    }
   }
 }
 
