@@ -1,8 +1,8 @@
 <?php namespace SchoolApp\Repository;
 
-class Database {
+class Mongo {
 
-    private $client;
+    private \MongoDB\Client $client;
 
     private string $databaseName;
 
@@ -62,10 +62,8 @@ class Database {
     static function getInstance(): \MongoDB\Database {
         static $instance;
         if ($instance == null) {
-            $instance = new Database();
+            $instance = new Mongo();
         }
         return $instance->getDatabase();
     }
 }
-
-?>
