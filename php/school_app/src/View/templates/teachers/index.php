@@ -10,18 +10,17 @@
   </thead>
   <tbody>
 
-  </tbody>
-    <?php foreach ($teachers as $teacher) : ?>
-        <tr>
-            <td>&nbsp;</td>
-            <td><?= $teacher["name"] ?></td>
-            <td>
-                <a class="btn btn-primary btn-sm" href="/teachers/<?= $teacher["_id"] ?>" role="button">Show</a>
-                <a class="btn btn-danger btn-sm" href="#" role="button">Delete</a>
-            </td>
+  <?php foreach ($teachers as $teacher) : ?>
+    <tr>
+        <td>&nbsp;</td>
+        <td><?= $teacher["name"] ?></td>
+        <td>
+            <a class="btn btn-primary btn-sm" href="/teachers/<?= $teacher["_id"] ?>" role="button">Show</a>
+            <a class="btn btn-danger btn-sm" href="#" role="button">Delete</a>
+        </td>
     </tr>
-    <?php endforeach ?>
-    </tbody>
+  <?php endforeach ?>
+  </tbody>
 </table>
 
 <a class="btn btn-primary" href="/teachers/new" role="button">Create Teacher record</a>

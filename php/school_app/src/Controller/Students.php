@@ -4,8 +4,12 @@ use \SchoolApp\Model\Student as Student;
 use \MongoDB\BSON\ObjectId as ObjectId;
 
 class Students {
-    static function index() {
-        $students = \SchoolApp\Repository\Students::getAll();
+    static function index(?string $name) {
+        if ($name == null) {
+            $students = \SchoolApp\Repository\Students::getAll();
+        } else {
+            $students = \SchoolApp\Repository\Students::getByName($name);
+        }
         \SchoolApp\View\Students::index($students);
     }
 
