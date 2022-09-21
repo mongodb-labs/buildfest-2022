@@ -5,7 +5,7 @@
         }
     },
     "require": {
-        "mongodb/mongodb": "1.*",
+        "mongodb/mongodb": "^1.13",
         "bramus/router": "1.6"
     }
 }
