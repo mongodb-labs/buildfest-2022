@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 
 
@@ -25,6 +27,7 @@ public class GhostSnek : Game
     private Replay _replay = null;
     private string _dbConnStr;
     private MongoClient _dbClient;
+    private IMongoCollection<Replay> _replayColl;
 
     public GhostSnek(string[] args)
     {
@@ -42,8 +45,16 @@ public class GhostSnek : Game
         _pixel.SetData(new[] { Color.White });
 
         _dbClient = new MongoClient(_dbConnStr);
+        _replayColl = _dbClient.GetDatabase("ghostsnek").GetCollection<Replay>("replays");
+        _replay = LoadRandomReplay();
 
         base.Initialize();
+    }
+
+    private Replay LoadRandomReplay() {
+        return _replayColl.Aggregate()
+            .AppendStage<Replay>(new BsonDocument("$sample", new BsonDocument("size", 1)))
+            .FirstOrDefault();
     }
 
     protected override void LoadContent()
@@ -61,8 +72,9 @@ public class GhostSnek : Game
                 }
                 break;
             case GameState.Lost:
-                _replay = _scene.GetReplay();
+                _replayColl.InsertOne(_scene.GetReplay());
                 _scene = new Scene();
+                _replay = LoadRandomReplay();
                 break;
             case GameState.Quit:
                 Exit();
@@ -186,7 +198,7 @@ class Scene {
     }
 
     public Replay GetReplay() {
-        return new Replay(new List<Event>(_rec));
+        return new Replay(_rec);
     }
 }
 
@@ -259,7 +271,7 @@ public class Snek {
     }
 }
 
-struct Event {
+class Event {
     public Direction Dir;
     public bool Grew = false;
 
@@ -268,19 +280,27 @@ struct Event {
     }
 }
 
+[BsonIgnoreExtraElements]
 class Replay {
     private List<Event> _events;
     private Snek _snek = new Snek();
     private int _ix = 0;
 
+    [BsonIgnore]
     public IEnumerable<Point> Snek {
         get {
             return _snek.Body;
         }
     }
+    public IEnumerable<Event> Events {
+        get {
+            return _events;
+        }
+    }
 
-    public Replay(List<Event> events) {
-        _events = events;
+    [BsonConstructor]
+    public Replay(IEnumerable<Event> events) {
+        _events = new List<Event>(events);
     }
 
     public void Update() {
