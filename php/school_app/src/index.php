@@ -47,19 +47,24 @@ $router->post('/teachers', function() {
     \SchoolApp\Controller\Teachers::create(Teacher::makeWithPost($_POST));
 });
 
+/* Courses */
 $router->get('/courses', function() {
     \SchoolApp\Controller\Courses::index();
 });
 
-/* Courses */
+$router->get('/courses/new', function() {
+    \SchoolApp\Controller\Courses::new();
+});
+
 $router->get('/courses/{courseId}', function($courseId) {
     \SchoolApp\Controller\Courses::show($courseId);
 });
 
 $router->post('/courses', function() {
-    \SchoolApp\Controller\Courses::create(Course::makeWithPost($_POST));
+    \SchoolApp\Controller\Courses::create();
 });
 
+/* Grades */
 $router->get('/grades', function() {
     \SchoolApp\Controller\Grades::index();
 });
@@ -68,7 +73,6 @@ $router->get('/grades/{gradeId}', function($gradeId) {
     \SchoolApp\Controller\Grades::show($gradeId);
 });
 
-/* Grades */
 $router->post('/grades', function() {
     \SchoolApp\Controller\Grades::create(Grade::makeWithPost($_POST));
 });

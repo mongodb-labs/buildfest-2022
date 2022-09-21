@@ -28,7 +28,7 @@
             </ul>
         </div>
     </nav>
-    <div class="container text-center" style="padding-top: 2em">
+    <div class="container" style="padding-top: 2em">
     <div class="row">
     <div class="col"></div>
     <div class="col-8">
