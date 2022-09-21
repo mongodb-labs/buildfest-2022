@@ -24,6 +24,7 @@ function Index(props: IndexProps) {
               <th>Alias</th>
               <th>Link</th>
               <th>Count</th>
+              <th>Created</th>
               <th></th>
             </tr>
           </thead>
@@ -33,6 +34,7 @@ function Index(props: IndexProps) {
                 <td>{link.alias}</td>
                 <td>{link.link}</td>
                 <td>{link.n || 0}</td>
+                <td>{link.createdAt?.toString()}</td>
                 <td><Link href={`./links/${encodeURIComponent(link.alias)}`}><button className="button is-link is-primary">Edit</button></Link></td>
               </tr>
             ))}

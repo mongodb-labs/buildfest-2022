@@ -12,4 +12,5 @@ export interface MoLink {
     alias: string
     link: string
     n: number
+    createdAt: Date
 }

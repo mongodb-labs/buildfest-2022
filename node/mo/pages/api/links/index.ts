@@ -19,7 +19,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         // RESPONSE POST REQUESTS
         POST: async (req: NextApiRequest, res: NextApiResponse) => {
             const { MoLink } = await connect() // connect to database
-            res.json(await MoLink.create(req.body).catch(catcher))
+            let doc = req.body
+            doc.n = 0
+            doc.createdAt = new Date()
+            res.json(await MoLink.create(doc).catch(catcher))
         },
     }
 

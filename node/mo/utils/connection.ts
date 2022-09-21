@@ -1,5 +1,5 @@
 // IMPORT MONGOOSE
-import mongoose, { Model, Number } from "mongoose"
+import mongoose, { Model, Number, Date } from "mongoose"
 import { MOLINKS_CONFIG } from "./config"
 
 // CONNECTING TO MONGOOSE (Get Database Url from .env.local)
@@ -16,6 +16,7 @@ export const connect = async () => {
         alias: String,
         link: String,
         n: Number,
+        createdAt: Date,
     })
 
     // OUR MoLink MODEL
