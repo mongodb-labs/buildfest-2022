@@ -9,16 +9,17 @@ use \SchoolApp\Model\Grade as Grade;
 
 $router = new \Bramus\Router\Router();
 
-function DecodeJSONPOST(){
-    return json_decode(file_get_contents('php://input'), true);
-}
-
 $router->get('/', function() {
     \SchoolApp\Controller\Home::index();
 });
 
+/* Student */
 $router->get('/students', function() {
     \SchoolApp\Controller\Students::index();
+});
+
+$router->get('/students/new', function() {
+    \SchoolApp\Controller\Students::new();
 });
 
 $router->get('/students/{studentId}', function($studentId) {
@@ -26,11 +27,16 @@ $router->get('/students/{studentId}', function($studentId) {
 });
 
 $router->post('/students', function() {
-    \SchoolApp\Controller\Students::create(Student::makeWithPost(DecodeJSONPOST()));
+    \SchoolApp\Controller\Students::create(Student::makeWithPost($_POST));
 });
 
+/* Teachers */
 $router->get('/teachers', function() {
     \SchoolApp\Controller\Teachers::index();
+});
+
+$router->get('/teachers/new', function() {
+    \SchoolApp\Controller\Teachers::new();
 });
 
 $router->get('/teachers/{teacherId}', function($teacherId) {
@@ -38,7 +44,7 @@ $router->get('/teachers/{teacherId}', function($teacherId) {
 });
 
 $router->post('/teachers', function() {
-    \SchoolApp\Controller\Teachers::create(Teacher::makeWithPost(DecodeJSONPOST()));
+    \SchoolApp\Controller\Teachers::create(Teacher::makeWithPost($_POST));
 });
 
 $router->get('/courses', function() {
@@ -50,7 +56,7 @@ $router->get('/courses/{courseId}', function($courseId) {
 });
 
 $router->post('/courses', function() {
-    \SchoolApp\Controller\Courses::create(Course::makeWithPost(DecodeJSONPOST()));
+    \SchoolApp\Controller\Courses::create(Course::makeWithPost($_POST));
 });
 
 $router->get('/grades', function() {
@@ -62,7 +68,7 @@ $router->get('/grades/{gradeId}', function($gradeId) {
 });
 
 $router->post('/grades', function() {
-    \SchoolApp\Controller\Grades::create(Grade::makeWithPost(DecodeJSONPOST()));
+    \SchoolApp\Controller\Grades::create(Grade::makeWithPost($_POST));
 });
 
 $router->set404(function() {

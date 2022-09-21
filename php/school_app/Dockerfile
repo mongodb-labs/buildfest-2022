@@ -10,6 +10,8 @@ RUN pecl install mongodb
 
 RUN docker-php-ext-enable --ini-name zz-mongodb.ini mongodb
 
+COPY ./mongo_crypt_v1.so /usr/local/lib
+
 RUN mkdir -p /school_app/src
 
 COPY ./composer.json /school_app
@@ -20,6 +22,6 @@ WORKDIR /school_app
 
 RUN composer update
 
-EXPOSE 80
+EXPOSE 8080
 
-CMD ["php", "-S", "0.0.0.0:80", "-t", "/school_app/src", "/school_app/src/index.php"]
+CMD ["php", "-S", "0.0.0.0:8080", "-t", "/school_app/src", "/school_app/src/index.php"]
