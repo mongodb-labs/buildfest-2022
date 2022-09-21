@@ -24,7 +24,6 @@ public class GhostSnek : Game
     private Texture2D _pixel;
 
     private Scene _scene;
-    private Replay _replay = null;
     private string _dbConnStr;
     private MongoClient _dbClient;
     private IMongoCollection<Replay.Data> _replayColl;
@@ -46,8 +45,7 @@ public class GhostSnek : Game
 
         _dbClient = new MongoClient(_dbConnStr);
         _replayColl = _dbClient.GetDatabase("ghostsnek").GetCollection<Replay.Data>("replays");
-        _replay = LoadRandomReplay();
-        _scene = new Scene((_replay == null) ? Corner.NW : _replay.Corner.Opposite());
+        _scene = new Scene(LoadRandomReplay());
 
         base.Initialize();
     }
@@ -67,16 +65,10 @@ public class GhostSnek : Game
     protected override void Update(GameTime gameTime)
     {
         switch (_scene.Update(gameTime)) {
-            case GameState.Waiting: break;
-            case GameState.Update:
-                if (_replay != null) {
-                    _replay.Update();
-                }
-                break;
+            case GameState.Play: break;
             case GameState.Lost:
                 _replayColl.InsertOne(_scene.GetReplay());
-                _replay = LoadRandomReplay();
-                _scene = new Scene(_replay.Corner.Opposite());
+                _scene = new Scene(LoadRandomReplay());
                 break;
             case GameState.Quit:
                 Exit();
@@ -95,8 +87,8 @@ public class GhostSnek : Game
         GraphicsDevice.Clear(Color.Black);
 
         _spriteBatch.Begin();
-        if (_replay != null) {
-            foreach (Point p in _replay.Snek) {
+        if (_scene.Replay != null) {
+            foreach (Point p in _scene.Replay) {
                 DrawRect(p.X * GRID_SIZE, p.Y * GRID_SIZE, GRID_SIZE-1, GRID_SIZE-1, Color.Gray);
             }
         }
@@ -145,6 +137,11 @@ class Scene {
             return _snek.Body;
         }
     }
+    public IEnumerable<Point> Replay {
+        get {
+            return _replay?.Snek;
+        }
+    }
 
     private Snek _snek;
     private Direction _dir;
@@ -152,11 +149,15 @@ class Scene {
     private Ticker _moveTick = new Ticker(new TimeSpan(0, 0, 0, 0, 125));
     private Random _rand = new Random();
     private List<Event> _rec = new List<Event>();
+    private Replay _replay;
+    private Corner _start;
 
-    public Scene(Corner start) {
+    public Scene(Replay replay) {
         Food = NewFood();
-        _snek = new Snek(start);
-        _dir = (start == Corner.NW) ? Direction.Right : Direction.Left;
+        _replay = replay;
+        _start = replay?.Corner.Opposite() ?? Corner.NW;
+        _snek = new Snek(_start);
+        _dir = (_start == Corner.NW) ? Direction.Right : Direction.Left;
     }
 
     private Point NewFood() {
@@ -195,20 +196,18 @@ class Scene {
                 _snek.Grow();
             }
             _rec.Add(ev);
-            return GameState.Update;
-        } else {
-            return GameState.Waiting;
+            _replay?.Update();
         }
+        return GameState.Play;
     }
 
     public Replay.Data GetReplay() {
-        return new Replay.Data { Events = new List<Event>(_rec), Corner = Corner.NW };
+        return new Replay.Data { Events = new List<Event>(_rec), Corner = _start };
     }
 }
 
 enum GameState {
-    Waiting,
-    Update,
+    Play,
     Lost,
     Quit,
 }
