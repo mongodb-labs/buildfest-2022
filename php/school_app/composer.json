@@ -6,6 +6,7 @@
     },
     "require": {
         "mongodb/mongodb": "^1.13",
-        "bramus/router": "1.6"
+        "bramus/router": "1.6",
+        "ext-mongodb": "*"
     }
 }
