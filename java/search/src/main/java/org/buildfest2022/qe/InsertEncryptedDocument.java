@@ -52,11 +52,9 @@ public class InsertEncryptedDocument {
 
         // start-kmsproviders
         Map<String, Map<String, Object>> kmsProviders = new HashMap<String, Map<String, Object>>();
-        String kmsProvider = "aws";
         Map<String, Object> providerDetails = new HashMap<>();
-        providerDetails.put("accessKeyId", credentials.get("AWS_ACCESS_KEY_ID"));
-        providerDetails.put("secretAccessKey", credentials.get("AWS_SECRET_ACCESS_KEY"));
-        kmsProviders.put(kmsProvider, providerDetails);
+        providerDetails.put("key", credentials.get("LOCAL_KEY_BASE64"));
+        kmsProviders.put ("local", providerDetails);
         // end-kmsproviders
 
         // start-schema

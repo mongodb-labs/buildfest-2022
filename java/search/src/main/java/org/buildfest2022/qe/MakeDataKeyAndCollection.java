@@ -40,19 +40,12 @@ public class MakeDataKeyAndCollection {
 
         // start-kmsproviders
         Map<String, Map<String, Object>> kmsProviders = new HashMap<String, Map<String, Object>>();
-        String kmsProvider = "aws";
+        String kmsProvider = "local";
         Map<String, Object> providerDetails = new HashMap<>();
-        providerDetails.put("accessKeyId", credentials.get("AWS_ACCESS_KEY_ID"));
-        providerDetails.put("secretAccessKey", credentials.get("AWS_SECRET_ACCESS_KEY"));
-        kmsProviders.put(kmsProvider, providerDetails);
+        providerDetails.put("key", credentials.get("LOCAL_KEY_BASE64"));
+        kmsProviders.put ("local", providerDetails);
         // end-kmsproviders
 
-        // start-datakeyopts
-        BsonDocument masterKeyProperties = new BsonDocument();
-        masterKeyProperties.put("provider", new BsonString(kmsProvider));
-        masterKeyProperties.put("key", new BsonString(credentials.get("AWS_KEY_ARN")));
-        masterKeyProperties.put("region", new BsonString(credentials.get("AWS_KEY_REGION")));
-        // end-datakeyopts
 
 
         // start-create-index
@@ -87,22 +80,18 @@ public class MakeDataKeyAndCollection {
         List<String> keyAlts1 = new ArrayList<String>();
         keyAlts1.add("dataKey1");
         BsonBinary dataKeyId1 = clientEncryption.createDataKey(kmsProvider, new DataKeyOptions()
-                .masterKey(masterKeyProperties)
                 .keyAltNames(keyAlts1));
         List<String> keyAlts2 = new ArrayList<String>();
         keyAlts2.add("dataKey2");
         BsonBinary dataKeyId2 = clientEncryption.createDataKey(kmsProvider, new DataKeyOptions()
-                .masterKey(masterKeyProperties)
                 .keyAltNames(keyAlts2));
         List<String> keyAlts3 = new ArrayList<String>();
         keyAlts3.add("dataKey3");
         BsonBinary dataKeyId3 = clientEncryption.createDataKey(kmsProvider, new DataKeyOptions()
-                .masterKey(masterKeyProperties)
                 .keyAltNames(keyAlts3));
         List<String> keyAlts4 = new ArrayList<String>();
         keyAlts4.add("dataKey4");
         BsonBinary dataKeyId4 = clientEncryption.createDataKey(kmsProvider, new DataKeyOptions()
-                .masterKey(masterKeyProperties)
                 .keyAltNames(keyAlts4));
         // end-create-dek
         // start-create-enc-collection

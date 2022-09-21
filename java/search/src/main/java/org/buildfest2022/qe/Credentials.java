@@ -21,11 +21,7 @@ public class Credentials {
         // Mongo Paths + URI
         yourCredentials.put("MONGODB_URI", getRequiredEnv("MONGODB_URI"));
         yourCredentials.put("SHARED_LIB_PATH", getRequiredEnv("SHARED_LIB_PATH"));
-        // AWS Credentials
-        yourCredentials.put("AWS_ACCESS_KEY_ID", getRequiredEnv("AWS_ACCESS_KEY_ID"));
-        yourCredentials.put("AWS_SECRET_ACCESS_KEY", getRequiredEnv("AWS_SECRET_ACCESS_KEY"));
-        yourCredentials.put("AWS_KEY_REGION", getRequiredEnv("AWS_KEY_REGION"));
-        yourCredentials.put("AWS_KEY_ARN", getRequiredEnv("AWS_KEY_ARN"));
+        yourCredentials.put("LOCAL_KEY_BASE64", getRequiredEnv("LOCAL_KEY_BASE64"));
 
     }
     private static void checkPlaceholders() throws Exception {
