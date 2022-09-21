@@ -95,17 +95,17 @@ public class GhostSnek : Game
         GraphicsDevice.Clear(Color.Black);
 
         _spriteBatch.Begin();
+        if (_replay != null) {
+            foreach (Point p in _replay.Snek) {
+                DrawRect(p.X * GRID_SIZE, p.Y * GRID_SIZE, GRID_SIZE-1, GRID_SIZE-1, Color.Gray);
+            }
+        }
         foreach (Point p in _scene.Snek) {
             DrawRect(p.X * GRID_SIZE, p.Y * GRID_SIZE, GRID_SIZE-1, GRID_SIZE-1, Color.White);
         }
         if (_scene.Food != null) {
             var f = _scene.Food.Value;
             DrawRect(f.X * GRID_SIZE + 5, f.Y * GRID_SIZE + 5, GRID_SIZE-10, GRID_SIZE-10, Color.Green);
-        }
-        if (_replay != null) {
-            foreach (Point p in _replay.Snek) {
-                DrawRect(p.X * GRID_SIZE, p.Y * GRID_SIZE, GRID_SIZE-1, GRID_SIZE-1, Color.Gray);
-            }
         }
         _spriteBatch.End();
 
