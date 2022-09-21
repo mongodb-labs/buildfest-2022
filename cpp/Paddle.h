@@ -3,6 +3,8 @@
 #include "Vec2.h"
 #include "Constants.h"
 
+#include "AtlasManager.h"
+
 #if !defined(PADDLE_H)
 #define PADDLE_H
 
@@ -28,6 +30,9 @@ public:
 	}
 
 	void Draw(SDL_Renderer* renderer)	{
+		if (rect.y != static_cast<int>(position.y)) {
+			AtlasManager::Instance()->WritePlayerMove(position, velocity);
+		}
 		rect.y = static_cast<int>(position.y);
 
 		SDL_RenderFillRect(renderer, &rect);

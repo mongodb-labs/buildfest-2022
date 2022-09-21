@@ -11,8 +11,33 @@
 #include "PlayerScore.h"
 
 #include "AtlasManager.h"
+#include <thread>
 
 int main(int argc, char *argv[]) {
+	std::thread watchThread([](){
+			mongocxx::collection collection = AtlasManager::Instance()->getCollection("test","moves");
+			while (true) // Loop forever
+			{
+					try
+					{
+							mongocxx::options::change_stream options;
+							// options.full_document("updateLookup");
+							// const std::chrono::milliseconds await_time{1000};
+							// options.max_await_time(await_time);
+							mongocxx::change_stream stream = collection.watch(options);
+
+							 for (const auto& event : stream) {
+									std::cout << bsoncxx::to_json(event) << std::endl;
+							}
+					}
+					catch (const std::exception& e)
+					{
+							std::cerr << "MongoDB watcher caught exception: " << e.what() << std::endl;
+					}
+					// Take a short pause before checking for changes again
+					std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			}
+	});
 
 	AtlasManager* atlas = AtlasManager::Instance();
 
@@ -175,7 +200,7 @@ int main(int argc, char *argv[]) {
 	TTF_Quit();
 	SDL_Quit();
 
-	atlas->TestConnection();
 
+	watchThread.join();
 	return 0;
 }

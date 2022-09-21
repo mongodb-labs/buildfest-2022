@@ -8,21 +8,25 @@
 #include <bsoncxx/json.hpp>
 #include <iostream>
 
+#include "Vec2.h"
+
 class AtlasManager {
 
 private:
 	static AtlasManager* sInstance;
 
-	mongocxx::instance inst{};
-  mongocxx::client _mongoClient{mongocxx::uri{getEnvVar("ATLAS_URI")}};
-
 public:
 	static AtlasManager* Instance();
 	void TestConnection();
 
+	mongocxx::collection getCollection(std::string dbname, std::string collname);
+	void WritePlayerMove(Vec2 position, Vec2 velocity);
+
 private:
 	AtlasManager();
 	~AtlasManager();
+
+  mongocxx::client _mongoClient;
 
 	std::string getEnvVar( std::string const & key ) const
 	{
