@@ -34,5 +34,19 @@ def store_filter(id, count):
 
 def retrieve_filters(ids):
     filter_col = db.filter_sizes
-    # Should probably just use the agg pipeline instead
-    return filter_col.find({ "metadata.id": { "$in": ids } })
+    return filter_col.aggregate([
+        {
+            '$match': {
+                'metadata.id': {
+                    '$in': ids
+                }
+            }
+        }, {
+            '$group': {
+                '_id': '$metadata.id',
+                'data': {
+                    '$push': '$metadata'
+                }
+            }
+        }
+    ])
