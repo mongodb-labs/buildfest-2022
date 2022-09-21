@@ -18,21 +18,21 @@ struct MapView: View {
     Entity(
       id: "1",
       vehicle: VehiclePosition(
-        position: Position(latitude: 40.758896, longitude: -73.975130),
+        position: Position(latitude: 40.758896, longitude: -73.975130, bearing: 0.0, speed: 0.0),
         vehicle: VehicleDescriptor(id: "F", label: "F")
       )
     ),
     Entity(
       id: "2",
       vehicle: VehiclePosition(
-        position: Position(latitude: 40.758896, longitude: -73.985130),
+        position: Position(latitude: 40.758896, longitude: -73.985130, bearing: 0.0, speed: 0.0),
         vehicle: VehicleDescriptor(id: "1", label: "1")
       )
     ),
     Entity(
       id: "3",
       vehicle: VehiclePosition(
-        position: Position(latitude: 40.758896, longitude: -73.977130),
+        position: Position(latitude: 40.758896, longitude: -73.977130, bearing: 0.0, speed: 0.0),
         vehicle: VehicleDescriptor(id: "Q", label: "Q")
       )
     ),
@@ -41,12 +41,11 @@ struct MapView: View {
   var body: some View {
     Map(coordinateRegion: $region, annotationItems: entities) { entity in
       MapAnnotation(coordinate: entity.vehicle.position.coordinate) {
-        Text(entity.name)
-          .font(.system(size: 15, weight: .bold))
-          .foregroundColor(.white)
-          .padding(5)
-          .background(entity.color)
-          .clipShape(Circle())
+        Image(systemName: "tram.circle.fill")
+          .font(.title)
+          .foregroundColor(.blue)
+          .symbolRenderingMode(.hierarchical)
+          .opacity(100)
       }
     }.task {
 
