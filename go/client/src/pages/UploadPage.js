@@ -11,9 +11,13 @@ const UploadPage = () => {
     const formData = new FormData();
     formData.append("file", file);
     try {
-      const response = await axios.post(BACKEND_HOST, formData, {
-        headers: {},
-      });
+      const response = await axios.post(
+        `http://${BACKEND_HOST}:12345/upload`,
+        formData,
+        {
+          headers: {},
+        }
+      );
       console.log(response);
     } catch (error) {
       console.log(error);
