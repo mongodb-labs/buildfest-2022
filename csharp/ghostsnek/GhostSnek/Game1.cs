@@ -197,6 +197,11 @@ class Scene {
             }
             _rec.Add(ev);
             _replay?.Update();
+            foreach (Point p in _replay.Snek) {
+                if (p == _snek.Head) {
+                    return GameState.Lost;
+                }
+            }
         }
         return GameState.Play;
     }
