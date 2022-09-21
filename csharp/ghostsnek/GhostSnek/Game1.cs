@@ -170,7 +170,6 @@ class Scene {
                 Food = NewFood();
                 _snek.Grow();
             }
-            Console.WriteLine("\t\trecording {0}", ev.Dir);
             _rec.Add(ev);
             return GameState.Update;
         } else {
@@ -179,7 +178,6 @@ class Scene {
     }
 
     public Replay GetReplay() {
-        Console.WriteLine("\t\t==========");
         return new Replay(new List<Event>(_rec));
     }
 }
@@ -279,13 +277,11 @@ class Replay {
 
     public void Update() {
         if (_ix >= _events.Count) {
-            Console.WriteLine("done");
             return;
         }
         var ev = _events[_ix];
         _ix += 1;
 
-        Console.WriteLine("running {0}", ev.Dir);
         _snek.Move(ev.Dir);
         if (ev.Grew) {
             _snek.Grow();
