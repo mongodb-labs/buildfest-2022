@@ -28,7 +28,7 @@ defer {
 let dateFormatter : DateFormatter = DateFormatter()
 dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
 
-let mtaBDFMLineURL = "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-bdfm"
+let mtaBDFMLineURL = "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/lirr%2Fgtfs-lirr"
 
 guard let MTA_API_KEY = ProcessInfo.processInfo.environment["MTA_API_KEY"] else {
     print("Must provide MTA_API_KEY env variable to continue!")
@@ -54,7 +54,7 @@ func requestMTA() -> Data? {
 }
 
 let db = client.db("mta")
-let subways = db.collection("feedMessages")
+let subways = db.collection("feedMessagesLirr")
 
 var sleepSeconds: UInt32 = 120
 if CommandLine.arguments.count > 1 {
