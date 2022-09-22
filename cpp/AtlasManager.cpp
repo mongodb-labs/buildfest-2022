@@ -23,14 +23,16 @@ AtlasManager* AtlasManager::Instance() {
 }
 
 mongocxx::collection AtlasManager::getCollection(std::string dbname, std::string collname) {
-  mongocxx::database db = _mongoClient[dbname];
+  auto client = _connectionPool.acquire();
+  mongocxx::database db = (*client)[dbname];
   mongocxx::collection collection = db[collname];
 
   return collection;
 }
 
 void AtlasManager::WritePlayerMove(Vec2 position, Vec2 velocity) {
-  mongocxx::database db = _mongoClient["test"];
+  auto client = _connectionPool.acquire();
+  mongocxx::database db = (*client)["test"];
   mongocxx::collection collection = db["moves"];
 
   collection.insert_one(
@@ -45,19 +47,18 @@ void AtlasManager::WritePlayerMove(Vec2 position, Vec2 velocity) {
 
 
 AtlasManager::AtlasManager() {
-  mongocxx::uri uri(getEnvVar("ATLAS_URI"));
-  _mongoClient = mongocxx::client(uri);
-
   bsoncxx::builder::stream::document document{};
 
-  auto collection = _mongoClient["test"]["foo"];
+  auto client = _connectionPool.acquire();
+  auto collection = (*client)["test"]["foo"];
   document << "hello" << "world";
 
   collection.insert_one(document.view());
 }
 
 void AtlasManager::TestConnection() {
-  auto collection = _mongoClient["test"]["foo"];
+  auto client = _connectionPool.acquire();
+  auto collection = (*client)["test"]["foo"];
   auto cursor = collection.find({});
 
   for (auto&& doc : cursor) {
@@ -66,7 +67,6 @@ void AtlasManager::TestConnection() {
 }
 
 AtlasManager::~AtlasManager() {
-
 	delete sInstance;
 	sInstance = NULL;
 }

@@ -24,9 +24,7 @@ std::string getEnvVar( std::string const & key )
     return val == NULL ? std::string("") : std::string(val);
 }
 
-
 int main(int argc, char *argv[]) {
-
 	std::thread watchThread([](){
 			mongocxx::collection collection = AtlasManager::Instance()->getCollection("test","moves");
 			mongocxx::options::change_stream options;

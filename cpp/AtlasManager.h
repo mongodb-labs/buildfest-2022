@@ -4,6 +4,7 @@
 #include <mongocxx/client.hpp>
 #include <mongocxx/instance.hpp>
 #include <mongocxx/uri.hpp>
+#include <mongocxx/pool.hpp>
 #include <bsoncxx/builder/stream/document.hpp>
 #include <bsoncxx/json.hpp>
 #include <iostream>
@@ -26,7 +27,7 @@ private:
 	AtlasManager();
 	~AtlasManager();
 
-  mongocxx::client _mongoClient;
+	mongocxx::pool _connectionPool{mongocxx::uri(getEnvVar("ATLAS_URI"))};
 
 	std::string getEnvVar( std::string const & key ) const
 	{
