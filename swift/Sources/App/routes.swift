@@ -1,9 +1,6 @@
 import Vapor
 import MongoDBVapor
 
-let nealController = NealController()
-let trainsController = TrainsController()
-
 func routes(_ app: Application) throws {
 
   let file = FileMiddleware(publicDirectory: app.directory.publicDirectory)
@@ -21,9 +18,6 @@ func routes(_ app: Application) throws {
   app.webSocket("feed") { req, ws async in
     try? await req.feed(ws: ws)
   }
-
-  try? nealController.boot(routes: app.routes)
-  try? trainsController.boot(routes: app.routes)
 }
 
 extension Request {
