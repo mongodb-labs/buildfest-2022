@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import "./App.css";
 const sampleImages = [
   "https://images.unsplash.com/photo-1663698833903-c48466f6ce22?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMjA3fDB8MXxhbGx8Mzd8fHx8fHwyfHwxNjYzNzcwNjQ3&ixlib=rb-1.2.1&q=80&w=1080",
@@ -21,12 +22,12 @@ const ImageCard = ({ src }) => {
 const HomePage = () => {
   return (
     <div className="homepage-background">
-      <a href="http://localhost:3004/upload" target="_blank" rel="noreffer">
-        <button className="upload-button1">upload</button>
-      </a>
-      <a href="http://localhost:3004/search" target="_blank" rel="noreffer">
-        <button className="search-button">search</button>
-      </a>
+      <Link to={"/search"}>
+        <button className="home-button">search</button>
+      </Link>
+      <Link to={"/upload"}>
+        <button className="home-button">upload</button>
+      </Link>
       <h1 className="title">tensorGO: homepage</h1>
       {sampleImages.map((val) => (
         <ImageCard src={val} />
