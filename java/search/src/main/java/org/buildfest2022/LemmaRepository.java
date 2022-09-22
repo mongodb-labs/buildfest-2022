@@ -1,13 +1,12 @@
 package org.buildfest2022;
 
 import io.micronaut.core.annotation.NonNull;
+import java.util.List;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import org.bson.types.ObjectId;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import java.util.List;
 
 public interface LemmaRepository {
   @NonNull

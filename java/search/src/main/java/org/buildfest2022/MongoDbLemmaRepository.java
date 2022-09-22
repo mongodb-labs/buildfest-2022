@@ -5,14 +5,12 @@ import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.micronaut.core.annotation.NonNull;
 import jakarta.inject.Singleton;
+import java.util.ArrayList;
+import java.util.List;
+import javax.validation.constraints.NotNull;
 import org.bson.types.ObjectId;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.List;
 
 @Singleton
 public class MongoDbLemmaRepository implements LemmaRepository {
@@ -63,4 +61,5 @@ public class MongoDbLemmaRepository implements LemmaRepository {
   }
 }
 
-//db.lemmas.updateOne({ lemma: "way" }, { $addToSet: { document_ids: ObjectId("632baf390dac80ee9b2d7149") } }, { upsert: true })
+// db.lemmas.updateOne({ lemma: "way" }, { $addToSet: { document_ids:
+// ObjectId("632baf390dac80ee9b2d7149") } }, { upsert: true })

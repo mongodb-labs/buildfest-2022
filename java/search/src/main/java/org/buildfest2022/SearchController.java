@@ -3,10 +3,9 @@ package org.buildfest2022;
 import io.micronaut.core.annotation.NonNull;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Post;
-import org.reactivestreams.Publisher;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import org.reactivestreams.Publisher;
 
 @Controller("/search")
 public class SearchController {

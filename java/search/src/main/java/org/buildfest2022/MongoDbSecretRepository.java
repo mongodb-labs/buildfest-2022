@@ -1,15 +1,12 @@
 package org.buildfest2022;
 
-import org.bson.Document;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.micronaut.core.annotation.NonNull;
 import jakarta.inject.Singleton;
+import org.bson.Document;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 
 @Singleton
 public class MongoDbSecretRepository implements SecretRepository {
@@ -39,8 +36,8 @@ public class MongoDbSecretRepository implements SecretRepository {
   public Mono<Boolean> delete(String name) {
     Document filter = new Document().append("name", name);
     return Mono.from(getCollection().deleteOne(filter))
-            .map(insertOneResult -> true)
-            .onErrorReturn(false);
+        .map(insertOneResult -> true)
+        .onErrorReturn(false);
   }
 
   @NonNull

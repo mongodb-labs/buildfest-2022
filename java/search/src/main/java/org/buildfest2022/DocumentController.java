@@ -1,5 +1,8 @@
 package org.buildfest2022;
 
+import static io.micronaut.http.HttpStatus.CONFLICT;
+import static io.micronaut.http.HttpStatus.CREATED;
+
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.pipeline.CoreDocument;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
@@ -8,18 +11,14 @@ import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
-import org.bson.types.ObjectId;
-import org.reactivestreams.Publisher;
-import reactor.core.publisher.Mono;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-
-import static io.micronaut.http.HttpStatus.CONFLICT;
-import static io.micronaut.http.HttpStatus.CREATED;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import org.bson.types.ObjectId;
+import org.reactivestreams.Publisher;
+import reactor.core.publisher.Mono;
 
 @Controller("/documents")
 public class DocumentController {
