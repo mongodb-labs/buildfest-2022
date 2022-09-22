@@ -1,16 +1,33 @@
 #! /usr/bin/env swift
 
+/*
+    This script periodically reads LIRR Train GTFS data from MTA feed
+    and inserts it into MongoDB.
+
+    Set the following variables to match your dev environment:
+    - uri: currently set to read your MONGODB_URI variable or otherwise default to something else
+    - feedUrl: url for the MTA GTFS feed from which to get data
+    - MTA_API_KEY: API key for MTA feeds
+    - dbName: name of the database in which to store data
+    - collName: name of the collection in which to store data
+*/
+
 import Foundation
 import MongoSwift
 import NIO
 
+// Make sure the following variables are set for your dev environment:
+let uri = ProcessInfo.processInfo.environment["MONGODB_URI"] ?? "mongodb://localhost:27018/mta?replicaSet=replset"
+let feedUrl = "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/lirr%2Fgtfs-lirr"
+guard let MTA_API_KEY = ProcessInfo.processInfo.environment["MTA_API_KEY"] else {
+    print("Must provide MTA_API_KEY env variable to continue!")
+    exit(1)
+}
+let dbName = "mta"
+let collName = "feedMessagesLirr"
+// -------------------------------------------------------------------
+
 let elg = MultiThreadedEventLoopGroup(numberOfThreads: 4)
-
-// // replace the following string with your connection uri
-let uri = ProcessInfo.processInfo.environment["MONGODB_URI"] ?? "mongodb://localhost:27017,localhost:27018,localhost:27019/mta?replicaSet=rep10"
-
-// replace the following string with your connection uri
-
 let client = try MongoClient(
     uri,
     using: elg
@@ -28,21 +45,14 @@ defer {
 let dateFormatter : DateFormatter = DateFormatter()
 dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
 
-let mtaBDFMLineURL = "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/lirr%2Fgtfs-lirr"
-
-guard let MTA_API_KEY = ProcessInfo.processInfo.environment["MTA_API_KEY"] else {
-    print("Must provide MTA_API_KEY env variable to continue!")
-    exit(1)
-}
-
 func requestMTA() -> Data? {
-    var request = URLRequest(url: URL(string: mtaBDFMLineURL)!);
+    var request = URLRequest(url: URL(string: feedUrl)!);
     request.httpMethod = "GET"
     request.setValue(MTA_API_KEY, forHTTPHeaderField: "x-api-key")
     let semaphore: DispatchSemaphore = DispatchSemaphore(value: 0)
     var responseData: Data? = nil
     let task = URLSession.shared.dataTask(with: request) { (data: Data?, response, error) in
-        // get responce here
+        // get response here
         // Use response
         responseData = data
         semaphore.signal()
@@ -53,8 +63,8 @@ func requestMTA() -> Data? {
     return responseData
 }
 
-let db = client.db("mta")
-let subways = db.collection("feedMessagesLirr")
+let db = client.db(dbName)
+let coll = db.collection(collName)
 
 var sleepSeconds: UInt32 = 120
 if CommandLine.arguments.count > 1 {
@@ -81,9 +91,10 @@ while (occurrences < 1000) {
         print("[\(dateString)] BSON decoding fromJSON")
 
         // BSONDocument -> insert to mongodb
-        print("[\(dateString)] trying insertOne to \(subways.namespace)")
-        let insertRes = try subways.insertOne(mongodbDoc).wait()
-        print("[\(dateString)] completed insertOne to \(subways.namespace): \(String(describing: insertRes))")
+        print("[\(dateString)] trying insertOne to \(coll.namespace)")
+        let insertRes = try coll.insertOne(mongodbDoc).wait()
+        print("[\(dateString)] completed insertOne to \(coll.namespace): \(String(describing: insertRes))")
+
     } else {
         print("[\(dateString)] failure! MTA did not respond")
     }
