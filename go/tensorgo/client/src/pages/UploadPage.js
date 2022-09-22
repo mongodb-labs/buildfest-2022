@@ -7,7 +7,7 @@ const UploadPage = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("image", file);
     try {
       const response = await axios.post(
         `http://${BACKEND_HOST}:12345/upload`,
