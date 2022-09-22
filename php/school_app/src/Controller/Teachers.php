@@ -21,7 +21,7 @@ class Teachers {
     static function show(string $teacher) {
         $objectId = new ObjectId($teacher);
         $teacher = \SchoolApp\Repository\Teachers::findOne($objectId);
-        \SchoolApp\View\Teachers::index([$teacher]);
+        \SchoolApp\View\Teachers::show($teacher);
     }
 }
 
