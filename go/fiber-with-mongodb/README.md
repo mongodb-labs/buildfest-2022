@@ -76,7 +76,7 @@ go run main.go
 
 ```json
 {
-	"name":"Alec Dorsey",
+    "name":"Alec Dorsey",
     "address":"Downtown, NYC",
     "email":"alec.dorsey@example.com"
 }
@@ -95,7 +95,7 @@ go run main.go
 
 ```json
 {
-	"name":"Alec Dorsey",
+    "name":"Alec Dorsey",
     "address":"13th Ave SW Seattle",
     "email":"alec.dorsey@example.com"
 }
