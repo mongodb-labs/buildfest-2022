@@ -1,0 +1,11 @@
+[Unit]
+Description=Mongo Service
+
+[Service]
+WorkingDirectory={{server_application_directory}}
+User={{server_user}}
+ExecStart=sudo DOCKER_BUILDKIT=0 docker-compose up
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
