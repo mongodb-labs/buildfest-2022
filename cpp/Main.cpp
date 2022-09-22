@@ -16,6 +16,8 @@
 #include <thread>
 
 
+bool g_Running = true;
+
 std::string getEnvVar( std::string const & key )
 {
     char * val = getenv( key.c_str() );
@@ -29,16 +31,17 @@ int main(int argc, char *argv[]) {
 			mongocxx::collection collection = AtlasManager::Instance()->getCollection("test","moves");
 			mongocxx::options::change_stream options;
 			// options.full_document("updateLookup");
-			// const std::chrono::milliseconds await_time{1000};
-			// options.max_await_time(await_time);
+			const std::chrono::milliseconds await_time{1000};
+			options.max_await_time(await_time);
 			mongocxx::change_stream stream = collection.watch(options);
-			while (true) // Loop forever
+			std::string myGame = getEnvVar("PONG_GAME_ID");
+			std::string myPlayer = getEnvVar("PONG_PLAYER_ID");
+
+			while (g_Running) // Loop forever
 			{
 					try
 					{
 						for (const auto& event : stream) {
-							std::string myGame = getEnvVar("PONG_GAME_ID");
-							std::string myPlayer = getEnvVar("PONG_PLAYER_ID");
 							std::cout << bsoncxx::to_json(event) << std::endl;
 							std::string gameId = event["fullDocument"]["gameId"].get_utf8().value.data();
 							std::string_view playerId = event["fullDocument"]["playerId"].get_utf8().value.data();
@@ -55,7 +58,7 @@ int main(int argc, char *argv[]) {
 							std::cerr << "MongoDB watcher caught exception: " << e.what() << std::endl;
 					}
 					// Take a short pause before checking for changes again
-					std::this_thread::sleep_for(std::chrono::milliseconds(10));
+					std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			}
 	});
 
@@ -93,21 +96,19 @@ int main(int argc, char *argv[]) {
 		int playerOneScore = 0;
 		int playerTwoScore = 0;
 
-		bool running = true;
 		bool buttons[4] = {};
-
 		float dt = 0.0f;
 
-		while (running)	{
+		while (g_Running)	{
 			auto startTime = std::chrono::high_resolution_clock::now();
 
 			SDL_Event event;
 			while (SDL_PollEvent(&event))	{
 				if (event.type == SDL_QUIT)	{
-					running = false;
+					g_Running = false;
 				}	else if (event.type == SDL_KEYDOWN)	{
 					if (event.key.keysym.sym == SDLK_ESCAPE) {
-						running = false;
+						g_Running = false;
 					}	else if (event.key.keysym.sym == SDLK_w) {
 						buttons[Buttons::PaddleOneUp] = true;
 					} else if (event.key.keysym.sym == SDLK_s) {
@@ -209,7 +210,6 @@ int main(int argc, char *argv[]) {
 			dt = std::chrono::duration<float, std::chrono::milliseconds::period>(stopTime - startTime).count();
 		}
 	}
-
 	watchThread.join();
 
 	// Cleanup
