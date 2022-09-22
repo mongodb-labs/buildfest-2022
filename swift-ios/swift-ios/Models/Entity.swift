@@ -1,4 +1,5 @@
 import Foundation
+import MapKit
 import SwiftUI
 
 struct Entity: Decodable, Identifiable {
@@ -7,6 +8,14 @@ struct Entity: Decodable, Identifiable {
   
   var name: String {
     vehicle.vehicle.label
+  }
+  
+  var coordinate: CLLocationCoordinate2D {
+    vehicle.position.coordinate
+  }
+  
+  func route(stop: Stop) -> String {
+    "\(vehicle.vehicle.label) \(vehicle.currentStatus) \(stop.stopName)"
   }
   
   enum CodingKeys: String, CodingKey {

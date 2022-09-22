@@ -1,19 +1,21 @@
 import Foundation
 
-class TrainTracker: ObservableObject {
+class TrainsRepository: ObservableObject {
   @Published var entities: [Entity] = [
     Entity(
       id: "1",
       vehicle: VehiclePosition(
         position: Position(latitude: 40.758896, longitude: -73.985130),
-        vehicle: VehicleDescriptor(id: "1", label: "LIRR")
+        vehicle: VehicleDescriptor(id: "1", label: "204"),
+        currentStatus: "IN TRANSIT TO",
+        stopId: "231"
       )
     )
   ]
   
   let task = URLSession.shared.webSocketTask(with: URL(string: "ws://localhost:8080/feed")!)
 
-  public func start() {
+  public func refreshTrains() {
     task.resume()
     getSchedule()
   }

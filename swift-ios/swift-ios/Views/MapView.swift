@@ -2,7 +2,9 @@ import SwiftUI
 import MapKit
 
 struct MapView: View {
-  @EnvironmentObject var trainTracker: TrainTracker
+  @EnvironmentObject var trainsRepository: TrainsRepository
+  @EnvironmentObject var stopsRepository: StopsRepository
+  
   @State var region = MKCoordinateRegion(
     center: CLLocationCoordinate2D(
       latitude: 40.758896,
@@ -13,25 +15,23 @@ struct MapView: View {
       longitudeDelta: 0.03
     )
   )
+  @State private var showTitle = false
   
   var body: some View {
-    Map(coordinateRegion: $region, annotationItems: trainTracker.entities) { entity in
-      MapAnnotation(coordinate: entity.vehicle.position.coordinate) {
-        Image(systemName: "tram.circle.fill")
-          .font(.title)
-          .foregroundColor(.black)
-          .background(.white)
-          .clipShape(Circle())
-          .opacity(100)
+    Map(coordinateRegion: $region, annotationItems: trainsRepository.entities) { entity in
+      MapAnnotation(coordinate: entity.coordinate) {
+        let toolTip = entity.route(stop: stopsRepository.get(stopId: entity.vehicle.stopId))
+        MapAnnotationView(tooltip: toolTip)
       }
     }.onAppear {
-      trainTracker.start()
+      stopsRepository.loadStops()
+      trainsRepository.refreshTrains()
     }.edgesIgnoringSafeArea(.all)
   }
 }
 
 struct MapView_Previews: PreviewProvider {
   static var previews: some View {
-    MapView().environmentObject(TrainTracker())
+    MapView().environmentObject(TrainsRepository()).environmentObject(StopsRepository())
   }
 }

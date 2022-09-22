@@ -2,12 +2,13 @@ import SwiftUI
 
 @main
 struct swift_iosApp: App {
-  var trainTracker = TrainTracker()
+  var trainsRepository = TrainsRepository()
+  var stopsRepository = StopsRepository()
   
   var body: some Scene {
     WindowGroup {
       VStack {
-        MapView().environmentObject(trainTracker)
+        MapView().environmentObject(trainsRepository).environmentObject(stopsRepository)
       }
     }
   }

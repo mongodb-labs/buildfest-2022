@@ -10,9 +10,12 @@ func routes(_ app: Application) throws {
     "It works!"
   }
 
-
   app.get("feed-messages") { req async throws -> [BSONDocument] in
     try await req.findFeedMessages()
+  }
+  
+  app.get("stops") { req async throws -> [BSONDocument] in
+    try await req.findStops()
   }
 
   app.webSocket("feed") { req, ws async in
@@ -24,10 +27,21 @@ extension Request {
   var feedMessageCollection: MongoCollection<BSONDocument> {
     self.application.mongoDB.client.db("mta").collection("feedMessagesLirr")
   }
+  var lirrStopsCollection: MongoCollection<BSONDocument> {
+    self.application.mongoDB.client.db("mta").collection("lirrStopsData")
+  }
 
   func findFeedMessages() async throws -> [BSONDocument] {
     do {
       return try await self.feedMessageCollection.find().toArray()
+    } catch {
+      throw Abort(.internalServerError, reason: "Failed to load feed messages: \(error)")
+    }
+  }
+  
+  func findStops() async throws -> [BSONDocument] {
+    do {
+      return try await self.lirrStopsCollection.find().toArray()
     } catch {
       throw Abort(.internalServerError, reason: "Failed to load feed messages: \(error)")
     }
