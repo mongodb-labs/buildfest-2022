@@ -24,45 +24,48 @@ std::string getEnvVar( std::string const & key )
     return val == NULL ? std::string("") : std::string(val);
 }
 
-int main(int argc, char *argv[]) {
-	std::thread watchThread([](){
-			mongocxx::pool::entry  client = AtlasManager::Instance()->getClient();
-			mongocxx::database db = (*client)["test"];
-  			mongocxx::collection collection = db["moves"];
+void watchThreadHandler(Paddle* paddleOne) {
+	mongocxx::pool::entry  client = AtlasManager::Instance()->getClient();
+	mongocxx::database db = (*client)["test"];
+		mongocxx::collection collection = db["moves"];
 
-			mongocxx::options::change_stream options;
-			// options.full_document("updateLookup");
-			const std::chrono::milliseconds await_time{1000};
-			options.max_await_time(await_time);
-			mongocxx::change_stream stream = collection.watch(options);
-			std::string myGame = getEnvVar("PONG_GAME_ID");
-			std::string myPlayer = getEnvVar("PONG_PLAYER_ID");
+	mongocxx::options::change_stream options;
+	// options.full_document("updateLookup");
+	const std::chrono::milliseconds await_time{1000};
+	options.max_await_time(await_time);
+	mongocxx::change_stream stream = collection.watch(options);
+	std::string myGame = getEnvVar("PONG_GAME_ID");
+	std::string myPlayer = getEnvVar("PONG_PLAYER_ID");
 
-			while (g_Running) // Loop forever
+	while (g_Running) // Loop forever
+	{
+			try
 			{
-					try
-					{
-						for (const auto& event : stream) {
-							std::cout << bsoncxx::to_json(event) << std::endl;
-							std::string gameId = event["fullDocument"]["gameId"].get_utf8().value.data();
-							std::string_view playerId = event["fullDocument"]["playerId"].get_utf8().value.data();
+				for (const auto& event : stream) {
+					std::cout << bsoncxx::to_json(event) << std::endl;
+					std::string gameId = event["fullDocument"]["gameId"].get_utf8().value.data();
+					std::string_view playerId = event["fullDocument"]["playerId"].get_utf8().value.data();
 
-							if (gameId.compare(myGame) == 0) {
-								if (playerId.compare(myPlayer) != 0) {
-									// Update the paddle here.
-								}
-							}
+					if (gameId.compare(myGame) == 0) {
+						if (playerId.compare(myPlayer) == 0) {
+							paddleOne->velocity.x = (float)event["fullDocument"]["velocity"]["x"].get_double().value;
+							paddleOne->velocity.y = (float)event["fullDocument"]["velocity"]["y"].get_double().value;
+							paddleOne->position.x = (float)event["fullDocument"]["position"]["x"].get_double().value;
+							paddleOne->position.y = (float)event["fullDocument"]["position"]["y"].get_double().value;
 						}
 					}
-					catch (const std::exception& e)
-					{
-							std::cerr << "MongoDB watcher caught exception: " << e.what() << std::endl;
-					}
-					// Take a short pause before checking for changes again
-					std::this_thread::sleep_for(std::chrono::milliseconds(100));
+				}
 			}
-	});
+			catch (const std::exception& e)
+			{
+					std::cerr << "MongoDB watcher caught exception: " << e.what() << std::endl;
+			}
+			// Take a short pause before checking for changes again
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	}
+}
 
+int main(int argc, char *argv[]) {
 	AtlasManager* atlas = AtlasManager::Instance();
 
 	// Initialize SDL components
@@ -92,6 +95,7 @@ int main(int argc, char *argv[]) {
 		// Create the paddles
 		Paddle paddleOne(Vec2(50.0f, WINDOW_HEIGHT / 2.0f), Vec2(0.0f, 0.0f));
 		Paddle paddleTwo(Vec2(WINDOW_WIDTH - 50.0f, WINDOW_HEIGHT / 2.0f), Vec2(0.0f, 0.0f));
+		std::thread watchThread(watchThreadHandler, &paddleOne);
 		paddleTwo.RecordChanges = true;
 
 		int playerOneScore = 0;
@@ -110,34 +114,17 @@ int main(int argc, char *argv[]) {
 				}	else if (event.type == SDL_KEYDOWN)	{
 					if (event.key.keysym.sym == SDLK_ESCAPE) {
 						g_Running = false;
-					}	else if (event.key.keysym.sym == SDLK_w) {
-						buttons[Buttons::PaddleOneUp] = true;
-					} else if (event.key.keysym.sym == SDLK_s) {
-						buttons[Buttons::PaddleOneDown] = true;
 					}	else if (event.key.keysym.sym == SDLK_UP)	{
 						buttons[Buttons::PaddleTwoUp] = true;
 					}	else if (event.key.keysym.sym == SDLK_DOWN)	{
 						buttons[Buttons::PaddleTwoDown] = true;
 					}
 				}	else if (event.type == SDL_KEYUP)	{
-					if (event.key.keysym.sym == SDLK_w)	{
-						buttons[Buttons::PaddleOneUp] = false;
-					}	else if (event.key.keysym.sym == SDLK_s) {
-						buttons[Buttons::PaddleOneDown] = false;
 					}	else if (event.key.keysym.sym == SDLK_UP)	{
 						buttons[Buttons::PaddleTwoUp] = false;
 					}	else if (event.key.keysym.sym == SDLK_DOWN)	{
 						buttons[Buttons::PaddleTwoDown] = false;
 					}
-				}
-			}
-
-			if (buttons[Buttons::PaddleOneUp]) {
-				paddleOne.velocity.y = -PADDLE_SPEED;
-			} else if (buttons[Buttons::PaddleOneDown]) {
-				paddleOne.velocity.y = PADDLE_SPEED;
-			} else {
-				paddleOne.velocity.y = 0.0f;
 			}
 
 			if (buttons[Buttons::PaddleTwoUp]) {
@@ -146,6 +133,7 @@ int main(int argc, char *argv[]) {
 				paddleTwo.velocity.y = PADDLE_SPEED;
 			} else {
 				paddleTwo.velocity.y = 0.0f;
+				paddleOne.velocity.y = 0.0f;
 			}
 
 			// Update the paddle positions
@@ -210,8 +198,8 @@ int main(int argc, char *argv[]) {
 			auto stopTime = std::chrono::high_resolution_clock::now();
 			dt = std::chrono::duration<float, std::chrono::milliseconds::period>(stopTime - startTime).count();
 		}
+		watchThread.join();
 	}
-	watchThread.join();
 
 	// Cleanup
 	Mix_FreeChunk(wallHitSound);
