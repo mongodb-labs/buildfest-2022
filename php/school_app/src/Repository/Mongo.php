@@ -58,6 +58,7 @@ class Mongo {
     static function getInstance() {
         static $instance;
         if ($instance == null) {
+            \MongoDB\Driver\Monitoring\addSubscriber(new EventSubscriber());
             $instance = new Mongo();
         }
         return $instance;
