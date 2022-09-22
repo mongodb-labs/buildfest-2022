@@ -7,7 +7,6 @@ import org.reactivestreams.Publisher;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 @Controller("/search")
 public class SearchController {
