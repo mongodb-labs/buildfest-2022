@@ -1,4 +1,6 @@
 #include <chrono>
+#include <iostream>
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 #include <string>
@@ -13,7 +15,16 @@
 #include "AtlasManager.h"
 #include <thread>
 
+
+std::string getEnvVar( std::string const & key )
+{
+    char * val = getenv( key.c_str() );
+    return val == NULL ? std::string("") : std::string(val);
+}
+
+
 int main(int argc, char *argv[]) {
+
 	std::thread watchThread([](){
 			mongocxx::collection collection = AtlasManager::Instance()->getCollection("test","moves");
 			mongocxx::options::change_stream options;
@@ -26,7 +37,17 @@ int main(int argc, char *argv[]) {
 					try
 					{
 						for (const auto& event : stream) {
+							std::string myGame = getEnvVar("PONG_GAME_ID");
+							std::string myPlayer = getEnvVar("PONG_PLAYER_ID");
 							std::cout << bsoncxx::to_json(event) << std::endl;
+							std::string gameId = event["fullDocument"]["gameId"].get_utf8().value.data();
+							std::string_view playerId = event["fullDocument"]["playerId"].get_utf8().value.data();
+
+							if (gameId.compare(myGame) == 0) {
+								if (playerId.compare(myPlayer) != 0) {
+									// Update the paddle here.
+								}
+							}
 						}
 					}
 					catch (const std::exception& e)
