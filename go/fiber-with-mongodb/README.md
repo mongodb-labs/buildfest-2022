@@ -36,12 +36,6 @@ To run this project, you will need to add the following environment variables to
 go run main.go
 ```
 
-## License
-
-[MIT](https://choosealicense.com/licenses/mit/)
-
-
-
 ## API Usage
 
 #### Get all customers data
