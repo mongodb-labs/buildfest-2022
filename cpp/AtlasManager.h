@@ -21,6 +21,7 @@ public:
 	void TestConnection();
 
 	mongocxx::collection getCollection(std::string dbname, std::string collname);
+	mongocxx::pool::entry getClient();
 	void WritePlayerMove(Vec2 position, Vec2 velocity);
 
 private:

@@ -30,6 +30,12 @@ mongocxx::collection AtlasManager::getCollection(std::string dbname, std::string
   return collection;
 }
 
+
+mongocxx::pool::entry AtlasManager::getClient() {
+  auto client = _connectionPool.acquire();
+  return client;
+}
+
 void AtlasManager::WritePlayerMove(Vec2 position, Vec2 velocity) {
   auto client = _connectionPool.acquire();
   mongocxx::database db = (*client)["test"];

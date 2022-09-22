@@ -26,7 +26,10 @@ std::string getEnvVar( std::string const & key )
 
 int main(int argc, char *argv[]) {
 	std::thread watchThread([](){
-			mongocxx::collection collection = AtlasManager::Instance()->getCollection("test","moves");
+			mongocxx::pool::entry  client = AtlasManager::Instance()->getClient();
+			mongocxx::database db = (*client)["test"];
+  			mongocxx::collection collection = db["moves"];
+
 			mongocxx::options::change_stream options;
 			// options.full_document("updateLookup");
 			const std::chrono::milliseconds await_time{1000};
@@ -88,8 +91,8 @@ int main(int argc, char *argv[]) {
 
 		// Create the paddles
 		Paddle paddleOne(Vec2(50.0f, WINDOW_HEIGHT / 2.0f), Vec2(0.0f, 0.0f));
-		paddleOne.RecordChanges = true;
 		Paddle paddleTwo(Vec2(WINDOW_WIDTH - 50.0f, WINDOW_HEIGHT / 2.0f), Vec2(0.0f, 0.0f));
+		paddleTwo.RecordChanges = true;
 
 		int playerOneScore = 0;
 		int playerTwoScore = 0;
