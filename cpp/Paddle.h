@@ -29,8 +29,12 @@ public:
 		}
 	}
 
+	void RecordChange() {
+
+	}
+
 	void Draw(SDL_Renderer* renderer)	{
-		if (rect.y != static_cast<int>(position.y)) {
+		if (RecordChanges && rect.y != static_cast<int>(position.y)) {
 			AtlasManager::Instance()->WritePlayerMove(position, velocity);
 		}
 		rect.y = static_cast<int>(position.y);
@@ -40,6 +44,7 @@ public:
 
 	Vec2 position;
 	Vec2 velocity;
+	bool RecordChanges = false;
 	SDL_Rect rect{};
 };
 

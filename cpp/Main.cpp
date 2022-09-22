@@ -66,6 +66,7 @@ int main(int argc, char *argv[]) {
 
 		// Create the paddles
 		Paddle paddleOne(Vec2(50.0f, WINDOW_HEIGHT / 2.0f), Vec2(0.0f, 0.0f));
+		paddleOne.RecordChanges = true;
 		Paddle paddleTwo(Vec2(WINDOW_WIDTH - 50.0f, WINDOW_HEIGHT / 2.0f), Vec2(0.0f, 0.0f));
 
 		int playerOneScore = 0;
@@ -188,6 +189,7 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
+	watchThread.join();
 
 	// Cleanup
 	Mix_FreeChunk(wallHitSound);
@@ -199,7 +201,5 @@ int main(int argc, char *argv[]) {
 	TTF_Quit();
 	SDL_Quit();
 
-
-	watchThread.join();
 	return 0;
 }
