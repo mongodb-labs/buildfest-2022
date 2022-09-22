@@ -8,7 +8,10 @@ import io.micronaut.core.naming.Named;
 public interface MongoDbConfiguration extends Named {
 
   @NonNull
-  String getCollection();
+  String getLemmaCollection();
+
+  @NonNull
+  String getDocumentCollection();
 
   @NonNull
   String getSecretCollection();

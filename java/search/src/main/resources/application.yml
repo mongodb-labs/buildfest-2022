@@ -7,5 +7,6 @@ netty:
       max-order: 3
 db:
   name: 'search'
-  collection: 'documents'
-  secretCollection: 'secrets'
+  lemma-collection: 'lemmas'
+  document-collection: 'documents'
+  secret-collection: 'secrets'
