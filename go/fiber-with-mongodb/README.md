@@ -1,5 +1,5 @@
 
-# Customer Data - Fiber (Go) and MongoDB REST API
+# Moar Fiber - Fiber (Go) and MongoDB REST API
 
 An API built with Fiber and MongoDB.
 
