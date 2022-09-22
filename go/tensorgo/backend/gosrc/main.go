@@ -42,11 +42,11 @@ type TensorflowLabelResult struct {
 }
 
 type UploadInformation struct {
-	Id                string `json:"_id" bson:"_id"`
-	OriginalFilename  string `json:"filename" bson:"filename"`
-	UploadStatus      string `json:"uploadStatus" bson:"uploadStatus"`
-	RecognitionStatus string `json:"recognitionStatus" bson:"recognitionStatus"`
-	// TODO: CreatedAt
+	Id                string             `json:"_id" bson:"_id"`
+	OriginalFilename  string             `json:"filename" bson:"filename"`
+	UploadStatus      string             `json:"uploadStatus" bson:"uploadStatus"`
+	RecognitionStatus string             `json:"recognitionStatus" bson:"recognitionStatus"`
+	CreatedAt         primitive.DateTime `json:"createdAt" bson:"createdAt"`
 }
 
 type PersistenceInformation struct {
@@ -61,6 +61,7 @@ type FileInfo struct {
 	Url               string                  `json:"url" bson:"url"`
 	OriginalFilename  string                  `json:"filename" bson:"filename"`
 	TensorflowLabels  []TensorflowLabelResult `json:"labels" bson:"labels"`
+	CreatedAt         primitive.DateTime      `json:"createdAt" bson:"createdAt"`
 }
 
 /*
@@ -113,7 +114,8 @@ func UploadImageEndpoint(response http.ResponseWriter, request *http.Request) {
 
 	id := primitive.NewObjectID().Hex()
 	saveFileName := id + filepath.Ext(header.Filename)
-	uploadInfo := UploadInformation{id, header.Filename, "in progress", "in progress"}
+	createdAt := primitive.NewDateTimeFromTime(time.Now())
+	uploadInfo := UploadInformation{id, header.Filename, "in progress", "in progress", createdAt}
 
 	_, err = collection.InsertOne(context.Background(), uploadInfo)
 	if err != nil {
