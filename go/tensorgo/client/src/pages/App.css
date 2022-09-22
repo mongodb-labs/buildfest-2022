@@ -1,4 +1,3 @@
-/* importing a font */
 @import url("https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Noto+Sans+Buhid&family=Noto+Serif&display=swap");
 .homepage-background {
   background-color: rgb(214, 240, 214);
@@ -16,7 +15,6 @@
 .App {
   color: black;
   font-family: "Noto Serif", serif;
-  text-align: center;
   background-image: url(./Webimages/leaves2.png);
   background-size: cover;
   height: 100vh;
@@ -41,9 +39,9 @@
   font-weight: 500;
 }
 .image-description {
-  margin-top: 1.5rem;
+  margin-top: 2rem;
   font-weight: 500;
-  margin-bottom: 4rem;
+  margin-bottom: 3rem;
 }
 .submit-button {
   background-color: green;
@@ -61,11 +59,10 @@
 .submit-button:hover {
   opacity: 0.8;
 }
-.searchpage-background {
+body {
   background-image: url(./Webimages/leaves2.png);
   background-size: cover;
   height: 100vh;
-  opacity: 0.8;
 }
 .searchpage-container {
   padding: 30px;
@@ -77,20 +74,113 @@
   border: 5px solid black;
   border-radius: 20px;
   width: 800px;
-  margin-top: 4rem;
+  margin-top: 5rem;
+  margin: 225px auto;
+  background-color: rgb(214, 240, 214);
+  opacity: 0.8;
 }
-
-.file-label {
-  background-color: indigo;
-  color: white;
-  padding: 0.5rem;
-  font-family: sans-serif;
-  border-radius: 0.3rem;
-  cursor: pointer;
+.search-page-title {
+  font-family: "Noto Serif", serif;
+  font-size: 45px;
+  font-weight: 20;
+  margin-top: 2rem;
+}
+.input-bar {
+  width: 50%;
+  flex: 1;
+  margin-left: 12.25rem;
+  border: none;
+  border-radius: 5px;
+  margin-bottom: 1.5rem;
+  line-height: 15px;
   margin-top: 1rem;
 }
-
+.search-button-big {
+  background-color: green;
+  padding: 1rem 0;
+  color: white;
+  box-shadow: 0 20px 30px -8px rgb(34, 114, 49);
+  width: 100%;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 19px;
+  border-radius: 12px;
+  margin-bottom: 3rem;
+  margin-top: 2rem;
+}
+.search-button-big:hover {
+  opacity: 0.8;
+}
+.home-button {
+  background-color: green;
+  color: white;
+  border: none;
+  font-weight: 400;
+  border-radius: 5px;
+  margin-top: 0.5rem;
+  margin-right: 0.5rem;
+  margin-left: 0.5rem;
+  cursor: pointer;
+}
+.search-button {
+  background-color: green;
+  color: white;
+  border: none;
+  font-weight: 400;
+  border-radius: 5px;
+  margin-top: 0.5rem;
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
+.upload-button {
+  background-color: green;
+  color: white;
+  border: none;
+  font-weight: 400;
+  border-radius: 5px;
+  margin-top: 0.5rem;
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
+.upload-button1 {
+  background-color: green;
+  color: white;
+  border: none;
+  font-weight: 400;
+  border-radius: 5px;
+  margin-top: 0.5rem;
+  margin-right: 0.5rem;
+  margin-left: 0.5rem;
+  cursor: pointer;
+}
+.home-button:hover {
+  opacity: 0.8;
+}
+.search-button:hover {
+  opacity: 0.8;
+}
+.upload-button:hover {
+  opacity: 0.8;
+}
+.upload-button1:hover {
+  opacity: 0.8;
+}
+.file-label {
+  background-color: white;
+  color: black;
+  padding: 0.01rem;
+  font-family: "Noto Serif", serif;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  margin: 1rem;
+  opacity: 0.8;
+}
 #file-chosen {
   margin-left: 0.3rem;
-  font-family: sans-serif;
+  font-family: "Noto Serif", serif;
+}
+.file-label:hover {
+  opacity: 0.8;
 }

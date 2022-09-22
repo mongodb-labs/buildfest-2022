@@ -1,3 +1,4 @@
+import "./App.css";
 const sampleImages = [
   "https://images.unsplash.com/photo-1663698833903-c48466f6ce22?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMjA3fDB8MXxhbGx8Mzd8fHx8fHwyfHwxNjYzNzcwNjQ3&ixlib=rb-1.2.1&q=80&w=1080",
   "https://images.unsplash.com/photo-1663703051230-a50d963f0add?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMjA3fDB8MXxhbGx8NDV8fHx8fHwyfHwxNjYzNzcwNjQ3&ixlib=rb-1.2.1&q=80&w=1080",
@@ -10,7 +11,6 @@ const sampleImages = [
   "https://images.unsplash.com/photo-1663676609844-07dd7294b3cb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMjA3fDB8MXxhbGx8NDR8fHx8fHwyfHwxNjYzNzcwNjQ3&ixlib=rb-1.2.1&q=80&w=1080",
   "https://images.unsplash.com/photo-1663524023198-1e808ad5e686?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMjA3fDB8MXxhbGx8NDd8fHx8fHwyfHwxNjYzNzcwNjQ3&ixlib=rb-1.2.1&q=80&w=1080",
 ];
-
 const ImageCard = ({ src }) => {
   return (
     <span style={{ margin: "2rem" }}>
@@ -18,16 +18,20 @@ const ImageCard = ({ src }) => {
     </span>
   );
 };
-
 const HomePage = () => {
   return (
-    <div>
-      <h1>Home</h1>
+    <div className="homepage-background">
+      <a href="http://localhost:3004/upload" target="_blank" rel="noreffer">
+        <button className="upload-button1">upload</button>
+      </a>
+      <a href="http://localhost:3004/search" target="_blank" rel="noreffer">
+        <button className="search-button">search</button>
+      </a>
+      <h1 className="title">tensorGO: homepage</h1>
       {sampleImages.map((val) => (
         <ImageCard src={val} />
       ))}
     </div>
   );
 };
-
 export default HomePage;
