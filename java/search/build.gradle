@@ -19,21 +19,22 @@ dependencies {
     implementation("io.micronaut.reactor:micronaut-reactor")
     implementation("io.micronaut.reactor:micronaut-reactor-http-client")
     implementation("jakarta.annotation:jakarta.annotation-api")
+    implementation("edu.stanford.nlp:stanford-corenlp:4.5.1")
+    implementation("edu.stanford.nlp:stanford-corenlp:4.5.1:models")
+    implementation('org.mongodb:mongodb-crypt:1.5.2')
+    implementation('org.mongodb:mongodb-driver-sync:4.7.1')
+
     runtimeOnly("ch.qos.logback:logback-classic")
     compileOnly("org.graalvm.nativeimage:svm")
 
     implementation("io.micronaut:micronaut-validation")
     testImplementation("io.micronaut.mongodb:micronaut-mongo-sync:4.4.0")
-
-    implementation('org.mongodb:mongodb-crypt:1.5.2')
-    implementation('org.mongodb:mongodb-driver-sync:4.7.1')
-
 }
-
 
 application {
     mainClass.set("org.buildfest2022.Application")
 }
+
 java {
     sourceCompatibility = JavaVersion.toVersion("17")
     targetCompatibility = JavaVersion.toVersion("17")

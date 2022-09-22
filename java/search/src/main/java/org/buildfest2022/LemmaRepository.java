@@ -7,10 +7,14 @@ import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
-public interface DocumentRepository {
+public interface LemmaRepository {
   @NonNull
-  Publisher<Document> list();
+  Publisher<Lemma> list();
 
-  Mono<ObjectId> save(@NonNull @NotNull @Valid Document document);
+  Mono<Boolean> save(@NonNull @NotNull @Valid Lemma lemma);
+
+  Mono<Boolean> upsertAll(
+      @NonNull @NotNull List<String> lemmas, @NonNull @NotNull ObjectId documentId);
 }
