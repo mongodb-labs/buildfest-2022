@@ -27,8 +27,15 @@ class Students {
         }
     }
 
-    static function getByName(string $name) {
-        return Mongo::getDatabase()->selectCollection('students')->find(["name" => $name]);
+    static function getByName(string $name, $session = null) {
+        $opts = [];
+        if ($session != null) {
+            $opts['session'] = $session;
+        }
+        return Mongo::getDatabase()->selectCollection('students')->findOne(
+            ["name" => $name],
+            $opts
+        );
     }
 
     static function insertOne(Student $student) {
@@ -39,4 +46,19 @@ class Students {
         return Mongo::getDatabase()->selectCollection('students')->findOne(['_id' => $id]);
     }
 
+    static function addCourse(string $studentName, string $courseName, $session = null) {
+        $student = Students::getByName($studentName, $session);
+        if ($student == null) {
+            return false;
+        }
+        $opts = [];
+        if ($session != null) {
+            $opts['session'] = $session;
+        }
+        return Mongo::getDatabase()->selectCollection('students')->updateOne(
+            ['_id' => $student['_id']],
+            ['$addToSet' => ['courses' => $courseName]],
+            $opts
+        );
+    }
 }

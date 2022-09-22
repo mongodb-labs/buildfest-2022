@@ -24,7 +24,7 @@ class Students {
     static function show(string $student) {
         $objectId = new ObjectId($student);
         $student = \SchoolApp\Repository\Students::findOne($objectId);
-        \SchoolApp\View\Students::show([$student]);
+        \SchoolApp\View\Students::show($student);
     }
 }
 

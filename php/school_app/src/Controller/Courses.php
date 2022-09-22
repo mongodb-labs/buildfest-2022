@@ -1,6 +1,7 @@
 <?php namespace SchoolApp\Controller;
 
 use \SchoolApp\Model\Course as Course;
+use \SchoolApp\Repository\Mongo as Mongo;
 use \MongoDB\BSON\ObjectId as ObjectId;
 
 class Courses {
@@ -16,8 +17,22 @@ class Courses {
     }
 
     static function create() {
-        $course = Course::makeWithPost($_POST);
-        \SchoolApp\Repository\Courses::insertOne($course);
+        $session = Mongo::getClient()->startSession();
+        try {
+            $session->startTransaction();
+            $course = Course::makeWithPost($_POST);
+            \SchoolApp\Repository\Courses::insertOne($course, $session);
+            \SchoolApp\Repository\Teachers::addCourse($course->teacher, $course->name, $session);
+            foreach ($course->students as $student) {
+                \SchoolApp\Repository\Students::addCourse($student, $course->name, $session);
+            }
+            $session->commitTransaction();
+        } catch (Exception $e) {
+            $session->abortTransaction();
+            throw $e;
+        } finally {
+            $session->endSession();
+        }
         header("Location: /courses", TRUE, 301);
     }
 

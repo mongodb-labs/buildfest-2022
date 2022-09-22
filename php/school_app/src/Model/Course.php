@@ -2,6 +2,12 @@
 
 class Course {
 
+    public string $name;
+
+    public string $teacher;
+
+    public array $students;
+
     public function __construct(string $name, string $teacher, array $students, string $description, array $assignments = [] ){
         $this->name = $name;
         $this->teacher = $teacher;
