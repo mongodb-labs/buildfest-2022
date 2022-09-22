@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import "./App.css";
 const sampleImages = [
   "https://images.unsplash.com/photo-1663698833903-c48466f6ce22?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMjA3fDB8MXxhbGx8Mzd8fHx8fHwyfHwxNjYzNzcwNjQ3&ixlib=rb-1.2.1&q=80&w=1080",
@@ -20,6 +22,25 @@ const ImageCard = ({ src }) => {
   );
 };
 const HomePage = () => {
+
+    const BACKEND_HOST = process.env.BACKEND_HOST || "localhost";
+
+    const [imageResults, setImageResults] = useState([]);
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const response = await axios({
+                    "method": "GET",
+                    "url": `http://${BACKEND_HOST}:12345/find`
+                });
+                setImageResults(response.data);
+            } catch (error) {
+                console.error(error);
+            }
+        })();
+    }, [BACKEND_HOST]);
+
   return (
     <div className="homepage-background">
       <Link to={"/search"}>
@@ -29,8 +50,13 @@ const HomePage = () => {
         <button className="home-button">upload</button>
       </Link>
       <h1 className="title">tensorGO: homepage</h1>
+      <div className="searchResults">
+            {imageResults.map((val) => (
+                <ImageCard key={val._id} src={"http://" + BACKEND_HOST + ":12345" + val.url} />
+            ))}
+        </div>
       {sampleImages.map((val) => (
-        <ImageCard src={val} />
+        <ImageCard key={val} src={val} />
       ))}
     </div>
   );

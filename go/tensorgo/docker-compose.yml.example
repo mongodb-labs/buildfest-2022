@@ -1,24 +1,24 @@
 version: "3.9"
 services:
-  gobackend:
-    build:
-      context: ./backend
-    ports:
-      - "12345:12345"
-    environment:
-      MONGODB_URI: MONGODB_URI_HERE
-      MONGODB_DATABASE: buildfest
-      MONGODB_COLLECTION: tensorflow
-      TENSORFLOW_HOST: gotensorflow
-  gofrontend:
-    build:
-      context: ./client
-    ports:
-      - "3000:3000"
-    environment:
-      BACKEND_HOST: gobackend
-  gotensorflow:
-    build: https://github.com/tinrab/go-tensorflow-image-recognition.git
-    image: localhost/recognition
-    ports:
-      - "8080:8080"
+    gobackend:
+        build:
+            context: ./backend
+        ports:
+            - "12345:12345"
+        environment:
+            MONGODB_URI: MONGODB_URI_HERE
+            MONGODB_DATABASE: buildfest
+            MONGODB_COLLECTION: tensorflow
+            TENSORFLOW_HOST: gotensorflow
+    gofrontend:
+        build:
+            context: ./client
+        ports:
+            - "3000:3000"
+        environment:
+            BACKEND_HOST: gobackend
+    gotensorflow:
+        build: https://github.com/tinrab/go-tensorflow-image-recognition.git
+        image: localhost/recognition
+        ports:
+            - "8080:8080"

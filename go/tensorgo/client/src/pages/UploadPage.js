@@ -44,7 +44,7 @@ const UploadPage = () => {
             hidden
             onChange={handleFileChange}
           />
-          <label className="file-label" for="actual-btn">
+          <label className="file-label" htmlFor="actual-btn">
             {!file ? "choose file" : "change file"}
           </label>
           <span id="file-chosen">{file?.name}</span>
