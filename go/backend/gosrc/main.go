@@ -39,6 +39,7 @@ type TensorflowLabelResult struct {
  * SEND IMAGE TO TENSORFLOW SERVICE AND ADD RESULT TO MONGODB. SAVE IMAGE TO FILESYSTEM.
  */
 func UploadImageEndpoint(response http.ResponseWriter, request *http.Request) {
+	fmt.Println("Running UploadImageEndpoint")
 	response.Header().Set("content-type", "application/json")
 	file, header, err := request.FormFile("image")
 	if err != nil {
