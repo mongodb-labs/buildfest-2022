@@ -14,6 +14,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -179,5 +180,5 @@ func main() {
 	router.HandleFunc("/find", FindImagesEndpoint).Methods("GET")
 	router.PathPrefix("/images/").Handler(http.StripPrefix("/images/", http.FileServer(http.Dir("./images/"))))
 	fmt.Println("Serving at http://localhost:12345")
-	http.ListenAndServe(":12345", router)
+	log.Fatal(http.ListenAndServe(":12345", handlers.CORS(handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}), handlers.AllowedMethods([]string{"GET", "POST", "PUT", "HEAD", "OPTIONS"}), handlers.AllowedOrigins([]string{"*"}))(router)))
 }
