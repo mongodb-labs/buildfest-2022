@@ -28,14 +28,14 @@ const UploadPage = () => {
     // <div className="App"style={{ display: "flex", flexDirection: "column", alignItems: "center"}}>
     <div className="App">
       <a href="http://localhost:3004/" target="_blank">
-        <button className="home-button">home</button>
+        <button className="home-button">Home</button>
       </a>
       <a href="http://localhost:3004/search" target="_blank">
-        <button className="search-button">search</button>
+        <button className="search-button">Search</button>
       </a>
       <div className="container">
-        <h1 className="image-upload">upload your tensorGO images</h1>
-        <p className="image-description">choose your files and press submit</p>
+        <h1 className="image-upload">Upload your tensorGO images</h1>
+        <p className="image-description">Choose your files and press submit</p>
         <div>
           <input
             type="file"
