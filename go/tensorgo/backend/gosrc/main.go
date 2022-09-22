@@ -26,9 +26,13 @@ var client *mongo.Client
 var collection *mongo.Collection
 
 type ImageInformation struct {
-	OriginalFilename string                  `json:"filename" bson:"filename"`
-	DiskFilename     string                  `json:"disk_filename" bson:"disk_filename"`
-	TensorflowLabels []TensorflowLabelResult `json:"labels" bson:"labels"`
+	TensorflowLabels  []TensorflowLabelResult `json:"labels" bson:"labels"`
+	RecognitionStatus string                  `json:"recognitionStatus" bson:"recognitionStatus"`
+}
+
+type TensorflowResult struct {
+	error            any
+	TensorflowLabels []TensorflowLabelResult
 }
 
 type TensorflowLabelResult struct {
@@ -36,9 +40,66 @@ type TensorflowLabelResult struct {
 	Probability float32 `json:"probability" bson:"probability"`
 }
 
+type UploadInformation struct {
+	Id                string `json:"_id" bson:"_id"`
+	OriginalFilename  string `json:"filename" bson:"filename"`
+	UploadStatus      string `json:"uploadStatus" bson:"uploadStatus"`
+	RecognitionStatus string `json:"recognitionStatus" bson:"recognitionStatus"`
+	// TODO: CreatedAt
+}
+
+type PersistenceInformation struct {
+	Url          string `json:"url" bson:"url"`
+	UploadStatus string `json:"uploadStatus" bson:"uploadStatus"`
+}
+
+type FileInfo struct {
+	Id                string                  `json:"_id" bson:"_id"`
+	UploadStatus      string                  `json:"uploadStatus" bson:"uploadStatus"`
+	RecognitionStatus string                  `json:"recognitionStatus" bson:"recognitionStatus"`
+	Url               string                  `json:"url" bson:"url"`
+	OriginalFilename  string                  `json:"filename" bson:"filename"`
+	TensorflowLabels  []TensorflowLabelResult `json:"labels" bson:"labels"`
+}
+
 /*
  * SEND IMAGE TO TENSORFLOW SERVICE AND ADD RESULT TO MONGODB. SAVE IMAGE TO FILESYSTEM.
  */
+// func UploadImageEndpoint(response http.ResponseWriter, request *http.Request) {
+// 	response.Header().Set("content-type", "application/json")
+// 	file, header, err := request.FormFile("image")
+// 	if err != nil {
+// 		response.WriteHeader(http.StatusInternalServerError)
+// 		response.Write([]byte(`{ "message": "` + err.Error() + `" }`))
+// 		return
+// 	}
+// 	defer file.Close()
+// 	// STRETCH GOAL: TENSORFLOW COMPLETE, UPLOAD IMAGE TO S3
+// 	diskFileName, err := saveFile(header.Filename, file)
+// 	if err != nil {
+// 		response.WriteHeader(http.StatusInternalServerError)
+// 		response.Write([]byte(`{ "message": "` + err.Error() + `" }`))
+// 		return
+// 	}
+// 	data, err := uploadFile("http://"+os.Getenv("TENSORFLOW_HOST")+":8080/recognize", header.Filename, file)
+// 	if err != nil {
+// 		response.WriteHeader(http.StatusInternalServerError)
+// 		response.Write([]byte(`{ "message": "` + err.Error() + `" }`))
+// 		return
+// 	}
+// 	var tensorflowResult ImageInformation
+// 	_ = json.NewDecoder(bytes.NewReader(data)).Decode(&tensorflowResult)
+// 	tensorflowResult.DiskFilename = diskFileName
+// 	_, err = collection.InsertOne(context.Background(), tensorflowResult)
+// 	if err != nil {
+// 		response.WriteHeader(http.StatusInternalServerError)
+// 		response.Write([]byte(`{ "message": "` + err.Error() + `" }`))
+// 		return
+// 	}
+// 	response.Write(data)
+// 	return
+// }
+
 func UploadImageEndpoint(response http.ResponseWriter, request *http.Request) {
 	response.Header().Set("content-type", "application/json")
 	file, header, err := request.FormFile("image")
@@ -48,29 +109,40 @@ func UploadImageEndpoint(response http.ResponseWriter, request *http.Request) {
 		return
 	}
 	defer file.Close()
-	// STRETCH GOAL: TENSORFLOW COMPLETE, UPLOAD IMAGE TO S3
-	diskFileName, err := saveFile(header.Filename, file)
+
+	id := primitive.NewObjectID().Hex()
+	saveFileName := id + filepath.Ext(header.Filename)
+	uploadInfo := UploadInformation{id, header.Filename, "in progress", "in progress"}
+
+	_, err = collection.InsertOne(context.Background(), uploadInfo)
 	if err != nil {
+		// defer file.Close()
 		response.WriteHeader(http.StatusInternalServerError)
 		response.Write([]byte(`{ "message": "` + err.Error() + `" }`))
 		return
 	}
+	json.NewEncoder(response).Encode(uploadInfo)
+
+	// STRETCH GOAL: TENSORFLOW COMPLETE, UPLOAD IMAGE TO S3
+	saveFile(id, saveFileName, file)
+	// go processFile(id, header.Filename, file)
+
 	data, err := uploadFile("http://"+os.Getenv("TENSORFLOW_HOST")+":8080/recognize", header.Filename, file)
 	if err != nil {
-		response.WriteHeader(http.StatusInternalServerError)
-		response.Write([]byte(`{ "message": "` + err.Error() + `" }`))
+		fmt.Println("TENSORFLOW ERR", err)
 		return
 	}
 	var tensorflowResult ImageInformation
 	_ = json.NewDecoder(bytes.NewReader(data)).Decode(&tensorflowResult)
-	tensorflowResult.DiskFilename = diskFileName
-	_, err = collection.InsertOne(context.Background(), tensorflowResult)
+	tensorflowResult.RecognitionStatus = "completed"
+	filter := bson.M{"_id": id}
+	update := bson.M{"$set": tensorflowResult}
+	_, err = collection.UpdateOne(context.Background(), filter, update)
 	if err != nil {
-		response.WriteHeader(http.StatusInternalServerError)
-		response.Write([]byte(`{ "message": "` + err.Error() + `" }`))
+		fmt.Println("RECOGNITION UPDATE ERR", err)
 		return
 	}
-	response.Write(data)
+
 	return
 }
 
@@ -78,8 +150,9 @@ func UploadImageEndpoint(response http.ResponseWriter, request *http.Request) {
  * RETURN ALL DOCUMENTS FROM MONGODB
  */
 func FindImagesEndpoint(response http.ResponseWriter, request *http.Request) {
+	// /images?tag=a&tag=b&tag
 	response.Header().Set("content-type", "application/json")
-	var images []ImageInformation
+	var images []FileInfo = make([]FileInfo, 0, 0)
 	cursor, err := collection.Find(context.Background(), bson.M{})
 	if err != nil {
 		response.WriteHeader(http.StatusInternalServerError)
@@ -94,19 +167,58 @@ func FindImagesEndpoint(response http.ResponseWriter, request *http.Request) {
 	json.NewEncoder(response).Encode(images)
 }
 
-func saveFile(filename string, file multipart.File) (string, error) {
-	diskFile, err := os.OpenFile("./images/"+primitive.NewObjectID().Hex()+filepath.Ext(filename), os.O_WRONLY|os.O_CREATE, os.ModePerm)
+func saveFile(id string, filename string, file multipart.File) error {
+	// defer file.Close()
+	filter := bson.M{"_id": id}
+	path := "/images/" + filename
+	diskFile, err := os.OpenFile("."+path, os.O_WRONLY|os.O_CREATE, os.ModePerm)
 	if err != nil {
-		return "", err
+		go collection.UpdateOne(context.Background(), filter, bson.M{"$set": PersistenceInformation{"", "failed"}})
+		return err
 	}
 	defer diskFile.Close()
 	_, err = io.Copy(diskFile, file)
 	if err != nil {
-		return "", err
+		go collection.UpdateOne(context.Background(), filter, bson.M{"$set": PersistenceInformation{"", "failed"}})
+		return err
 	}
-	file.Seek(0, io.SeekStart)
+	file.Seek(0, io.SeekStart) // TODO: what does this do?
 	// return fmt.Sprintf("%x", md5.Sum([]byte(filename))), nil
-	return primitive.NewObjectID().Hex() + filepath.Ext(filename), nil
+
+	update := bson.M{"$set": PersistenceInformation{path, "completed"}}
+	_, err = collection.UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		// TODO: handle cleanup
+		return err
+	}
+	return nil
+}
+
+func processFile(id string, filename string, file multipart.File) error {
+	filter := bson.M{"_id": id}
+	data, err := uploadFile("http://"+os.Getenv("TENSORFLOW_HOST")+":8080/recognize", filename, file)
+	if err != nil {
+		go collection.UpdateOne(context.Background(), filter, bson.M{"$set": ImageInformation{nil, "failed"}})
+		return err
+	}
+	var tensorflowResult ImageInformation
+	json.NewDecoder(bytes.NewReader(data)).Decode(&tensorflowResult)
+	tensorflowResult.RecognitionStatus = "completed"
+	fmt.Println("res1", tensorflowResult)
+
+	// TODO: how to read error from tensorflowResult??
+	// if tensorflowResult.error != nil {
+	// 	go collection.UpdateOne(context.Background(), filter, bson.M{"$set": ImageInformation{nil, "failed"}})
+	// 	return err
+	// }
+
+	update := bson.M{"$set": tensorflowResult}
+	_, err = collection.UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		// TODO: handle cleanup
+		return err
+	}
+	return nil
 }
 
 func uploadFile(url string, filename string, file multipart.File) ([]byte, error) {
