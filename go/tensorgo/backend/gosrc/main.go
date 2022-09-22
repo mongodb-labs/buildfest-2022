@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	"github.com/gorilla/handlers"
@@ -150,10 +151,21 @@ func UploadImageEndpoint(response http.ResponseWriter, request *http.Request) {
  * RETURN ALL DOCUMENTS FROM MONGODB
  */
 func FindImagesEndpoint(response http.ResponseWriter, request *http.Request) {
-	// /images?tag=a&tag=b&tag
+	query := request.URL.Query()
+	filter := bson.M{}
+	var threshold float64 = 0
+	if query.Has("threshold") {
+		if t, err := strconv.ParseFloat((query.Get("threshold")), 32); err == nil {
+			threshold = t
+		}
+	}
+	if query.Has("label") {
+		filter = bson.M{"labels": bson.M{"$elemMatch": bson.M{"label": query.Get("label"), "probability": bson.M{"$gte": threshold}}}}
+	}
+
 	response.Header().Set("content-type", "application/json")
 	var images []FileInfo = make([]FileInfo, 0, 0)
-	cursor, err := collection.Find(context.Background(), bson.M{})
+	cursor, err := collection.Find(context.Background(), filter)
 	if err != nil {
 		response.WriteHeader(http.StatusInternalServerError)
 		response.Write([]byte(`{ "message": "` + err.Error() + `" }`))
