@@ -162,6 +162,11 @@ func FindImagesEndpoint(response http.ResponseWriter, request *http.Request) {
 	if query.Has("label") {
 		filter = bson.M{"labels": bson.M{"$elemMatch": bson.M{"label": query.Get("label"), "probability": bson.M{"$gte": threshold}}}}
 	}
+	for _, field := range []string{"uploadStatus", "recognitionStatus"} {
+		if query.Has(field) {
+			filter[field] = query.Get(field)
+		}
+	}
 
 	response.Header().Set("content-type", "application/json")
 	var images []FileInfo = make([]FileInfo, 0, 0)
