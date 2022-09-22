@@ -1,6 +1,7 @@
 import "./App.css";
 import axios from "axios";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 const BACKEND_HOST = process.env.BACKEND_HOST || "localhost";
 const UploadPage = () => {
   const [file, setFile] = useState();
@@ -27,12 +28,12 @@ const UploadPage = () => {
   return (
     // <div className="App"style={{ display: "flex", flexDirection: "column", alignItems: "center"}}>
     <div className="App">
-      <a href="http://localhost:3004/" target="_blank">
-        <button className="home-button">Home</button>
-      </a>
-      <a href="http://localhost:3004/search" target="_blank">
-        <button className="search-button">Search</button>
-      </a>
+      <Link to={"/"}>
+        <button className="home-button">home</button>
+      </Link>
+      <Link to={"/search"}>
+        <button className="home-button">search</button>
+      </Link>
       <div className="container">
         <h1 className="image-upload">Upload your tensorGO images</h1>
         <p className="image-description">Choose your files and press submit</p>
