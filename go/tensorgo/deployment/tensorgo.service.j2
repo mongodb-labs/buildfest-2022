@@ -2,8 +2,8 @@
 Description=Mongo Service
 
 [Service]
-WorkingDirectory={{working_directory}}/{{repo_main_directory}}/{{repo_go_directory}}
-User={{user}}
+WorkingDirectory={{server_application_directory}}
+User={{server_user}}
 ExecStart=sudo DOCKER_BUILDKIT=0 docker-compose up
 Restart=always
 

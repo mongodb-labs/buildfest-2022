@@ -1,134 +1,140 @@
 import os
 import sys
+from typing import Optional
 
 from fabric import Connection
+from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
 
-deployment_dir = os.path.dirname(os.path.realpath(__file__))
-jinja_env = Environment(
-    loader=FileSystemLoader(deployment_dir),
+application_name = "tensorgo"
+docker_compose_example_file_url = "../docker-compose.yml.example"
+docker_compose_file_url = "../docker-compose.yml"
+service_file_name = f"{application_name}.service"
+mongo_uri = 'mongodb+srv://demo:password1234@examples.mx9pd.mongodb.net/?retryWrites=true&w=majority'
+
+local_deployment_directory: Path = Path()
+local_deployment_directory: Path = local_deployment_directory.resolve()
+local_application_directory: Path = local_deployment_directory.parent
+local_application_parent_directory: Path = local_application_directory.parent
+local_jinja_environment: Environment = Environment(
+    loader=FileSystemLoader(local_deployment_directory),
 )
 
-git_url = "git@github.com:mongodb-labs/buildfest-2022.git"
-branch = "main-go"
-temp_branch = "TEMP23847123648917263784"
-service_file = "/etc/systemd/system/mongo.service"
-
-user = "ubuntu"
-working_directory = "/home/ubuntu"
-repo_main_directory = "buildfest-2022"
-repo_go_directory = "go"
-
 server_ip = "54.157.211.168"
+server_user = "ubuntu"
+server_home_directory = f"/home/{server_user}"
+server_application_directory = f"{server_home_directory}/{application_name}"
+server_service_folder = "/etc/systemd/system"
+server_service_file_url = f"{server_service_folder}/{service_file_name}"
+
+
+def read_private_key_file_url_from_sys_args() -> str:
+    if len(sys.argv) < 2:
+        print("Please provide the path to the private key file. Example:")
+        print("python3 deploy.py /home/dominic/.ssh/buildfest-2022-go.pem")
+        sys.exit(0)
+
+    private_key_file_url = sys.argv[1]
+
+    return private_key_file_url
+
+
+def create_connection_from_sys_args(private_key_file_url: str) -> Connection:
+    print("\nCreating connection to the server.")
+
+    connection = Connection(host=server_ip, user=server_user, port=22,
+                            connect_kwargs={"key_filename": [f"{private_key_file_url}"]})
+
+    return connection
+
+
+def create_docker_compose_file():
+    print("\nCreating docker-compose file.")
+
+    # Create a copy of the example file.
+    os.system(f"cp {docker_compose_example_file_url} {docker_compose_file_url}")
+
+    # Read the contents of the file in read mode.
+    docker_compose_file = open(docker_compose_file_url, "rt")
+    file_content = docker_compose_file.read()
+
+    # Replace the Mongo URI
+    file_content = file_content.replace('MONGODB_URI_HERE', mongo_uri)
+
+    # Open the file again in write mode.
+    docker_compose_file.close()
+    docker_compose_file = open(docker_compose_file_url, "wt")
+
+    # Write the contents with the replaced uri.
+    docker_compose_file.write(file_content)
+    docker_compose_file.close()
+
+
+def install_docker_on_remote(connection: Connection):
+    print("\nInstalling docker on the server.")
+
+    connection.sudo(f"snap install docker")
+
+
+def upload_application(connection: Connection):
+    print(f"\nUploading {application_name}.")
+
+    compressed_file_name = f"{application_name}.tar.gz"
+    compressed_file_url = f"{local_application_parent_directory}/{compressed_file_name}"
+
+    os.system(f"cd {local_application_parent_directory} && tar -vzcf {compressed_file_name} {application_name}")
+    connection.put(local=compressed_file_url, remote=server_home_directory)
+    os.remove(compressed_file_url)
+    with connection.cd(server_home_directory):
+        connection.run(f"tar -vzxf {compressed_file_name}")
 
 
 def upload_service_file(connection: Connection):
-    """
-    Upload the service file to the VPS instance.
+    print(f"\nCreating and uploading {service_file_name}.")
 
-    Parameters:
-        connection: the connection to the given vps.
-    """
-    print("Creating service file")
-    tmp_service_location = f"{working_directory}/tmp_service_file"
-
-    service_template = jinja_env.get_template("mongo.service.j2").render(
+    service_template = local_jinja_environment.get_template(f"{application_name}.service.j2").render(
         {
-            "working_directory": working_directory,
-            "repo_main_directory": repo_main_directory,
-            "repo_go_directory": repo_go_directory,
-            "user": user,
+            "server_application_directory": server_application_directory,
+            "server_user": server_user,
         }
     )
 
-    local_tmp_file = os.path.join(deployment_dir, "mongo.service")
-    with open(local_tmp_file, "x") as file:
+    local_service_file = os.path.join(local_deployment_directory, service_file_name)
+    with open(local_service_file, "x") as file:
         file.write(service_template)
 
-    connection.put(local=local_tmp_file, remote=tmp_service_location)
-    os.remove(local_tmp_file)
+    connection.put(local=local_service_file, remote=server_home_directory)
+    os.remove(local_service_file)
 
-    connection.sudo(f"mv {tmp_service_location} {service_file}")
+    connection.sudo(f"mv {server_home_directory}/{service_file_name} {server_service_folder}")
     connection.sudo("systemctl daemon-reload")
-    connection.sudo("systemctl enable mongo.service")
+    connection.sudo(f"systemctl enable {service_file_name}")
 
 
 def restart_service(connection: Connection):
-    """
-    Restarts the service and outputs the status.
+    print(f"\nRestarting {service_file_name}.")
 
-    Parameters:
-        connection: the connection to the given vps.
-
-    """
-    print("Restarting service")
-    connection.sudo("systemctl restart mongo.service")
-    connection.sudo("systemctl status mongo.service")
-
-
-def pull_repository(connection: Connection):
-    """
-    Update to the most recent version of your desired branch.
-    This includes loads of clean up to make sure it does not fail:
-    clean, reset, re-checkout branch (in case of rebase or whatever), etc.
-
-    Parameters:
-        connection: the connection to the given vps.
-
-    """
-    print("Updating repository.")
-
-    connection.run("git fetch --prune --all")
-    connection.run("git reset --hard")
-    if connection.run(f"git checkout -b {temp_branch}", warn=True).failed:
-        connection.run(f"git checkout {temp_branch}", warn=True)
-    connection.run(f"git branch -D {branch}", warn=True)
-    connection.run(f"git checkout {branch}")
-    connection.run(f"git branch -D {temp_branch}")
-    connection.run("git clean -xfd")
-    connection.run(f"git pull origin {branch}")
+    connection.sudo(f"systemctl restart {service_file_name}")
+    connection.sudo(f"systemctl status {service_file_name}")
 
 
 def main():
-    if len(sys.argv) < 2:
-        print("Please provide the path to the private key file:")
-        print("python3 deploy.py ~/.ssh/buildfest-2022-go.pem")
-        return
+    private_key_file_url: str = read_private_key_file_url_from_sys_args()
 
-    print("Starting deployment.")
+    connection: Connection = create_connection_from_sys_args(private_key_file_url)
 
-    pkey = sys.argv[1]
-    connection = Connection(host=server_ip, user="ubuntu", port=22, connect_kwargs={"key_filename": [f"{pkey}"]})
+    create_docker_compose_file()
 
-    # If necessary, docker will be installed.
-    # We HAVE to do this here, since `connection.sudo` does not work with `with connection.cd`.
-    connection.sudo(f"snap install docker")
+    install_docker_on_remote(connection)
 
-    with connection.cd(working_directory):
-        # Clean up before starting a new deployment.
-        connection.run(f"rm -rf {repo_main_directory}")
-
-        # Avoid fingerprinting questions
-        connection.run("ssh-keygen -F github.com || ssh-keyscan github.com >> ~/.ssh/known_hosts")
-        connection.run(f"ssh-keygen -F {server_ip} || ssh-keyscan {server_ip} >> ~/.ssh/known_hosts")
-
-        # Clone the repository if this is the first run.
-        if connection.run(f"test -d {repo_main_directory}", warn=True).failed:
-            print("Cloning repository.")
-            connection.run(f"git clone {git_url} {repo_main_directory}")
-
-        with connection.cd(repo_main_directory):
-            pull_repository(connection)
-
-            with connection.cd(repo_go_directory):
-                connection.run(f"mv docker-compose.yml.example docker-compose.yml")
+    upload_application(connection)
 
     upload_service_file(connection)
 
     restart_service(connection)
 
-    print("Deployment successfully finished.")
+    print(f"\nDeployment of {application_name} successfully finished.")
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

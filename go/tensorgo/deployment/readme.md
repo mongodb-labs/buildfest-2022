@@ -3,6 +3,7 @@
 ## Run
 
 The deployment script can be run as follows:
+
 ```bash
 python3 deploy.py ~/.ssh/buildfest-2022-go.pem
 ```
