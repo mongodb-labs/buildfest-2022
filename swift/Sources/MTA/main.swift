@@ -17,7 +17,7 @@ import MongoSwift
 import NIO
 
 // Make sure the following variables are set for your dev environment:
-let uri = ProcessInfo.processInfo.environment["MONGODB_URI"] ?? "mongodb://localhost:27018/mta?replicaSet=replset"
+let uri = ProcessInfo.processInfo.environment["MONGODB_URI"]!
 let feedUrl = "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/lirr%2Fgtfs-lirr"
 guard let MTA_API_KEY = ProcessInfo.processInfo.environment["MTA_API_KEY"] else {
     print("Must provide MTA_API_KEY env variable to continue!")
