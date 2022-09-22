@@ -45,8 +45,7 @@ void AtlasManager::WritePlayerMove(Vec2 position, Vec2 velocity) {
         make_document(
             kvp("gameId", getEnvVar("PONG_GAME_ID")),
             kvp("playerId", getEnvVar("PONG_PLAYER_ID")),
-            kvp("position", make_document(kvp("x", position.x), kvp("y", position.y))),
-            kvp("velocity", make_document(kvp("x", velocity.x), kvp("y", velocity.y)))
+            kvp("position", make_document(kvp("x", position.x), kvp("y", position.y)))
         )
     );
 }

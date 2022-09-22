@@ -42,14 +42,14 @@ void watchThreadHandler(Paddle* paddleOne) {
 			try
 			{
 				for (const auto& event : stream) {
-					std::cout << bsoncxx::to_json(event) << std::endl;
+					//std::cout << bsoncxx::to_json(event) << std::endl;
 					std::string gameId = event["fullDocument"]["gameId"].get_utf8().value.data();
 					std::string_view playerId = event["fullDocument"]["playerId"].get_utf8().value.data();
 
 					if (gameId.compare(myGame) == 0) {
-						if (playerId.compare(myPlayer) == 0) {
-							paddleOne->velocity.x = (float)event["fullDocument"]["velocity"]["x"].get_double().value;
-							paddleOne->velocity.y = (float)event["fullDocument"]["velocity"]["y"].get_double().value;
+						if (playerId.compare(myPlayer) != 0) {
+							std::cout << "Updating paddle one!" << std::endl;
+							std::cout << (float)event["fullDocument"]["position"]["y"].get_double().value << std::endl;
 							paddleOne->position.x = (float)event["fullDocument"]["position"]["x"].get_double().value;
 							paddleOne->position.y = (float)event["fullDocument"]["position"]["y"].get_double().value;
 						}
@@ -114,17 +114,26 @@ int main(int argc, char *argv[]) {
 				}	else if (event.type == SDL_KEYDOWN)	{
 					if (event.key.keysym.sym == SDLK_ESCAPE) {
 						g_Running = false;
+					}	else if (event.key.keysym.sym == SDLK_w) {
+						//buttons[Buttons::PaddleOneUp] = true;
+					} else if (event.key.keysym.sym == SDLK_s) {
+						//buttons[Buttons::PaddleOneDown] = true;
 					}	else if (event.key.keysym.sym == SDLK_UP)	{
 						buttons[Buttons::PaddleTwoUp] = true;
 					}	else if (event.key.keysym.sym == SDLK_DOWN)	{
 						buttons[Buttons::PaddleTwoDown] = true;
 					}
 				}	else if (event.type == SDL_KEYUP)	{
+					if (event.key.keysym.sym == SDLK_w)	{
+						//buttons[Buttons::PaddleOneUp] = false;
+					}	else if (event.key.keysym.sym == SDLK_s) {
+						//buttons[Buttons::PaddleOneDown] = false;
 					}	else if (event.key.keysym.sym == SDLK_UP)	{
 						buttons[Buttons::PaddleTwoUp] = false;
 					}	else if (event.key.keysym.sym == SDLK_DOWN)	{
 						buttons[Buttons::PaddleTwoDown] = false;
 					}
+				}
 			}
 
 			if (buttons[Buttons::PaddleTwoUp]) {
@@ -133,7 +142,6 @@ int main(int argc, char *argv[]) {
 				paddleTwo.velocity.y = PADDLE_SPEED;
 			} else {
 				paddleTwo.velocity.y = 0.0f;
-				paddleOne.velocity.y = 0.0f;
 			}
 
 			// Update the paddle positions
