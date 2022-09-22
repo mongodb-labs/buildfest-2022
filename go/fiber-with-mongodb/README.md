@@ -46,7 +46,7 @@ go run main.go
 
 #### Get all customers data
 
-```http
+```js
   GET /customers
 ```
 
@@ -58,7 +58,7 @@ go run main.go
 
 #### Get customer data
 
-```http
+```js
   GET /customers/:id
 ```
 
@@ -69,22 +69,23 @@ go run main.go
 
 #### Add customer data
 
-```http
+```js
   POST /customers
 ```
 
 
-```json
+```js
 {
     "name":"Alec Dorsey",
     "address":"Downtown, NYC",
+    "birthdate": 2001-04-02,
     "email":"alec.dorsey@example.com"
 }
 ```
 
 #### Update customer data
 
-```http
+```js
   PUT /customers/:id
 ```
 
@@ -93,19 +94,19 @@ go run main.go
 | `id`      | `string` | **Required**. Id of customer to update |
 
 
-```json
+```js
 {
     "name":"Alec Dorsey",
     "address":"13th Ave SW Seattle",
+    "birthdate": 2001-04-02,
     "email":"alec.dorsey@example.com"
+    
 }
-
-// All three fields are optional when updating
 ```
 
 #### Remove customer
 
-```http
+```js
   DELETE /customers/:id
 ```
 
