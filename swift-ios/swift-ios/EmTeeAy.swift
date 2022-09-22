@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct swift_iosApp: App {
+struct EmTeeAy: App {
   var trainsRepository = TrainsRepository()
   var stopsRepository = StopsRepository()
   
