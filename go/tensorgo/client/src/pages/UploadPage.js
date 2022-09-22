@@ -7,7 +7,7 @@ const UploadPage = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const formData = new FormData();
-    formData.append("image", file);
+    formData.append("file", file);
     try {
       const response = await axios.post(
         `http://${BACKEND_HOST}:12345/upload`,
@@ -25,13 +25,17 @@ const UploadPage = () => {
     setFile(event.target.files[0]);
   };
   return (
-    <div
-      className="App"
-      style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
-    >
+    // <div className="App"style={{ display: "flex", flexDirection: "column", alignItems: "center"}}>
+    <div className="App">
+      <a href="http://localhost:3004/" target="_blank">
+        <button className="home-button">home</button>
+      </a>
+      <a href="http://localhost:3004/search" target="_blank">
+        <button className="search-button">search</button>
+      </a>
       <div className="container">
-        <h1 className="image-upload">Upload your tensorGO images</h1>
-        <p className="image-description">Choose your files and press submit</p>
+        <h1 className="image-upload">upload your tensorGO images</h1>
+        <p className="image-description">choose your files and press submit</p>
         <div>
           <input
             type="file"
@@ -40,15 +44,11 @@ const UploadPage = () => {
             onChange={handleFileChange}
           />
           <label className="file-label" for="actual-btn">
-            {!file ? "Choose File" : "Change file"}
+            {!file ? "choose file" : "change file"}
           </label>
           <span id="file-chosen">{file?.name}</span>
         </div>
-        <button
-          style={{ marginTop: "2rem" }}
-          className="submit-button"
-          onClick={handleSubmit}
-        >
+        <button className="submit-button" onClick={handleSubmit}>
           submit
         </button>
       </div>
