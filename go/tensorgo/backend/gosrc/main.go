@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -13,6 +14,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/gorilla/handlers"
@@ -32,8 +34,8 @@ type ImageInformation struct {
 }
 
 type TensorflowResult struct {
-	error            any
-	TensorflowLabels []TensorflowLabelResult
+	Error            string                  `json:"error" bson:"error"`
+	TensorflowLabels []TensorflowLabelResult `json:"labels" bson:"labels"`
 }
 
 type TensorflowLabelResult struct {
@@ -126,26 +128,18 @@ func UploadImageEndpoint(response http.ResponseWriter, request *http.Request) {
 	}
 	json.NewEncoder(response).Encode(uploadInfo)
 
+	// TODO: figure out how to actually run saveFile and processFile in parallel
+	// right now, processFile gets an "invalid image" error result if saveFile has
+	// not completed
+	var wg sync.WaitGroup
+	wg.Add(1)
 	// STRETCH GOAL: TENSORFLOW COMPLETE, UPLOAD IMAGE TO S3
-	saveFile(id, saveFileName, file)
-	// go processFile(id, header.Filename, file)
+	go saveFile(id, saveFileName, file, &wg)
+	wg.Wait()
 
-	data, err := uploadFile("http://"+os.Getenv("TENSORFLOW_HOST")+":8080/recognize", header.Filename, file)
-	if err != nil {
-		fmt.Println("TENSORFLOW ERR", err)
-		return
-	}
-	var tensorflowResult ImageInformation
-	_ = json.NewDecoder(bytes.NewReader(data)).Decode(&tensorflowResult)
-	tensorflowResult.RecognitionStatus = "completed"
-	filter := bson.M{"_id": id}
-	update := bson.M{"$set": tensorflowResult}
-	_, err = collection.UpdateOne(context.Background(), filter, update)
-	if err != nil {
-		fmt.Println("RECOGNITION UPDATE ERR", err)
-		return
-	}
-
+	wg.Add(1)
+	go processFile(id, header.Filename, file, &wg)
+	wg.Wait()
 	return
 }
 
@@ -186,8 +180,8 @@ func FindImagesEndpoint(response http.ResponseWriter, request *http.Request) {
 	json.NewEncoder(response).Encode(images)
 }
 
-func saveFile(id string, filename string, file multipart.File) error {
-	// defer file.Close()
+func saveFile(id string, filename string, file multipart.File, wg *sync.WaitGroup) error {
+	defer wg.Done()
 	filter := bson.M{"_id": id}
 	path := "/images/" + filename
 	diskFile, err := os.OpenFile("."+path, os.O_WRONLY|os.O_CREATE, os.ModePerm)
@@ -213,25 +207,23 @@ func saveFile(id string, filename string, file multipart.File) error {
 	return nil
 }
 
-func processFile(id string, filename string, file multipart.File) error {
+func processFile(id string, filename string, file multipart.File, wg *sync.WaitGroup) error {
+	defer wg.Done()
 	filter := bson.M{"_id": id}
 	data, err := uploadFile("http://"+os.Getenv("TENSORFLOW_HOST")+":8080/recognize", filename, file)
 	if err != nil {
 		go collection.UpdateOne(context.Background(), filter, bson.M{"$set": ImageInformation{nil, "failed"}})
 		return err
 	}
-	var tensorflowResult ImageInformation
+	var tensorflowResult TensorflowResult
 	json.NewDecoder(bytes.NewReader(data)).Decode(&tensorflowResult)
-	tensorflowResult.RecognitionStatus = "completed"
-	fmt.Println("res1", tensorflowResult)
+	if tensorflowResult.Error != "" {
+		go collection.UpdateOne(context.Background(), filter, bson.M{"$set": ImageInformation{nil, "failed"}})
+		return errors.New(tensorflowResult.Error)
+	}
 
-	// TODO: how to read error from tensorflowResult??
-	// if tensorflowResult.error != nil {
-	// 	go collection.UpdateOne(context.Background(), filter, bson.M{"$set": ImageInformation{nil, "failed"}})
-	// 	return err
-	// }
-
-	update := bson.M{"$set": tensorflowResult}
+	imageInfo := ImageInformation{tensorflowResult.TensorflowLabels, "completed"}
+	update := bson.M{"$set": imageInfo}
 	_, err = collection.UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		// TODO: handle cleanup
@@ -263,7 +255,7 @@ func uploadFile(url string, filename string, file multipart.File) ([]byte, error
 		return nil, err
 	}
 	data, _ := ioutil.ReadAll(httpResponse.Body)
-	file.Seek(0, io.SeekStart)
+	file.Seek(0, io.SeekStart) // TODO: what is this for?
 	return data, nil
 }
 
