@@ -11,6 +11,13 @@ interface IndexProps {
   links: ExtendedJSONEncoded<WithId<MoLink>>[];
 }
 
+function deleteAlias(alias: string) {
+  fetch('/api/links/' + alias,  {
+    method: 'DELETE'
+  })
+  window.location.reload();
+}
+
 function rowFromData(item: ExtendedJSONEncoded<WithId<MoLink>>) {
   const link = decodedExtendedJSON(item);
 
@@ -33,6 +40,7 @@ function rowFromData(item: ExtendedJSONEncoded<WithId<MoLink>>) {
       <td>{link.n || 0}</td>
       <td>{dateString}</td>
       <td><Link href={`./links/${editPath}`}><button className="button is-link is-primary">Edit</button></Link></td>
+      <td><button className="button" onClick={ () => deleteAlias(link.alias) }>Delete</button></td>
     </tr>
   );
 }
