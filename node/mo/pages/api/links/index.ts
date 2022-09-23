@@ -22,6 +22,7 @@ export default createMethodHandler({
     const dbDoc = {
       alias: doc.alias,
       link: doc.link,
+      isRegex: doc.isRegex || false,
       createdAt: new Date(),
       n: 0,
     }

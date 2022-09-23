@@ -21,6 +21,8 @@ export interface MoLink {
     n: number;
     /// The time at which this object was created
     createdAt: Date;
+    // is a Regex redirect
+    isRegex: boolean;
 }
 
 /// Type of the data object sent to insert/update a link

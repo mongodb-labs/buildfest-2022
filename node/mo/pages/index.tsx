@@ -36,6 +36,7 @@ function rowFromData(item: ExtendedJSONEncoded<WithId<MoLink>>) {
   return (
     <tr key={link._id.toString()}>
       <td>{link.alias}</td>
+      <td>{link.isRegex ? "✔" : "✗"}</td>
       <td><a href={link.link}>{link.link}</a></td>
       <td>{link.n || 0}</td>
       <td>{dateString}</td>
@@ -62,6 +63,7 @@ function Index(props: IndexProps) {
             <thead>
               <tr>
                 <th>Alias</th>
+                <th>Is Regex</th>
                 <th>Link</th>
                 <th>Count</th>
                 <th>Created</th>

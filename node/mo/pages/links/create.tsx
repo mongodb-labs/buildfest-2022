@@ -1,15 +1,17 @@
 import { Formik } from "formik"
+import { GetServerSidePropsContext } from 'next'
+import { MOLINKS_CONFIG } from "../../utils/config"
 import { useRouter } from "next/router"
 import Link from "next/link"
 import validator from "validator"
-import { MOLINKS_CONFIG } from "../../utils/config"
-import wordsList from './words-no-swears-data.json';
+import wordsList from './words-no-swears-data.json'
 
 
 // Define Prop Interface
 interface Props {
     url: string,
-    randWord: string
+    suggestedAlias: string
+    redirected: boolean
 }
 
 // Define Component
@@ -17,7 +19,7 @@ function CreateForm(props: Props) {
     const router = useRouter()
     return (
         <Formik
-            initialValues={{ alias: props.randWord, link: "" }}
+            initialValues={{ alias: props.suggestedAlias, link: "", isRegex: false }}
             validate={values => {
                 const errors: any = {};
                 if (!values.alias) {
@@ -56,9 +58,11 @@ function CreateForm(props: Props) {
                 /* and other goodies */
             }) => (
                 <form onSubmit={handleSubmit}>
-                    <h2 className="subtitle">
-                        Edit link:
-                    </h2>
+                    {props.redirected ? 
+                    <h2 className="subtitle">No alias <span className='has-text-info'>`{values.alias}`</span> create one?</h2>
+                    :
+                    <h2 className="subtitle">Create link:</h2>
+                    }
                     <div className="field">
                         <label className="label">Alias</label>
                         <div className="control">
@@ -67,6 +71,12 @@ function CreateForm(props: Props) {
                                 {errors.alias && touched.alias && errors.alias}
                             </label>
                         </div>
+                    </div>
+                    <div className="field">
+                    <label className="checkbox">
+                        Is Regex redirect: &nbsp;
+                        <input className="checkbox" type="checkbox" name="isRegex" value="true" checked={values.isRegex} onChange={handleChange} />
+                        </label>
                     </div>
                     <div className="field">
                         <label className="label">Link</label>
@@ -97,21 +107,25 @@ function getRandomInt(min: number, max: number) {
 
 
 // export getStaticProps to provide API_URL to component
-export async function getServerSideProps(context: any) {
+export async function getServerSideProps(context: GetServerSidePropsContext) {
     // Get a random unused word but limit to 3 attempts to prevent too many queries.
-    let randWord = ""
+    let suggestedAlias = context.query.alias || ""
+    const redirected = suggestedAlias.length > 0
+    if (suggestedAlias.length == 0) {
     for (let i = 0; i < 3; i++) {
-        randWord = wordsList[getRandomInt(0, wordsList.length)]
-        const res = await fetch(MOLINKS_CONFIG.API_URL + "/" + randWord)
+        suggestedAlias = wordsList[getRandomInt(0, wordsList.length)]
+        const res = await fetch(MOLINKS_CONFIG.API_URL + "/" + suggestedAlias)
         if (res.status != 200) {
             break;
         }
+    }
     }
 
     return {
         props: {
             url: MOLINKS_CONFIG.API_URL,
-            randWord: randWord
+            suggestedAlias: suggestedAlias,
+            redirected: redirected
         },
     }
 }
