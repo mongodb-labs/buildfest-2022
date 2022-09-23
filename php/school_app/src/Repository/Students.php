@@ -2,6 +2,7 @@
 
 use Exception;
 use \SchoolApp\Model\Student as Student;
+use \SchoolApp\Model\Course as Course;
 use \MongoDB\BSON\ObjectId as ObjectId;
 
 
@@ -32,7 +33,7 @@ class Students {
         if ($session != null) {
             $opts['session'] = $session;
         }
-        return Mongo::getDatabase()->selectCollection('students')->findOne(
+        return Mongo::getDatabase()->selectCollection('students')->find(
             ["name" => $name],
             $opts
         );
@@ -42,12 +43,31 @@ class Students {
         return Mongo::getDatabase()->selectCollection('students')->insertOne($student->get());
     }
 
-    static function findOne(ObjectId $id) {
-        return Mongo::getDatabase()->selectCollection('students')->findOne(['_id' => $id]);
+    static function findOne(ObjectId $id, $session = null) {
+        $opts = [];
+        if ($session != null) {
+            $opts['session'] = $session;
+        }
+        $student = Student::make(
+            Mongo::getDatabase()->selectCollection('students')->findOne(['_id' => $id])
+        );
+        $student->courses = array_map(
+            function ($doc) { return Course::make($doc); },
+            iterator_to_array(\SchoolApp\Repository\Courses::getByIds($student->courseIds))
+        );
+        return $student;
     }
 
-    static function addCourse(string $studentName, string $courseName, $session = null) {
-        $student = Students::getByName($studentName, $session);
+    static function getByIds(array $ids, $session = null) {
+        $opts = [];
+        if ($session != null) {
+            $opts['session'] = $session;
+        }
+        return Mongo::getDatabase()->students->find(['_id' => ['$in' => $ids]]);
+    }
+
+    static function addCourse(ObjectId $id, ObjectId $courseId, $session = null) {
+        $student = Students::findOne($id, $session);
         if ($student == null) {
             return false;
         }
@@ -56,8 +76,19 @@ class Students {
             $opts['session'] = $session;
         }
         return Mongo::getDatabase()->selectCollection('students')->updateOne(
-            ['_id' => $student['_id']],
-            ['$addToSet' => ['courses' => $courseName]],
+            ['_id' => $student->_id],
+            ['$addToSet' => ['courses' => $courseId]],
+            $opts
+        );
+    }
+
+    static function delete(ObjectId $id, $session = null) {
+        $opts = [];
+        if ($session != null) {
+            $opts['session'] = $session;
+        }
+        return Mongo::getDatabase()->students->deleteOne(
+            ['_id' =>  $id],
             $opts
         );
     }

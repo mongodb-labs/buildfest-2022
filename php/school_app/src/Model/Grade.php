@@ -9,7 +9,7 @@ class Grade {
         $this->assignment_name = $assignment_name;
     }
 
-    public static function makeWithPost(array $post) {
+    public static function make(array $post) {
         return new self($post['score'], $post['recipient'], $post['course'], $post['assignment_name']);
     }
 

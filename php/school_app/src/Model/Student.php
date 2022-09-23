@@ -1,21 +1,47 @@
 <?php namespace SchoolApp\Model;
 
+use \MongoDB\BSON\ObjectId as ObjectId;
+
 class Student {
 
-    public function __construct(string $name, array $courses = []){
+    public ?ObjectId $_id;
+
+    public string $name;
+
+    public array $courseIds;
+
+    public array $courses;
+
+    public function __construct(string $name, $courseIds = [], ?ObjectId $_id = null) {
         $this->name = $name;
-        $this->courses = $courses;
+        $this->courseIds = $courseIds;
+        $this->_id = $_id;
     }
 
-    public static function makeWithPost(array $post) {
-        return new self($post['name']);
+    public static function make($map) {
+        $id = null;
+        if ( ($map['_id'] ?? null) != null) {
+            $id = new ObjectId($map['_id']);
+        }
+        $courseIds = [];
+        foreach( ($map['courses'] ?? []) as $course ) {
+            array_push($courseIds, new ObjectId($course));
+        }
+        return new self(
+            $map['name'],
+            $courseIds,
+            $id
+        );
     }
 
     function get(): array {
-        return [
+        $result = [
             'name' => $this->name,
-            'courses' => $this->courses,
         ];
+        if ($this->_id != null) {
+            $result['_id'] = $this->id;
+        }
+        return $result;
     }
 }
 

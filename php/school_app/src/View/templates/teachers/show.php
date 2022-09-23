@@ -4,13 +4,13 @@
   <tbody>
     <tr>
       <th scope="row">Name</th>
-      <td><?= $teacher["name"] ?></td>
+      <td><?= $teacher->name ?></td>
     </tr>
     <tr>
       <th scope="row">Courses</th>
       <td>
-        <?php foreach ($teacher["courses"] ?? [] as $course) : ?>
-          <p><?= $course ?></p>
+        <?php foreach ($teacher->courses as $course) : ?>
+          <p><?= $course->name ?></p>
         <?php endforeach ?>
       </td>
     </tr>

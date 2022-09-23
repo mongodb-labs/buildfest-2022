@@ -2,7 +2,7 @@
 
 <div class="row">
   <div class="col col-5">
-    <a class="btn btn-primary btn-sm" href="/students/new" role="button">Create Student record</a>
+    <a class="btn btn-primary btn-sm" href="/students/new" role="button">Create</a>
   </div>
   <div class="col">
     <form class="row text-center" role="form" method="GET" action="/students">
@@ -29,8 +29,10 @@
       <tr>
           <td><?= $student["name"] ?></td>
           <td>
+            <form method='POST' action='/students/<?= $student["_id"] ?>/delete'>
               <a class="btn btn-primary btn-sm" href="/students/<?= $student["_id"] ?>" role="button">Show</a>
-              <a class="btn btn-danger btn-sm" href="#" role="button">Delete</a>
+              <input type='submit' class="btn btn-danger btn-sm" role="button" value="Delete"></input>
+            </form>
           </td>
       </tr>
     <?php endforeach ?>
