@@ -3,39 +3,37 @@ package org.buildfest2022;
 import io.micronaut.core.annotation.Creator;
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.core.annotation.NonNull;
-import javax.validation.constraints.NotBlank;
 import org.bson.codecs.pojo.annotations.BsonCreator;
 import org.bson.codecs.pojo.annotations.BsonProperty;
-import org.bson.types.ObjectId;
+
+import javax.validation.constraints.NotBlank;
 
 @Introspected
 public class Document {
-
-  @BsonProperty("_id")
-  private final ObjectId id;
-
   @NonNull
   @NotBlank
   @BsonProperty("body")
   private final String body;
 
+  @NonNull
+  @NotBlank
+  @BsonProperty("url")
+  private final String url;
+
   @Creator
   @BsonCreator
-  public Document(@BsonProperty("_id") ObjectId id, @NonNull @BsonProperty("body") String body) {
-    this.id = id;
+  public Document(@NonNull @BsonProperty("body") String body, @NonNull @BsonProperty("url") String url) {
     this.body = body;
-  }
-
-  public Document(@NonNull @BsonProperty("body") String body) {
-    this(new ObjectId(), body);
-  }
-
-  public ObjectId getId() {
-    return id;
+    this.url = url;
   }
 
   @NonNull
   public String getBody() {
     return body;
+  }
+
+  @NonNull
+  public String getUrl() {
+    return url;
   }
 }
