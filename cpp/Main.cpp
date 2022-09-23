@@ -17,6 +17,8 @@
 
 
 bool g_Running = true;
+std::string myPlayer = "";
+std::string playerTwo = "";
 
 std::string getEnvVar( std::string const & key )
 {
@@ -35,7 +37,6 @@ void watchThreadHandler(Paddle* paddleOne) {
 	options.max_await_time(await_time);
 	mongocxx::change_stream stream = collection.watch(options);
 	std::string myGame = getEnvVar("PONG_GAME_ID");
-	std::string myPlayer = getEnvVar("PONG_PLAYER_ID");
 
 	while (g_Running) // Loop forever
 	{
@@ -48,6 +49,7 @@ void watchThreadHandler(Paddle* paddleOne) {
 
 					if (gameId.compare(myGame) == 0) {
 						if (playerId.compare(myPlayer) != 0) {
+							playerTwo = playerId;
 							std::cout << "Updating paddle one!" << std::endl;
 							std::cout << (float)event["fullDocument"]["position"]["y"].get_double().value << std::endl;
 							paddleOne->position.x = (float)event["fullDocument"]["position"]["x"].get_double().value;
@@ -67,6 +69,7 @@ void watchThreadHandler(Paddle* paddleOne) {
 
 int main(int argc, char *argv[]) {
 	AtlasManager* atlas = AtlasManager::Instance();
+	myPlayer = getEnvVar("PONG_PLAYER_ID");
 
 	// Initialize SDL components
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
@@ -86,8 +89,8 @@ int main(int argc, char *argv[]) {
 	// Game logic
 	{
 		// Create the player score text fields
-		PlayerScore playerOneScoreText(Vec2(WINDOW_WIDTH / 4, 20), renderer, scoreFont);
-		PlayerScore playerTwoScoreText(Vec2(3 * WINDOW_WIDTH / 4, 20), renderer, scoreFont);
+		PlayerScore playerOneScoreText(Vec2((WINDOW_WIDTH / 4) - 80, 20), renderer, scoreFont);
+		PlayerScore playerTwoScoreText(Vec2((3 * WINDOW_WIDTH / 4) - 80, 20), renderer, scoreFont);
 
 		// Create the ball
 		Ball ball(Vec2(WINDOW_WIDTH / 2.0f, WINDOW_HEIGHT / 2.0f), Vec2(BALL_SPEED, 0.0f));
@@ -163,12 +166,14 @@ int main(int argc, char *argv[]) {
 
 				if (contact.type == CollisionType::Left) {
 					++playerTwoScore;
-
-					playerTwoScoreText.SetScore(playerTwoScore);
+					char buff[100];
+					snprintf(buff, sizeof(buff), "%s (%d)", playerTwo.c_str(), playerTwoScore);
+					playerTwoScoreText.SetScore(buff);
 				} else if (contact.type == CollisionType::Right) {
 					++playerOneScore;
-
-					playerOneScoreText.SetScore(playerOneScore);
+					char buff[100];
+					snprintf(buff, sizeof(buff), "%s (%d)", myPlayer.c_str(), playerOneScore);
+					playerOneScoreText.SetScore(buff);
 				} else {
 					Mix_PlayChannel(-1, wallHitSound, 0);
 				}

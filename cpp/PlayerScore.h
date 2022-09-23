@@ -27,11 +27,11 @@ public:
 		SDL_DestroyTexture(texture);
 	}
 
-	void SetScore(int score) {
+	void SetScore(std::string score) {
 		SDL_FreeSurface(surface);
 		SDL_DestroyTexture(texture);
 
-		surface = TTF_RenderText_Solid(font, std::to_string(score).c_str(), {0xFF, 0xFF, 0xFF, 0xFF});
+		surface = TTF_RenderText_Solid(font, score.c_str(), {0xFF, 0xFF, 0xFF, 0xFF});
 		texture = SDL_CreateTextureFromSurface(renderer, surface);
 
 		int width, height;
