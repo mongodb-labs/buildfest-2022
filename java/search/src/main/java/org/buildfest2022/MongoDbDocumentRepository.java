@@ -8,7 +8,6 @@ import edu.stanford.nlp.pipeline.CoreDocument;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import io.micronaut.core.annotation.NonNull;
 import jakarta.inject.Singleton;
-import org.apache.lucene.analysis.util.StemmerUtil;
 import org.bson.types.ObjectId;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;

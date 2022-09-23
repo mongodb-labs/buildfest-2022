@@ -7,7 +7,6 @@ import javax.validation.constraints.NotNull;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
-
 public interface DocumentRepository {
   @NonNull
   Publisher<Document> list();

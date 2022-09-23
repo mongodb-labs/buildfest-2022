@@ -1,4 +1,5 @@
-// Copied from https://github.com/stanfordnlp/CoreNLP/blob/main/src/edu/stanford/nlp/process/Stemmer.java
+// Copied from
+// https://github.com/stanfordnlp/CoreNLP/blob/main/src/edu/stanford/nlp/process/Stemmer.java
 package org.buildfest2022;
 
 import edu.stanford.nlp.ling.Word;

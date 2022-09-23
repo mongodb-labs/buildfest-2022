@@ -22,7 +22,8 @@ public class Document {
 
   @Creator
   @BsonCreator
-  public Document(@NonNull @BsonProperty("body") String body, @NonNull @BsonProperty("url") String url) {
+  public Document(
+      @NonNull @BsonProperty("body") String body, @NonNull @BsonProperty("url") String url) {
     this.body = body;
     this.url = url;
   }
