@@ -45,7 +45,13 @@ def retrieve_filters(ids):
             '$group': {
                 '_id': '$metadata.id',
                 'data': {
-                    '$push': '$metadata'
+                    '$push': {
+                        "count": '$metadata.count',
+                        "timestamp": { "$dateToString": {
+                            "date": "$timestamp",
+                            "format": "%H:%M %m/%d/%Y"
+                        } }
+                    }
                 }
             }
         }
