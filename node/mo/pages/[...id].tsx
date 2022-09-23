@@ -1,19 +1,11 @@
-import { AppContext } from "next/app"
-import { useRouter } from "next/router"
-import { openLinksCollection } from "../utils/db"
+import { GetServerSidePropsContext } from 'next'
 import { MoLink } from "../utils/types"
+import { openLinksCollection } from "../utils/db"
 import { WithId } from "mongodb";
 
-// Define Prop Interface
-interface Props {
-  url: string
-}
 
 // Define Component
-function RedirectPage(props: Props) {
-  const router = useRouter()
-  console.log(props)
-  // router.push(props.url)
+function RedirectPage() {
 }
 
 async function findURLForQuery(query: string): Promise<string | null> {
@@ -25,7 +17,13 @@ async function findURLForQuery(query: string): Promise<string | null> {
     url = link.link;
   } else {
     // Search for regexs and replace :)
-    let docs = await links.aggregate<WithId<MoLink>>([{ $match: { $expr: { $regexFind: { input: query, regex: "$alias" } } } }]).toArray();
+    let docs = await links.aggregate<WithId<MoLink>>([{
+      $match: {
+        $and:
+          [{ isRegex: true },
+           { $expr: { $regexFind: { input: query,   regex: "$alias" } } }]
+      }
+    }]).toArray();
     if (docs.length > 0) {
       link = docs[0];
       await links.updateOne({ _id: link._id }, { $inc: { n: 1 } });
@@ -37,8 +35,9 @@ async function findURLForQuery(query: string): Promise<string | null> {
   return url;
 }
 
-export async function getServerSideProps(context: AppContext) {
-  const queryPathParts = context.router.query.id! as string[];
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+
+  const queryPathParts = context.query.id! as string[];
   const query = queryPathParts.join('/');
 
   // fetch the MoLink, the param was received via context.query.id
@@ -47,9 +46,8 @@ export async function getServerSideProps(context: AppContext) {
   return {
     redirect: {
       permanent: false,
-      destination: url,
-    },
-    props: { url: url },
+      destination: url || "/links/create?alias=" + query,
+    }
   };
 
 }

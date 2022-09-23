@@ -68,6 +68,12 @@ function EditForm(props: Props) {
             </div>
           </div>
           <div className="field">
+            <label className="checkbox">
+              Is Regex redirect: &nbsp;
+              <input className="checkbox" type="checkbox" name="isRegex" value="true" checked={values.isRegex} onChange={handleChange} />
+            </label>
+          </div>
+          <div className="field">
             <label className="label">Link</label>
             <div className="control">
               <input className="input is-link" type="text" name="link" value={values?.link} onChange={handleChange} />
