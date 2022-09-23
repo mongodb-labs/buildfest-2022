@@ -1,29 +1,45 @@
-import { MoLink } from "../utils/types"
+import { decodedExtendedJSON, ExtendedJSONEncoded, MoLink } from "../utils/types"
 import Link from "next/link"
 import { MOLINKS_CONFIG } from "../utils/config"
 import { useEffect, useState } from "react";
+import { WithId } from 'mongodb';
 
 
 // Define the components props
-interface MoLinkJSON {
-  _id: string;
-  alias: string;
-  link: string;
-  n: number;
-  createdAt?: string;
-}
+
 interface IndexProps {
-  links: MoLinkJSON[];
+  links: ExtendedJSONEncoded<WithId<MoLink>>[];
 }
 
-// define the page component
-function Index(props: IndexProps) {
-  const { links } = props
+function rowFromData(item: ExtendedJSONEncoded<WithId<MoLink>>) {
+  const link = decodedExtendedJSON(item);
 
   const dateFormat = new Intl.DateTimeFormat(undefined, {
     dateStyle: 'medium',
     timeStyle: 'medium',
   });
+
+  const [dateString, setDateString] = useState('');
+  useEffect(() => setDateString(
+    link.createdAt
+      ? dateFormat.format(new Date(link.createdAt))
+      : '[no date recorded]'
+  ));
+  const editPath = encodeURIComponent(link.alias);
+  return (
+    <tr key={link._id.toString()}>
+      <td>{link.alias}</td>
+      <td><a href={link.link}>{link.link}</a></td>
+      <td>{link.n || 0}</td>
+      <td>{dateString}</td>
+      <td><Link href={`./links/${editPath}`}><button className="button is-link is-primary">Edit</button></Link></td>
+    </tr>
+  );
+}
+
+// define the page component
+function Index(props: IndexProps) {
+  const { links } = props
 
   return (
     <div className="container layout vbox" style={{ gap: '30px' }}>
@@ -45,25 +61,7 @@ function Index(props: IndexProps) {
               </tr>
             </thead>
             <tbody>
-              {links.map(link => (
-                <tr key={link._id}>
-                  <td>{link.alias}</td>
-                  <td><a href={link.link}>{link.link}</a></td>
-                  <td>{link.n || 0}</td>
-                  <td>{
-                    (() => {
-                      const [dateString, setDateString] = useState('');
-                      useEffect(() => setDateString(
-                        link.createdAt
-                          ? dateFormat.format(new Date(link.createdAt))
-                          : '[no date recorded]'
-                      ));
-                      return dateString;
-                    })()
-                  }</td>
-                  <td><Link href={`./links/${encodeURIComponent(link.alias)}`}><button className="button is-link is-primary">Edit</button></Link></td>
-                </tr>
-              ))}
+              {links.map(rowFromData)}
             </tbody>
           </table>
         </div>
@@ -76,14 +74,10 @@ function Index(props: IndexProps) {
 export async function getServerSideProps(): Promise<{ props: IndexProps }> {
   // get molink data from API
   const res = await fetch(MOLINKS_CONFIG.API_URL)
-  const links: MoLinkJSON[] = await res.json();
+  const links: ExtendedJSONEncoded<WithId<MoLink>>[] = await res.json();
 
   // return props
-  return {
-    props: {
-      links
-    },
-  }
+  return { props: { links } };
 }
 
 export default Index

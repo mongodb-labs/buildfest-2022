@@ -1,6 +1,8 @@
 import { NextApiRequest, NextApiResponse } from "next"
-import { connect } from "../../../utils/connection"
+import { openLinksCollection } from "../../../utils/db"
 import { createMethodHandler } from "../../../utils/handle"
+import { MoLinkPutJSON } from "../../../utils/types"
+import { WithId } from "mongodb";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     //function for catch errors
@@ -8,13 +10,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     // GRAB ID FROM req.query (where next stores params)
     const id: string = decodeURIComponent(req.query.id as string)
-
+    const links = await openLinksCollection();
     // Potential Responses for /links/:id
     const handler = createMethodHandler({
         // RESPONSE FOR GET REQUESTS
         async get(req: NextApiRequest, res: NextApiResponse) {
-            const { MoLink } = await connect() // connect to database
-            var found = await MoLink.findOne({ alias: id });
+            var found = await links.findOne({ alias: id });
             if (found == null) {
                 res.status(404).json({})
             } else {
@@ -23,15 +24,15 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         },
         // RESPONSE PUT REQUESTS
         async put(req: NextApiRequest, res: NextApiResponse) {
-            const { MoLink } = await connect() // connect to database
+            const data: Partial<WithId<MoLinkPutJSON>> = req.body;
+            delete data._id;
             res.json(
-                await MoLink.findOneAndUpdate({ alias: id }, req.body, { new: true })
+                await links.findOneAndUpdate({ alias: id }, { $set: data }, { upsert: true })
             )
         },
         // RESPONSE FOR DELETE REQUESTS
         async delete(req: NextApiRequest, res: NextApiResponse) {
-            const { MoLink } = await connect() // connect to database
-            res.json(await MoLink.deleteOne({ alias: id }).catch(catcher))
+            res.json(await links.deleteOne({ alias: id }));
         },
     });
 

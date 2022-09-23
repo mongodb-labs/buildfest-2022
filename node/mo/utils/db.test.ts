@@ -4,6 +4,7 @@ import { suite, test, Context, suiteSetup, setup, suiteTeardown, teardown } from
 import { expect } from 'chai';
 
 import * as dbmod from "./db";
+import { MoLink } from "./types";
 
 function _requireDatabaseURL(ctx: Context) {
   // The DATABASE_URL is used to open a client in newMongoClient()
@@ -37,7 +38,7 @@ suite('With a client', function () {
     });
 
     test('Create the default collection', async () => {
-      const coll = await dbmod.openCollection<dbmod.LinkDocument>('default', db);
+      const coll = await dbmod.openCollection<MoLink>('default', db);
       // Default is empty
       const cursor = coll.find();
       const doc = await cursor.next();
@@ -45,11 +46,12 @@ suite('With a client', function () {
     });
 
     test('Insert a link', async () => {
-      const coll = await dbmod.openCollection<dbmod.LinkDocument>('links', db);
+      const coll = await dbmod.openCollection<MoLink>('links', db);
       const result = await coll.insertOne({
         alias: 'widgets',
         link: 'gadgets',
         n: 1,
+        createdAt: new Date(),
       });
       expect(result.acknowledged).to.be.true;
       const recover = await coll.findOne({ _id: result.insertedId });

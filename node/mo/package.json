@@ -10,9 +10,10 @@
     "test": "mocha 'out/**/*.test.js'"
   },
   "dependencies": {
+    "bson": "^4.7.0",
     "bulma": "^0.9.4",
     "formik": "^2.2.9",
-    "mongoose": "^6.6.1",
+    "mongodb": "^4.10.0",
     "next": "12.3.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",

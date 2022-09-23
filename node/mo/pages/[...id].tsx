@@ -1,5 +1,8 @@
+import { AppContext } from "next/app"
 import { useRouter } from "next/router"
-import { connect } from "../utils/connection";
+import { openLinksCollection } from "../utils/db"
+import { MoLink } from "../utils/types"
+import { WithId } from "mongodb";
 
 // Define Prop Interface
 interface Props {
@@ -13,25 +16,33 @@ function RedirectPage(props: Props) {
   // router.push(props.url)
 }
 
-export async function getServerSideProps(context: any) {
-  let url: string = '/'
-
-  const query = context.query.id.join("/")
-  
-  // fetch the MoLink, the param was received via context.query.id
-  const { MoLink } = await connect() // connect to database
-  const molink = await MoLink.findOneAndUpdate({ alias: query }, { $inc: { n: 1 } }).exec()
-  if (molink) {
-    url = molink.link
+async function findURLForQuery(query: string): Promise<string | null> {
+  const links = await openLinksCollection();
+  const found = await links.findOneAndUpdate({ alias: query }, { $inc: { n: 1 } });
+  let link = found.value;
+  let url: string | null = null;
+  if (link) {
+    url = link.link;
   } else {
     // Search for regexs and replace :)
-    let docs = await MoLink.aggregate([{ $match: { $expr: { $regexFind: { input: query, regex: "$alias" } } } }]).exec()
+    let docs = await links.aggregate<WithId<MoLink>>([{ $match: { $expr: { $regexFind: { input: query, regex: "$alias" } } } }]).toArray();
     if (docs.length > 0) {
-      let link = docs[0]
-      await MoLink.updateOne({ _id: link._id }, { $inc: { n: 1 } }).exec()
+      link = docs[0];
+      await links.updateOne({ _id: link._id }, { $inc: { n: 1 } });
       url = query.replace(new RegExp(link.alias), link.link)
+    } else {
+      console.error(`Request for non-existent link "${query}"`);
     }
   }
+  return url;
+}
+
+export async function getServerSideProps(context: AppContext) {
+  const queryPathParts = context.router.query.id! as string[];
+  const query = queryPathParts.join('/');
+
+  // fetch the MoLink, the param was received via context.query.id
+  const url = await findURLForQuery(query);
 
   return {
     redirect: {
