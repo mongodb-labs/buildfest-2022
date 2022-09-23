@@ -8,6 +8,7 @@ import edu.stanford.nlp.pipeline.CoreDocument;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import io.micronaut.core.annotation.NonNull;
 import jakarta.inject.Singleton;
+import org.apache.lucene.analysis.util.StemmerUtil;
 import org.bson.types.ObjectId;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
@@ -56,8 +57,9 @@ public class MongoDbDocumentRepository implements DocumentRepository {
                 Aggregates.unwind("$document_ids"),
                 Aggregates.sortByCount("$document_ids"),
                 Aggregates.lookup("documents", "_id", "_id", "document"),
+                Aggregates.project(Projections.include("count", "document.url")),
                 Aggregates.unwind("$document"),
-                Aggregates.limit(25)),
+                Aggregates.limit(10)),
             SearchResult.class);
   }
 
@@ -93,17 +95,23 @@ public class MongoDbDocumentRepository implements DocumentRepository {
         .getCollection(mongoConf.getLemmaCollection(), Lemma.class);
   }
 
-  private List<String> getLemmas(String body) {
+  private static StanfordCoreNLP lemmatizePipeline;
+
+  static {
     Properties props = new Properties();
     props.setProperty("annotators", "tokenize,pos,lemma");
 
-    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-    CoreDocument coreDocument = pipeline.processToCoreDocument(body);
+    lemmatizePipeline = new StanfordCoreNLP(props);
+  }
+
+  private static List<String> getLemmas(String body) {
+    CoreDocument coreDocument = lemmatizePipeline.processToCoreDocument(body);
 
     List<String> lemmas = new ArrayList<>();
+    Stemmer stemmer = new Stemmer();
     for (CoreLabel tok : coreDocument.tokens()) {
       // Lowercase and remove all non-word characters from the lemma string.
-      String lemma = tok.lemma().toLowerCase().replaceAll("\\W", "");
+      String lemma = stemmer.stem(tok.lemma()).toLowerCase().replaceAll("\\W", "");
       // If the string is blank or if it's one of the excluded words, skip it.
       if (lemma.isBlank() || excludedWords.contains(lemma)) {
         continue;
@@ -238,5 +246,7 @@ public class MongoDbDocumentRepository implements DocumentRepository {
           "your",
           "yours",
           "yourself",
-          "yourselves");
+          "yourselves",
+          // MongoDB documentation specific common words.
+          "mongodb");
 }
