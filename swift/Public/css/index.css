@@ -1,0 +1,53 @@
+html {
+    font-family: Helvetica, sans-serif;
+    margin: 10%;
+    margin-top: 5%;
+}
+
+pre {
+    margin: 0px;
+    font-family: 'Source Code Pro', monospace;
+}
+
+ul {
+    margin: 0px;
+}
+
+li {
+    margin: 0px;
+}
+
+.logo {
+    color: white;
+    background-color: #0f61a9;
+    border-radius: 8px;
+    padding-inline-start: 16px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+.offline::before {
+    content: "offline 🔌";
+}
+
+.offline {
+    color: white;
+    background-color: slategrey;
+}
+
+.online::before {
+    content: "online ⚡️";
+}
+
+.online {
+    color: white;
+    background-color: forestgreen;
+}
+
+#liveness {
+    margin: 0px;
+    border-radius: 8px;
+    padding-inline-start: 16px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
