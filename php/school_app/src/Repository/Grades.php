@@ -16,7 +16,6 @@ class Grades {
     static function findOne(ObjectId $id) {
         return \SchoolApp\Repository\Mongo::getDatabase()->grades->findOne(['_id' => $id]);
     }
-
 }
 
 ?>

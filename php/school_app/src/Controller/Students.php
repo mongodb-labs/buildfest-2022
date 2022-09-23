@@ -2,6 +2,7 @@
 
 use \SchoolApp\Model\Student as Student;
 use \MongoDB\BSON\ObjectId as ObjectId;
+use \SchoolApp\Repository\Mongo as Mongo;
 
 class Students {
     static function index(?string $name) {
@@ -25,6 +26,25 @@ class Students {
         $objectId = new ObjectId($student);
         $student = \SchoolApp\Repository\Students::findOne($objectId);
         \SchoolApp\View\Students::show($student);
+    }
+
+    static function delete($studentId) {
+        $session = Mongo::getClient()->startSession();
+        try {
+            $session->startTransaction();
+            $id = new ObjectId($studentId);
+            \SchoolApp\Repository\Students::delete($id, $session);
+            \SchoolApp\Repository\Courses::removeStudent($id, $session);
+            $session->commitTransaction();
+        } catch (Exception $e) {
+            $session->abortTransaction();
+            throw $e;
+        } finally {
+            $session->endSession();
+        }
+
+
+        header("Location: /students", TRUE, 301);
     }
 }
 

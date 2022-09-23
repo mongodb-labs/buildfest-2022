@@ -18,7 +18,7 @@
         <div class="col-sm-10">
             <select class="form-select" name="teacher">
                 <?php foreach ($teachers as $teacher) : ?>
-                <option value="<?= $teacher["name"] ?>"><?= $teacher["name"] ?></option>
+                <option value="<?= $teacher["_id"] ?>"><?= $teacher["name"] ?></option>
                 <?php endforeach ?>
             </select>
         </div>
@@ -28,7 +28,7 @@
         <div class="col-sm-10">
             <select class="form-select" name="students[]" multiple>
                 <?php foreach ($students as $student) : ?>
-                <option value="<?= $student["name"] ?>"><?= $student["name"] ?></option>
+                <option value="<?= $student["_id"] ?>"><?= $student["name"] ?></option>
                 <?php endforeach ?>
             </select>
         </div>

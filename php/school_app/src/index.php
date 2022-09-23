@@ -27,12 +27,16 @@ $router->get('/students/{studentId}', function($studentId) {
 });
 
 $router->post('/students', function() {
-    \SchoolApp\Controller\Students::create(Student::makeWithPost($_POST));
+    \SchoolApp\Controller\Students::create(Student::make($_POST));
+});
+
+$router->post('/students/{studentId}/delete', function($studentId) {
+    \SchoolApp\Controller\Students::delete($studentId);
 });
 
 /* Teachers */
 $router->get('/teachers', function() {
-    \SchoolApp\Controller\Teachers::index();
+    \SchoolApp\Controller\Teachers::index($_GET["name"] ?? null);
 });
 
 $router->get('/teachers/new', function() {
@@ -44,12 +48,12 @@ $router->get('/teachers/{teacherId}', function($teacherId) {
 });
 
 $router->post('/teachers', function() {
-    \SchoolApp\Controller\Teachers::create(Teacher::makeWithPost($_POST));
+    \SchoolApp\Controller\Teachers::create(Teacher::make($_POST));
 });
 
 /* Courses */
 $router->get('/courses', function() {
-    \SchoolApp\Controller\Courses::index();
+    \SchoolApp\Controller\Courses::index($_GET["name"] ?? null);
 });
 
 $router->get('/courses/new', function() {
@@ -74,7 +78,7 @@ $router->get('/grades/{gradeId}', function($gradeId) {
 });
 
 $router->post('/grades', function() {
-    \SchoolApp\Controller\Grades::create(Grade::makeWithPost($_POST));
+    \SchoolApp\Controller\Grades::create(Grade::make($_POST));
 });
 
 /* The rest */

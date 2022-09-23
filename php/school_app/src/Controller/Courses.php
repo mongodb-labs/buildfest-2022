@@ -5,8 +5,12 @@ use \SchoolApp\Repository\Mongo as Mongo;
 use \MongoDB\BSON\ObjectId as ObjectId;
 
 class Courses {
-    static function index() {
-        $courses = \SchoolApp\Repository\Courses::getAll();
+    static function index(?string $name) {
+        if ($name == null) {
+            $courses = \SchoolApp\Repository\Courses::getAll();
+        } else {
+            $courses = \SchoolApp\Repository\Courses::getByName($name);
+        }
         \SchoolApp\View\Courses::index($courses);
     }
 
@@ -20,11 +24,15 @@ class Courses {
         $session = Mongo::getClient()->startSession();
         try {
             $session->startTransaction();
-            $course = Course::makeWithPost($_POST);
-            \SchoolApp\Repository\Courses::insertOne($course, $session);
-            \SchoolApp\Repository\Teachers::addCourse($course->teacher, $course->name, $session);
-            foreach ($course->students as $student) {
-                \SchoolApp\Repository\Students::addCourse($student, $course->name, $session);
+            $courseId = \SchoolApp\Repository\Courses::insertOne(Course::make($_POST), $session);
+            $teacherId = new ObjectId($_POST['teacher']);
+            $studentIds = [];
+            foreach ($_POST['students'] as $student) {
+                array_push($studentIds, new ObjectId($student));
+            }
+            \SchoolApp\Repository\Teachers::addCourse($teacherId, $courseId, $session);
+            foreach ($studentIds as $studentId) {
+                \SchoolApp\Repository\Students::addCourse($studentId, $courseId, $session);
             }
             $session->commitTransaction();
         } catch (Exception $e) {

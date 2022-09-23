@@ -4,21 +4,21 @@
   <tbody>
     <tr>
       <th scope="row">Name</th>
-      <td><?= $course["name"] ?></td>
+      <td><?= $course->name ?></td>
     </tr>
     <tr>
       <th scope="row">Description</th>
-      <td><?= $course["description"] ?></td>
+      <td><?= $course->description ?></td>
     </tr>
     <tr>
       <th scope="row">Teacher</th>
-      <td><?= $course["teacher"] ?></td>
+      <td><?= $course->teacher->name ?></td>
     </tr>
     <tr>
       <th scope="row">Students</th>
       <td>
-        <?php foreach ($course["students"] as $student) : ?>
-          <p><?= $student ?></p>
+        <?php foreach ($course->students as $student) : ?>
+          <p><?= $student->name ?></p>
         <?php endforeach ?>
       </td>
     </tr>

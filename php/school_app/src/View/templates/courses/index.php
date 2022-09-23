@@ -23,7 +23,6 @@
     <tr>
       <th scope="col">Name</th>
       <th scope="col">Description</th>
-      <th scope="col">Teacher</th>
       <th scope="col">&nbsp;</th>
     </tr>
   </thead>
@@ -33,10 +32,8 @@
       <tr>
           <td><?= $course["name"] ?></td>
           <td><?= $course["description"] ?></td>
-          <td><?= $course["teacher"] ?></td>
           <td>
-              <a class="btn btn-primary btn-sm" href="/courses/<?= $course["_id"] ?>" role="button">Show</a>
-              <a class="btn btn-danger btn-sm" href="#" role="button">Delete</a>
+            <a class="btn btn-primary btn-sm" href="/courses/<?= $course["_id"] ?>" role="button">Show</a>
           </td>
       </tr>
     <?php endforeach ?>
