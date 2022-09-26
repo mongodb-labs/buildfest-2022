@@ -4,7 +4,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 
@@ -151,6 +150,7 @@ class Scene {
     private List<Event> _rec = new List<Event>();
     private Replay _replay;
     private Corner _start;
+    private bool _paused = true;
 
     public Scene(Replay replay) {
         Food = NewFood();
@@ -179,6 +179,13 @@ class Scene {
         }
         if (kbState.IsKeyDown(Keys.Down) && _dir != Direction.Up) {
             _nextDir = Direction.Down;
+        }
+        if (kbState.IsKeyDown(Keys.P)) {
+            _paused = !_paused;
+        }
+
+        if (_paused) {
+            return GameState.Play;
         }
 
         if (_moveTick.Update(gameTime.ElapsedGameTime)) {
