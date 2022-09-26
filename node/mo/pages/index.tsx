@@ -18,20 +18,20 @@ function deleteAlias(alias: string) {
   window.location.reload();
 }
 
-function rowFromData(item: ExtendedJSONEncoded<WithId<MoLink>>) {
-  const link = decodedExtendedJSON(item);
-
-  const dateFormat = new Intl.DateTimeFormat(undefined, {
+const dateFormat = new Intl.DateTimeFormat(undefined, {
     dateStyle: 'medium',
     timeStyle: 'medium',
-  });
+});
+
+export function useRowFromData(item: ExtendedJSONEncoded<WithId<MoLink>>) {
+  const link = decodedExtendedJSON(item);
 
   const [dateString, setDateString] = useState('');
   useEffect(() => setDateString(
     link.createdAt
       ? dateFormat.format(new Date(link.createdAt))
       : '[no date recorded]'
-  ));
+  ), [link.createdAt]);
   const editPath = encodeURIComponent(link.alias);
   return (
     <tr key={link._id.toString()}>
@@ -71,7 +71,7 @@ function Index(props: IndexProps) {
               </tr>
             </thead>
             <tbody>
-              {links.map(rowFromData)}
+              {links.map(useRowFromData)}
             </tbody>
           </table>
         </div>
